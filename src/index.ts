@@ -6,6 +6,10 @@ interface Document {
 	ready(): Promise<any>;
 }
 
+interface Function {
+	call<T>(this: (...args: any[]) => T, thisArg: any, ...argArray: any[]): T;
+}
+
 class SourceLanguage {
 	constructor(public name: string, public mimeType: string = "text/" + name) { }
 
@@ -36,7 +40,10 @@ class SourceFile {
 	}
 
 	get used(): boolean { return this.element.classList.contains("used"); }
-	set used(value:boolean) { this.element.classList[value ? "add" : "remove"]("used"); }
+	set used(value: boolean) { this.element.classList[value ? "add" : "remove"]("used"); }
+
+	get selected(): boolean { return this.element.classList.contains("selected"); }
+	set selected(value: boolean) { this.element.classList[value ? "add" : "remove"]("selected"); }
 }
 
 var files = [
@@ -46,17 +53,14 @@ var files = [
 	new SourceFile("style.css", SourceLanguage.Css),
 
 	new SourceFile("index2.html", SourceLanguage.Html),
-	
+
 ];
 
-function loadFile(file)
-{
+function loadFile(file) {
 	if (currentFile == this)
 		return;
-	
-	var fileContainer = document.getElementById("fileContainer");
-	fileContainer.childNodes.forEach((n: Element) => n.classList.remove("selected"));
-	file.element.classList.add("selected");
+
+	files.forEach(f => { f.selected = (f === file); });
 
 	var model = editor.getModel();
 	if (currentFile)
@@ -72,18 +76,16 @@ function loadFile(file)
 	document.getElementById("footerFilename").textContent = file.fileName;
 	document.getElementById("footerType").textContent = file.language.name;
 
-	if (file.language === SourceLanguage.Html)
-	{
+	if (file.language === SourceLanguage.Html) {
 		if (currentHtml !== file) {
 			file.used = true;
 			currentHtml = file;
 
-			fileContainer.childNodes.forEach((n: Element) => n.classList.remove("used"));
-			file.element.classList.add("used");
+			files.forEach(f => { f.used = (f == file); });
 
 			loadPreview();
-		}	
-	}	
+		}
+	}
 }
 
 var currentFile: SourceFile;
@@ -100,9 +102,6 @@ function eventPromise(elt: HTMLElement, type: string): Promise<Event> {
 		}
 		elt.addEventListener(type, handle);
 	})
-}
-interface Function {
-	call<T>(this: (...args: any[]) => T, thisArg: any, ...argArray: any[]): T;
 }
 
 var editor: monaco.editor.IStandaloneCodeEditor;
@@ -201,6 +200,20 @@ Promise.all<any>([
 		currentHtml.used = true;
 		loadFile(files[1]);
 		loadPreview();
+
+		[].forEach.call(document.querySelectorAll(".flex-horizontal span"), span => {
+
+			span.addEventListener('mousedown', () => {
+
+			});
+
+			span.addEventListener('mouseup', () => {
+
+			});
+
+			span.addEventListener('mouse')
+
+		});
 	});
 
 });
@@ -266,7 +279,7 @@ function frameLoaded(event: any) {
 				var file = files[i];
 				if (file.fileName === url) {
 
-					file.used = true;					
+					file.used = true;
 					var content = (file === currentFile) ? editor.getValue() : file.content;
 
 					blob = new Blob([content], { type: file.language.mimeType });
