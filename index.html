@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" src="node_modules/monaco-editor/min/vs/loader.js"></script>
+	<script type="text/javascript" src="node_modules/document-ready-promise/document-ready-promise.js"></script>
+	<script type="text/javascript" src="index.js"></script>
+</head>
+
+<body class="flex-vertical">
+	<header>
+		p5.js
+	</header>
+
+	<div class="flex-fill flex-horizontal">
+		<div id="treePanel" class="flex-vertical" style="flex-basis: 150px;">
+			<div class="panelHeader">project-folder</div>
+			<div id="fileContainer" class="flex-fill"></div>
+		</div>
+		<span></span>
+		<div class="flex-fill flex-horizontal">
+
+			<div id="editorPanel" class="flex-vertical" style="flex-basis: 400px;">
+				<div class="panelHeader">sketch.js</div>
+				<div id="editorContainer" class="flex-fill"></div>
+			</div>
+			<span></span>
+			<div id="previewPanel" class="flex-fill flex-vertical">
+				<div class="panelHeader">preview</div>
+				<div id="previewContainer" class="flex-fill"></div>
+			</div>
+
+		</div>
+	</div>
+
+	<footer class="flex-horizontal">
+		<div id="footerFilename" class="flex-fill"></div>
+		<div id="footerPosition"></div>
+		<div id="footerType"></div>
+	</footer>
+</body>
+
+</html>
