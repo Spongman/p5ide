@@ -14,7 +14,7 @@ self.addEventListener('fetch', event => {
 
     var url = event.request.url;
 
-    var origin = self.origin;
+    var origin = self.location.origin;
     if (url.substr(0, origin.length) !== origin)
         return;
 
