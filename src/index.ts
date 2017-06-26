@@ -1,4 +1,5 @@
 /// <reference types="monaco-editor"/>
+/// <reference path="loop-protect.d.ts"/>
 
 // import loopProtect from "loop-protect";
 
@@ -55,6 +56,8 @@ var files = [
 	new SourceFile("index2.html", SourceLanguage.Html),
 
 ];
+
+loopProtect.method = "__protect";
 
 function loadFile(file) {
 	if (currentFile == this)
@@ -173,8 +176,8 @@ Promise.all<any>([
 
 				console.log("RELOAD", currentFile.fileName);
 
-				switch (currentFile.language.mimeType) {
-					case "text/css":
+				switch (currentFile.language) {
+					case SourceLanguage.Css:
 						var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
 						var url = frame.contentWindow.document['origin'] + "/" + currentFile.fileName;
 
@@ -275,6 +278,7 @@ function frameLoaded(event: any) {
 	_previewLoading = false;
 
 	var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
+	frame.contentWindow['__protect'] = loopProtect.protect;
 	var sw = frame.contentWindow.navigator.serviceWorker;
 
     /*
@@ -302,9 +306,16 @@ function frameLoaded(event: any) {
 				if (file.fileName === url) {
 
 					file.used = true;
+					var language = file.language;
 					var content = (file === currentFile) ? editor.getValue() : file.content;
+					switch (language)
+					{
+						case SourceLanguage.Javascript:
+							content = loopProtect.rewriteLoops(content);
+							break;
+					}
 
-					blob = new Blob([content], { type: file.language.mimeType });
+					blob = new Blob([content], { type: language.mimeType });
 					break;
 				}
 			}
