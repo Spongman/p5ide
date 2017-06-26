@@ -201,17 +201,25 @@ Promise.all<any>([
 		loadFile(files[1]);
 		loadPreview();
 
-		[].forEach.call(document.querySelectorAll(".flex-horizontal span"), span => {
+		[].forEach.call(document.querySelectorAll(".flex-horizontal span"), (span:HTMLElement) => {
 
-			span.addEventListener('mousedown', () => {
+			var left = <HTMLElement> (span.previousElementSibling);
 
+			span.addEventListener('mousedown', event => {
+				event.preventDefault();
+				document.addEventListener('mousemove', onMove);
+
+				document.addEventListener('mouseup', (event) => {
+					document.removeEventListener('mousemove', onMove);
+				});
 			});
 
-			span.addEventListener('mouseup', () => {
+			function onMove(event:MouseEvent)
+			{
+				event.preventDefault();
 
-			});
-
-			span.addEventListener('mouse')
+				left.style.width = (event.pageX - left.offsetLeft) + "px";
+			}
 
 		});
 	});
