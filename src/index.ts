@@ -113,17 +113,18 @@ Promise.all<any>([
 ]).then((values: any[]) => {
 
 	var fileContainer = document.getElementById("fileContainer");
-	files.forEach(sf => {
-		var elt = sf.element = document.createElement("a");
-		elt.textContent = sf.fileName;
-		elt.href = "#";
-		elt.addEventListener('click', event => {
-			event.preventDefault();
-			loadFile(sf);
-		});
-		fileContainer.appendChild(elt);
-	})
-
+	if (fileContainer) {
+		files.forEach(sf => {
+			var elt = sf.element = document.createElement("a");
+			elt.textContent = sf.fileName;
+			elt.href = "#";
+			elt.addEventListener('click', event => {
+				event.preventDefault();
+				loadFile(sf);
+			});
+			fileContainer.appendChild(elt);
+		})
+	}
 	console.log('DOM READY');
 
 	require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
@@ -170,10 +171,12 @@ Promise.all<any>([
 
 				timeout = 0;
 
+				console.log("RELOAD", currentFile.fileName);
+
 				switch (currentFile.language.mimeType) {
 					case "text/css":
 						var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-						var url = frame.contentWindow['origin'] + "/" + currentFile.fileName;
+						var url = frame.contentWindow.document['origin'] + "/" + currentFile.fileName;
 
 						var found = false;
 						(<StyleSheet[]>[]).slice.call(frame.contentWindow.document.styleSheets)
@@ -181,6 +184,8 @@ Promise.all<any>([
 							.forEach(ss => {
 								var linkNode = (<HTMLLinkElement>ss.ownerNode);
 								var cssUrl = linkNode.href;
+								//linkNode.disabled = true;
+								//linkNode.disabled = false;
 								linkNode.href = cssUrl;
 								found = true;
 							});
@@ -201,24 +206,33 @@ Promise.all<any>([
 		loadFile(files[1]);
 		loadPreview();
 
-		[].forEach.call(document.querySelectorAll(".flex-horizontal span"), (span:HTMLElement) => {
+		document.getElementById("btnRefresh").addEventListener("click", event => {
+			event.preventDefault();
+			loadPreview();
+		});
 
-			var left = <HTMLElement> (span.previousElementSibling);
+		[].forEach.call(document.querySelectorAll(".flex-horizontal span"), (span: HTMLElement) => {
+
+			var left = <HTMLElement>(span.previousElementSibling);
+			var parent = <HTMLElement>span.parentNode;
 
 			span.addEventListener('mousedown', event => {
 				event.preventDefault();
 				document.addEventListener('mousemove', onMove);
+				parent.classList.add("dragging");
 
 				document.addEventListener('mouseup', (event) => {
 					document.removeEventListener('mousemove', onMove);
+					parent.classList.remove("dragging");
 				});
 			});
 
-			function onMove(event:MouseEvent)
-			{
+			function onMove(event: MouseEvent) {
 				event.preventDefault();
 
-				left.style.width = (event.pageX - left.offsetLeft) + "px";
+				var rect = parent.getBoundingClientRect();
+				left.style.width = (event.pageX - rect.left) + "px";
+				left.dispatchEvent(new Event("resize"));
 			}
 
 		});

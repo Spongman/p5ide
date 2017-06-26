@@ -496,7 +496,7 @@ declare function createCanvas(w: number, h: number, renderer?: any): any;
 /**
  * Resizes the canvas to given width and height. The canvas will be cleared and draw will be called immediately, allowing the sketch to re-render itself in the resized canvas.
  */
-declare function resizeCanvas(): void;
+declare function resizeCanvas(w: number, h: number): void;
 
 /**
  * Removes the default canvas for a p5 sketch that doesn't require a canvas

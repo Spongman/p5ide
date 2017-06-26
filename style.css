@@ -28,7 +28,17 @@ footer {
 .flex-horizontal,
 .flex-vertical {
     display: flex;
-    position: relative;
+    aposition: relative;
+}
+
+.flex-horizontal.dragging > div,
+.flex-vertical.dragging > div {
+	pointer-events: none;
+}
+
+.flex-horizontal.dragging > span,
+.flex-vertical.dragging > span {
+    background: #666;
 }
 
 .flex-horizontal {
@@ -70,7 +80,12 @@ footer {
 }
 
 #editorContainer {
-	overflow: hidden;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-editor {
 }
 
 #fileContainer {

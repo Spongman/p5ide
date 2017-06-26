@@ -39,6 +39,7 @@ self.addEventListener('fetch', event => {
                         var response = new Response(blob);
                         response.type = blob.type;
                         response.headers["Content-Type"] = blob.type;
+						response.headers["Cache-Control"] = "no-store";
                         console.log(url, blob.type);
                         //console.log(response);
                         resolve(response);
