@@ -148,11 +148,11 @@ Promise.all<any>([
 
 				switch (currentFile.language) {
 					case SourceLanguage.Css:
-						var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-						var url = frame.contentWindow.document['origin'] + "/" + currentFile.fileName;
+						//var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
+						var url = previewWindow.document['origin'] + "/" + currentFile.fileName;
 
 						var found = false;
-						(<StyleSheet[]>[]).slice.call(frame.contentWindow.document.styleSheets)
+						(<StyleSheet[]>[]).slice.call(previewWindow.document.styleSheets)
 							.filter(ss => ss.href === url)
 							.forEach(ss => {
 								var linkNode = (<HTMLLinkElement>ss.ownerNode);
@@ -229,43 +229,70 @@ Promise.all<any>([
 
 });
 
+var previewWindow:Window;
+
 function writePreview() {
 
-	var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-	console.log("WRITE PREVIEW", frame.baseURI);
-	var childWindow = frame.contentWindow
-
-	childWindow.document.clear();
-	childWindow.document.open();
-	childWindow.document.write(currentHtml.content);
-	childWindow.document.close();
+	previewWindow.document.clear();
+	previewWindow.document.open();
+	previewWindow.document.write(currentHtml.content);
+	previewWindow.document.close();
 }
 
 var _previewLoading = true;
+var _previewPoppedOut = false;
 
 function loadPreview() {
 	console.log("LOAD PREVIEW");
 	_previewLoading = true;
 
 	var previewContainer = document.getElementById('previewContainer')!;
-	previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" onload="frameLoaded(event)" src="/v/blank.html"></iframe>';
+	if (_previewPoppedOut)
+	{
+		var rect = previewContainer.getBoundingClientRect();
+		previewWindow = window.open("/v/blank.html", "previewFrame",
+			"toolbar=0,status=0,menubar=0,location=0,replace=1"+
+			",width=" + previewContainer.clientWidth +
+			",height=" + previewContainer.clientHeight +
+			",left=" + (window.screenX + rect.left)+
+			",top=" + (window.screenY + rect.top)
+		);
+	}
+	else
+	{
+		previewWindow = null;
+		//previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" onload="frameLoaded(event)" src="/v/blank.html"></iframe>';
+		previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" src="/v/blank.html"></iframe>';
+	}
 }
 
 function frameLoaded(event: any) {
 
+/*
 	console.log("FRAME LOAD", event.target.src);
 
 	if (!event.target.src || event.target.src === "about:blank")
 		return;
+*/
 
 	if (!_previewLoading)
 		return;
-
 	_previewLoading = false;
 
-	var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-	frame.contentWindow['__protect'] = loopProtect.protect;
-	var sw = frame.contentWindow.navigator.serviceWorker;
+	if (!_previewPoppedOut)
+	{
+		var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
+		previewWindow = frame.contentWindow;
+	}
+
+	if (!previewWindow)
+	{
+		console.log("WARNING: no previewWindow");
+		return;
+	}
+
+	previewWindow['__protect'] = loopProtect.protect;
+	var sw = previewWindow.navigator.serviceWorker;
 
     /*
     window.addEventListener('unload', event => {
@@ -315,7 +342,7 @@ function frameLoaded(event: any) {
 			return sw.ready;
 		})
 		.then(reg => {
-			console.log("registered", reg, frame.baseURI);
+			console.log("registered", reg);
 			setTimeout(writePreview, 1);
 		}).catch(err => {
 			console.log('registration failed', err);
