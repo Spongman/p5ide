@@ -1,5 +1,6 @@
 /// <reference types="monaco-editor"/>
 /// <reference path="loop-protect.d.ts"/>
+/// <reference path="file.ts"/>
 
 // import loopProtect from "loop-protect";
 
@@ -9,42 +10,6 @@ interface Document {
 
 interface Function {
 	call<T>(this: (...args: any[]) => T, thisArg: any, ...argArray: any[]): T;
-}
-
-class SourceLanguage {
-	constructor(public name: string, public mimeType: string = "text/" + name) { }
-
-	static Javascript = new SourceLanguage("javascript");
-	static Html = new SourceLanguage("html");
-	static Css = new SourceLanguage("css");
-}
-
-class SourceFile {
-
-	constructor(public fileName: string, public language: SourceLanguage) {
-
-		var ich = fileName.lastIndexOf('.');
-		if (ich >= 0)
-			this.extension = fileName.substr(ich + 1);
-		else
-			this.extension = "null";
-	}
-
-	extension: string;
-	content: string = "";
-
-	element: HTMLElement;
-
-	fetch(): Promise<string> {
-		return fetch("/default/" + this.fileName)
-			.then(response => response.text());
-	}
-
-	get used(): boolean { return this.element.classList.contains("used"); }
-	set used(value: boolean) { this.element.classList[value ? "add" : "remove"]("used"); }
-
-	get selected(): boolean { return this.element.classList.contains("selected"); }
-	set selected(value: boolean) { this.element.classList[value ? "add" : "remove"]("selected"); }
 }
 
 var files = [
@@ -104,7 +69,7 @@ function eventPromise(elt: HTMLElement, type: string): Promise<Event> {
 			resolve(event);
 		}
 		elt.addEventListener(type, handle);
-	})
+	});
 }
 
 var editor: monaco.editor.IStandaloneCodeEditor;
@@ -119,7 +84,12 @@ Promise.all<any>([
 	if (fileContainer) {
 		files.forEach(sf => {
 			var elt = sf.element = document.createElement("a");
-			elt.textContent = sf.fileName;
+			var icon = document.createElement("i");
+			icon.className = "fa fa-" + sf.icon;
+			elt.appendChild(icon);
+			var text = document.createElement("span");
+			text.textContent = sf.fileName;
+			elt.appendChild(text);
 			elt.href = "#";
 			elt.addEventListener('click', event => {
 				event.preventDefault();
@@ -214,7 +184,23 @@ Promise.all<any>([
 			loadPreview();
 		});
 
-		[].forEach.call(document.querySelectorAll(".flex-horizontal span"), (span: HTMLElement) => {
+		var selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
+		selectTheme.addEventListener('change', event => { setTheme(selectTheme.value); });
+		setTheme(window.localStorage.theme || selectTheme.value);
+
+		function setTheme(theme: string)
+		{
+			editor.updateOptions({ theme: theme });
+			[].forEach.call(
+				document.querySelectorAll("#selectTheme > option"),
+				(opt: HTMLOptionElement) => { document.body.classList.remove("theme-" + opt.value); }
+			);
+			document.body.classList.add("theme-" + theme);
+			window.localStorage.theme = theme;
+			selectTheme.value = theme;
+		}
+
+		[].forEach.call(document.querySelectorAll(".flex-horizontal > span"), (span: HTMLElement) => {
 
 			var left = <HTMLElement>(span.previousElementSibling);
 			var parent = <HTMLElement>span.parentNode;

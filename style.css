@@ -8,10 +8,9 @@ body {
     margin: 0;
     height: 100%;
     font-family: 'Segoe WPC', 'Segoe UI', 'SFUIText-Light', 'HelveticaNeue-Light', sans-serif;
-    background: #1e1e1e;
-    color: #d4d4d4;
     font-size: 14px;
 }
+
 
 a {
     color: #d4d4d4;
@@ -21,7 +20,6 @@ a {
 header,
 footer {
     display: block;
-    background: #333;
 	padding: 2px 4px;
 }
 
@@ -55,13 +53,11 @@ footer {
 
 .flex-horizontal > span {
     display: block;
-    background: #333;
     width: 5px;
     cursor: col-resize;
 }
 
 .panelHeader {
-    background: #444;
     padding: 2px 4px;
 }
 
@@ -76,7 +72,6 @@ footer {
     border: 0;
     width: 100%;
     height: 100%;
-    background: #888;
 }
 
 #editorContainer {
@@ -96,6 +91,10 @@ footer {
 	display: block;
 }
 
+#fileContainer > a > i {
+	margin-right: 4px;
+}
+
 #fileContainer > a:hover {
 	background: #333;
 }
@@ -104,7 +103,6 @@ footer {
 #fileContainer > a.selected {
 	padding: 2px 4px;
 	display: block;
-	background: #666;
 }
 
 #fileContainer > a.used:after {
@@ -113,7 +111,7 @@ footer {
 	vertical-align: middle;
 	font-size: 70%;
 	margin-top: 2px;
-	color:#ccc;
+	opacity: 0.75;
 	float: right;
 }
 
@@ -128,3 +126,111 @@ footer > div:first-child {
 footer > div:last-child {
 	padding-right: 0;
 }
+
+select {
+	background: inherit;
+	color: inherit;
+}
+
+select option {
+	color: inherit;
+}
+
+/*
+*/
+body.theme-vs {
+	background: #fffffe;
+	color: #333;
+}
+body.theme-vs a {
+    color: #2c2c2c;
+}
+
+body.theme-vs header,
+body.theme-vs footer {
+    background: #ccc;
+}
+
+body.theme-vs #fileContainer > a:hover,
+body.theme-vs-dark select option {
+	background: #E5EBF1;
+}
+
+body.theme-vs #fileContainer > a.selected {
+	background: #ADD6FF;
+}
+
+body.theme-vs .panelHeader {
+    background: #eee;
+	border-bottom: 1px solid #ddd;
+}
+body.theme-vs .flex-horizontal > span {
+	background: #ccc;	
+}
+
+/*
+*/
+
+body.theme-vs-dark {
+    background: #1e1e1e;
+    color: #d4d4d4;	
+}
+body.theme-vs-dark a {
+    color: #d4d4d4;
+}
+
+body.theme-vs-dark header,
+body.theme-vs-dark footer {
+    background: #333;
+}
+
+body.theme-vs-dark #fileContainer > a:hover,
+body.theme-vs-dark select option {
+	background: #3A3D41;
+}
+
+body.theme-vs-dark #fileContainer > a.selected {
+	background: #264F78;
+}
+
+body.theme-vs-dark .panelHeader {
+    background: #444;
+	border-bottom: 1px solid #444;
+}
+
+body.theme-vs-dark .flex-horizontal > span {
+
+}
+
+/*
+*/
+
+body.theme-hc-black {
+	background: black;
+	color: white;
+}
+body.theme-hc-black a {
+    color: #ccc;
+}
+
+body.theme-hc-black #fileContainer > a:hover {
+	background: white;
+	color: black;
+}
+
+body.theme-hc-black select option {
+	background: black;
+	color: white;
+}
+
+
+body.theme-hc-black #fileContainer > a.selected {
+	background: white;
+	color: black;
+}
+
+body.theme-hc-black .panelHeader {
+    background: #111;
+	border-bottom: 1px solid #111;
+}
+

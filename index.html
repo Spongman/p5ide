@@ -16,6 +16,16 @@
 
 	<header>
 		p5.js
+		<div style="float: right;">
+			<label>
+				Theme:
+				<select id="selectTheme" value="vs">
+					<option value="vs">Light</option>
+					<option value="vs-dark">Dark</option>
+					<option value="hc-black">Contrast</option>
+				</select>
+			</label>
+		</div>
 	</header>
 
 	<div class="flex-fill flex-horizontal" style="overflow: hidden;">
@@ -26,14 +36,14 @@
 		<span></span>
 		<div class="flex-fill flex-horizontal">
 
-			<div id="editorPanel" class="flex-vertical" style="width: 400px;">
+			<div id="editorPanel" class="flex-fill flex-vertical">
 				<div class="panelHeader">sketch.js</div>
 				<div class="flex-fill" style="position: relative;">
 					<div id="editorContainer"></div>
 				</div>
 			</div>
 			<span></span>
-			<div id="previewPanel" class="flex-fill flex-vertical">
+			<div id="previewPanel" class="flex-vertical" style="width: 400px;">
 				<div class="panelHeader">
 					preview
 					<a href="#" id="btnRefresh"><i class="fa fa-refresh" aria-hidden="true"></i></a>
