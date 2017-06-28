@@ -107,7 +107,14 @@ footer {
 	display: block;
 }
 
-#fileContainer > a.used:after {
+#fileContainer > a i.icon {
+	opacity: 0.5;
+}
+#fileContainer > a.used i.icon {
+	opacity: 1;
+}
+
+#fileContainer > a.used:afteaaar {
 	content:'\2713';
 	display: inline-block;
 	vertical-align: middle;
@@ -115,10 +122,6 @@ footer {
 	margin-top: 2px;
 	opacity: 0.75;
 	float: right;
-}
-
-body:not(.preview-docked) #previewPanel {
-	display: none;
 }
 
 footer > div {
@@ -151,6 +154,11 @@ body.theme-vs {
 body.theme-vs a {
     color: #2c2c2c;
 }
+
+body.theme-vs a > i.fa {
+	color: hsla(210, 52%, 55%, 1);
+}
+
 
 body.theme-vs header,
 body.theme-vs footer {
@@ -185,6 +193,11 @@ body.theme-vs-dark a {
     color: #d4d4d4;
 }
 
+body.theme-vs-dark a > i.fa {
+	color: hsla(210, 52%, 70%, 1);
+}
+
+
 body.theme-vs-dark header,
 body.theme-vs-dark footer {
     background: #333;
@@ -215,6 +228,10 @@ body.theme-hc-black a {
     color: #ccc;
 }
 
+body.theme-hc-black a > i.fa {
+	color: hsla(210, 100%, 90%, 1);
+}
+
 body.theme-hc-black #fileContainer > a:hover {
 	background: white;
 	color: black;
@@ -236,3 +253,13 @@ body.theme-hc-black .panelHeader {
 	border-bottom: 1px solid #111;
 }
 
+#btnPause, #btnRun, #btnRefresh {
+	float: right;
+	margin-left: 5px;
+}
+
+body:not(.preview-docked) .preview-docked-show,
+body.preview-paused #btnPause,
+body:not(.preview-paused) #btnRun {
+	display: none;
+}

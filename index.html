@@ -37,16 +37,22 @@
 		<div class="flex-fill flex-horizontal">
 
 			<div id="editorPanel" class="flex-fill flex-vertical">
-				<div class="panelHeader">sketch.js</div>
+				<div class="panelHeader">
+					<span id="editorFilename">
+						asdasd
+					</span>
+					<a href="#" id="btnRefresh" title="refresh preview"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+					<a href="#" id="btnPause" title="pause preview"><i class="fa fa-pause" aria-hidden="true"></i></a>
+					<a href="#" id="btnRun" title="run preview"><i class="fa fa-play" aria-hidden="true"></i></a>
+				</div>
 				<div class="flex-fill" style="position: relative;">
 					<div id="editorContainer"></div>
 				</div>
 			</div>
-			<span></span>
-			<div id="previewPanel" class="flex-vertical" style="width: 400px;">
+			<span class="preview-docked-show"></span>
+			<div id="previewPanel" class="flex-vertical preview-docked-show" style="width: 400px;">
 				<div class="panelHeader">
 					preview
-					<a href="#" id="btnRefresh" title="refresh preview"><i class="fa fa-refresh" aria-hidden="true"></i></a>
 					<a href="#" id="btnFloatPreview" style="float: right;" title="pop out preview window"><i class="fa fa-window-restore" aria-hidden="true"></i></a>
 				</div>
 				<div id="previewContainer" class="flex-fill"></div>

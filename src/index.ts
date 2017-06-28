@@ -63,6 +63,7 @@ function loadFile(file: SourceFile) {
 
 	document.getElementById("footerFilename")!.textContent = file.fileName;
 	document.getElementById("footerType")!.textContent = file.language.name;
+	document.getElementById("editorFilename")!.textContent = file.fileName;
 
 	if (file.language === SourceLanguage.Html) {
 		if (_currentHtml !== file) {
@@ -93,7 +94,7 @@ Promise.all<any>([
 		_files.forEach(sf => {
 			var elt = sf.element = document.createElement("a");
 			var icon = document.createElement("i");
-			icon.className = "fa fa-" + sf.icon;
+			icon.className = "icon fa fa-" + sf.icon;
 			elt.appendChild(icon);
 			var text = document.createElement("span");
 			text.textContent = sf.fileName;
@@ -138,7 +139,7 @@ Promise.all<any>([
 
 	_editor.onDidChangeModelContent(event => {
 
-		if (_changingFiles || !_currentFile.used)
+		if (_changingFiles || !_currentFile.used || _previewPaused)
 			return;
 
 		if (timeout)
@@ -185,6 +186,21 @@ Promise.all<any>([
 
 	document.getElementById("btnRefresh")!.addEventListener("click", event => {
 		event.preventDefault();
+		loadPreview();
+	});
+
+	function pause(paused:boolean) {
+		_previewPaused = paused;
+		document.body.classList.toggle("preview-paused", paused);
+	}	
+	document.getElementById("btnPause")!.addEventListener("click", event => {
+		event.preventDefault();
+		pause(true);
+	});
+
+	document.getElementById("btnRun")!.addEventListener("click", event => {
+		event.preventDefault();
+		pause(false);
 		loadPreview();
 	});
 
@@ -236,6 +252,7 @@ Promise.all<any>([
 
 var _previewLoading = true;
 var _previewDocked = true;
+var _previewPaused = false;
 var _previewWindow: Window | null;
 
 
@@ -251,7 +268,11 @@ function loadPreview(docked?: boolean) {
 	//console.log("LOAD PREVIEW");
 	if (docked) {
 		_previewWindow = null;
-		previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" src="/v/blank.html"></iframe>';
+		var previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
+		if (previewFrame)
+			previewFrame.src = "/v/blank.html";
+		else
+			previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" src="/v/blank.html"></iframe>';
 	}
 	else {
 
@@ -288,9 +309,11 @@ function loadPreview(docked?: boolean) {
 
 function frameLoaded(event: any) {
 
+/*	
 	if (!_previewLoading)
 		return;
 	_previewLoading = false;
+	*/
 
 	if (_previewDocked) {
 		var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
