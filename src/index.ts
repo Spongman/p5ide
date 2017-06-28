@@ -18,6 +18,7 @@ function promiseRequire(paths: string[]): Promise<any[]> {
 	});
 }
 
+/*
 function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
 	return new Promise(function (resolve) {
 		function handle(event: Event) {
@@ -28,7 +29,7 @@ function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
 		elt.addEventListener(type, handle);
 	});
 }
-
+*/
 
 function click(element: HTMLElement | string, fn: (event: MouseEvent) => boolean) {
 	if (typeof element === 'string')
@@ -108,8 +109,8 @@ Promise.all<any>([
 		text.textContent = sf.fileName;
 		elt.appendChild(text);
 		elt.href = "#";
-		click(elt, event => {
-			event.preventDefault();
+		click(elt, () => {
+			loadFile(sf);
 			return false;
 		});
 		fileContainer.appendChild(elt);
@@ -144,7 +145,7 @@ Promise.all<any>([
 
 	var timeout: number;
 
-	_editor.onDidChangeModelContent(event => {
+	_editor.onDidChangeModelContent(() => {
 
 		if (_changingFiles || !_currentFile.used || _previewPaused)
 			return;
@@ -191,34 +192,34 @@ Promise.all<any>([
 		loadPreview();
 	}
 
-
-	click("btnRefresh", event => {
-		loadPreview();
-		return false;
-	});
-
 	function pause(paused: boolean) {
 		_previewPaused = paused;
 		document.body.classList.toggle("preview-paused", paused);
 	}
-	click("btnPause", event => {
+
+	click("btnRefresh", () => {
+		loadPreview();
+		return false;
+	});
+
+	click("btnPause", () => {
 		pause(true);
 		return false;
 	});
 
-	click("btnRun", event => {
+	click("btnRun", () => {
 		pause(false);
 		loadPreview();
 		return false;
 	});
 
-	click("btnFloatPreview", event => {
+	click("btnFloatPreview", () => {
 		loadPreview(false);
 		return false;
 	});
 
 	var selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
-	selectTheme.addEventListener('change', event => { setTheme(selectTheme.value); });
+	selectTheme.addEventListener('change', () => { setTheme(selectTheme.value); });
 	setTheme(window.localStorage.theme || selectTheme.value);
 
 	function setTheme(theme: string) {
@@ -240,7 +241,7 @@ Promise.all<any>([
 
 		span.addEventListener('mousedown', event => {
 			event.preventDefault();
-			document.addEventListener('mouseup', (event) => {
+			document.addEventListener('mouseup', () => {
 				document.removeEventListener('mousemove', onMove);
 				parent.classList.remove("dragging");
 			});
