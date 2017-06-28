@@ -114,6 +114,7 @@ footer {
 	opacity: 1;
 }
 
+/*
 #fileContainer > a.used:afteaaar {
 	content:'\2713';
 	display: inline-block;
@@ -123,6 +124,7 @@ footer {
 	opacity: 0.75;
 	float: right;
 }
+*/
 
 footer > div {
 	padding: 0 10px;
