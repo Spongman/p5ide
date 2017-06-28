@@ -161,7 +161,8 @@ body.theme-vs a > i.fa {
 
 
 body.theme-vs header,
-body.theme-vs footer {
+body.theme-vs footer,
+body.theme-vs .flex-horizontal > span {
     background: #ccc;
 }
 
@@ -177,9 +178,6 @@ body.theme-vs #fileContainer > a.selected {
 body.theme-vs .panelHeader {
     background: #eee;
 	border-bottom: 1px solid #ddd;
-}
-body.theme-vs .flex-horizontal > span {
-	background: #ccc;	
 }
 
 /*
@@ -199,7 +197,8 @@ body.theme-vs-dark a > i.fa {
 
 
 body.theme-vs-dark header,
-body.theme-vs-dark footer {
+body.theme-vs-dark footer,
+body.theme-vs-dark .flex-horizontal > span {
     background: #333;
 }
 

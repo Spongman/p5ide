@@ -29,6 +29,16 @@ function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
 	});
 }
 
+
+function click(element: HTMLElement | string, fn: (event: MouseEvent) => boolean) {
+	if (typeof element === 'string')
+		element = document.getElementById(element)!;
+	element.addEventListener("click", event => {
+		if (fn(event) === false)
+			event.preventDefault();
+	});
+}
+
 loopProtect.method = "__protect";
 
 var _files = [
@@ -67,7 +77,6 @@ function loadFile(file: SourceFile) {
 
 	if (file.language === SourceLanguage.Html) {
 		if (_currentHtml !== file) {
-			file.used = true;
 			_currentHtml = file;
 
 			_files.forEach(f => { f.used = (f === file); });
@@ -89,24 +98,22 @@ Promise.all<any>([
 
 	//console.log('DOM READY');
 
-	var fileContainer = document.getElementById("fileContainer");
-	if (fileContainer) {
-		_files.forEach(sf => {
-			var elt = sf.element = document.createElement("a");
-			var icon = document.createElement("i");
-			icon.className = "icon fa fa-" + sf.icon;
-			elt.appendChild(icon);
-			var text = document.createElement("span");
-			text.textContent = sf.fileName;
-			elt.appendChild(text);
-			elt.href = "#";
-			elt.addEventListener('click', event => {
-				event.preventDefault();
-				loadFile(sf);
-			});
-			fileContainer!.appendChild(elt);
-		})
-	}
+	var fileContainer = document.getElementById("fileContainer")!;
+	_files.forEach(sf => {
+		var elt = sf.element = document.createElement("a");
+		var icon = document.createElement("i");
+		icon.className = "icon fa fa-" + sf.icon;
+		elt.appendChild(icon);
+		var text = document.createElement("span");
+		text.textContent = sf.fileName;
+		elt.appendChild(text);
+		elt.href = "#";
+		click(elt, event => {
+			event.preventDefault();
+			return false;
+		});
+		fileContainer.appendChild(elt);
+	})
 
 	// validation settings
 	monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -184,29 +191,30 @@ Promise.all<any>([
 		loadPreview();
 	}
 
-	document.getElementById("btnRefresh")!.addEventListener("click", event => {
-		event.preventDefault();
+
+	click("btnRefresh", event => {
 		loadPreview();
+		return false;
 	});
 
-	function pause(paused:boolean) {
+	function pause(paused: boolean) {
 		_previewPaused = paused;
 		document.body.classList.toggle("preview-paused", paused);
-	}	
-	document.getElementById("btnPause")!.addEventListener("click", event => {
-		event.preventDefault();
+	}
+	click("btnPause", event => {
 		pause(true);
+		return false;
 	});
 
-	document.getElementById("btnRun")!.addEventListener("click", event => {
-		event.preventDefault();
+	click("btnRun", event => {
 		pause(false);
 		loadPreview();
+		return false;
 	});
 
-	document.getElementById("btnFloatPreview")!.addEventListener("click", event => {
-		event.preventDefault();
+	click("btnFloatPreview", event => {
 		loadPreview(false);
+		return false;
 	});
 
 	var selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
@@ -248,6 +256,30 @@ Promise.all<any>([
 			fixed.dispatchEvent(new Event("resize"));
 		}
 	});
+
+
+	/*
+	const examplesUrl = "https://api.github.com/repos/processing/p5.js-website/contents/dist/assets/examples";
+
+	fetch(examplesUrl + "/en")
+		.then(response => response.json())
+		.then(json => {
+			var categories = json.map(e => {
+				return {
+					name: e.name.replace('_', ' '),
+					path: e.path.substring('dist/assets/examples'.length)
+				};
+			});
+
+			Promise.all(categories.map(c =>
+				fetch(examplesUrl + c.path)
+					.then(response => response.text())
+					.then(text => { c.text = text; })
+			)).then(categories => {
+				debugger;
+			});
+		});
+	*/
 });
 
 var _previewLoading = true;
@@ -278,12 +310,13 @@ function loadPreview(docked?: boolean) {
 
 		var rect = previewContainer.getBoundingClientRect();
 		if (_previewDocked) {
+			var pr = window.devicePixelRatio;
 			_previewWindow = window.open("/v/blank.html", "previewFrame",
 				"toolbar=0,status=0,menubar=0,location=0,replace=1" +
-				",width=" + previewContainer.clientWidth +
-				",height=" + previewContainer.clientHeight +
-				",left=" + (window.screenX + rect.left) +
-				",top=" + (window.screenY + rect.top + 26)
+				",width=" + Math.floor(pr * previewContainer.clientWidth) +
+				",height=" + Math.floor(pr * previewContainer.clientHeight) +
+				",left=" + (window.screenX + Math.floor(pr * rect.left)) +
+				",top=" + (window.screenY + Math.floor(pr * rect.top) + 26)
 			);
 			var interval = setInterval(() => {
 				if (!_previewWindow || _previewWindow.closed) {
@@ -309,11 +342,11 @@ function loadPreview(docked?: boolean) {
 
 function frameLoaded(event: any) {
 
-/*	
-	if (!_previewLoading)
-		return;
-	_previewLoading = false;
-	*/
+	/*	
+		if (!_previewLoading)
+			return;
+		_previewLoading = false;
+		*/
 
 	if (_previewDocked) {
 		var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
@@ -339,11 +372,11 @@ function frameLoaded(event: any) {
 
 		//console.log("MESSAGE", event);
 		if (!event.ports)
-			return;	
+			return;
 
 		var url = event.data as string;
 		var originLength = event.origin.length;
-		var blob:Blob|null = null;
+		var blob: Blob | null = null;
 		if (url.substring(0, originLength) === event.origin) {
 			url = url.substring(originLength);
 
@@ -363,7 +396,7 @@ function frameLoaded(event: any) {
 				}
 
 				blob = new Blob([content], { type: language.mimeType });
-			}	
+			}
 		}
 		event.ports[0].postMessage(blob);
 	});
