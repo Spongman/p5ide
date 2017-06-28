@@ -17,6 +17,15 @@ a {
 	text-decoration: none;
 }
 
+a i.fa {
+	opacity: 0.6;
+}
+
+a:hover i.fa {
+	opacity: 1;
+}
+
+
 header,
 footer {
     display: block;
@@ -26,7 +35,6 @@ footer {
 .flex-horizontal,
 .flex-vertical {
     display: flex;
-    aposition: relative;
 }
 
 .flex-horizontal.dragging > div,
@@ -80,12 +88,6 @@ footer {
 	height: 100%;
 }
 
-.monaco-editor {
-}
-
-#fileContainer {
-}
-
 #fileContainer > a {
 	padding: 2px 4px;
 	display: block;
@@ -113,6 +115,10 @@ footer {
 	margin-top: 2px;
 	opacity: 0.75;
 	float: right;
+}
+
+body:not(.preview-docked) #previewPanel {
+	display: none;
 }
 
 footer > div {
@@ -196,10 +202,6 @@ body.theme-vs-dark #fileContainer > a.selected {
 body.theme-vs-dark .panelHeader {
     background: #444;
 	border-bottom: 1px solid #444;
-}
-
-body.theme-vs-dark .flex-horizontal > span {
-
 }
 
 /*

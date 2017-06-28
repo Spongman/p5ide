@@ -1,13 +1,12 @@
 self.addEventListener('install', event => {
-    console.log('INSTALL', event);
+    //console.log('INSTALL', event);
 });
 
 self.addEventListener('activate', event => {
-    console.log('ACTIVATE', event);
+    //console.log('ACTIVATE', event);
 });
 
 self.addEventListener('fetch', event => {
-    //console.log("FETCH", event);
 
     if (!event.clientId)
         return;
@@ -18,18 +17,18 @@ self.addEventListener('fetch', event => {
     if (url.substr(0, origin.length) !== origin)
         return;
 
-    console.log("FETCH", url);
+    //console.log("FETCH", url);
 
     event.respondWith(new Promise((resolve, reject) => {
 
         self.clients.get(event.clientId).then(client => {
 
-            console.log("CLIENT", client);
+            //console.log("CLIENT", client);
 
             var messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
 
-                console.log("ONMESSAGE", event);
+                //console.log("ONMESSAGE", event);
 
                 if (event.data) {
                     if (event.data.error) {
@@ -40,7 +39,7 @@ self.addEventListener('fetch', event => {
                         response.type = blob.type;
                         response.headers["Content-Type"] = blob.type;
 						response.headers["Cache-Control"] = "no-store";
-                        console.log(url, blob.type);
+                        //console.log(url, blob.type);
                         //console.log(response);
                         resolve(response);
                     }

@@ -12,7 +12,7 @@
 	<script type="text/javascript" src="index.js"></script>
 </head>
 
-<body class="flex-vertical">
+<body class="flex-vertical preview-docked">
 
 	<header>
 		p5.js
@@ -46,7 +46,8 @@
 			<div id="previewPanel" class="flex-vertical" style="width: 400px;">
 				<div class="panelHeader">
 					preview
-					<a href="#" id="btnRefresh"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+					<a href="#" id="btnRefresh" title="refresh preview"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+					<a href="#" id="btnFloatPreview" style="float: right;" title="pop out preview window"><i class="fa fa-window-restore" aria-hidden="true"></i></a>
 				</div>
 				<div id="previewContainer" class="flex-fill"></div>
 			</div>

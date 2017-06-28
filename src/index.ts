@@ -12,56 +12,13 @@ interface Function {
 	call<T>(this: (...args: any[]) => T, thisArg: any, ...argArray: any[]): T;
 }
 
-var files = [
-
-	new SourceFile("index.html", SourceLanguage.Html),
-	new SourceFile("sketch.js", SourceLanguage.Javascript),
-	new SourceFile("style.css", SourceLanguage.Css),
-
-	new SourceFile("index2.html", SourceLanguage.Html),
-
-];
-
-loopProtect.method = "__protect";
-
-function loadFile(file) {
-	if (currentFile == this)
-		return;
-
-	files.forEach(f => { f.selected = (f === file); });
-
-	var model = editor.getModel();
-	if (currentFile)
-		currentFile.content = model.getValue();
-
-	currentFile = file;
-
-	changingFiles = true;
-	monaco.editor.setModelLanguage(model, file.language.name);
-	model.setValue(file.content);
-	changingFiles = false;
-
-	document.getElementById("footerFilename").textContent = file.fileName;
-	document.getElementById("footerType").textContent = file.language.name;
-
-	if (file.language === SourceLanguage.Html) {
-		if (currentHtml !== file) {
-			file.used = true;
-			currentHtml = file;
-
-			files.forEach(f => { f.used = (f == file); });
-
-			loadPreview();
-		}
-	}
+function promiseRequire(paths: string[]): Promise<any[]> {
+	return new Promise((resolve, reject) => {
+		require(paths, (...modules: any[]) => resolve(modules), (err: RequireError) => reject(err));
+	});
 }
 
-var currentFile: SourceFile;
-var currentHtml: SourceFile;
-var changingFiles = false;
-
-function eventPromise(elt: HTMLElement, type: string): Promise<Event> {
-
+function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
 	return new Promise(function (resolve) {
 		function handle(event: Event) {
 			console.log("HANDLE", type);
@@ -72,17 +29,68 @@ function eventPromise(elt: HTMLElement, type: string): Promise<Event> {
 	});
 }
 
-var editor: monaco.editor.IStandaloneCodeEditor;
+loopProtect.method = "__protect";
+
+var _files = [
+
+	new SourceFile("index.html", SourceLanguage.Html),
+	new SourceFile("sketch.js", SourceLanguage.Javascript),
+	new SourceFile("style.css", SourceLanguage.Css),
+
+	new SourceFile("index2.html", SourceLanguage.Html),
+
+];
+var _currentFile: SourceFile;
+var _currentHtml: SourceFile;
+var _changingFiles = false;
+
+function loadFile(file: SourceFile) {
+	if (_currentFile === file)
+		return;
+
+	_files.forEach(f => { f.selected = (f === file); });
+
+	var model = _editor.getModel();
+	if (_currentFile)
+		_currentFile.content = model.getValue();
+
+	_currentFile = file;
+
+	_changingFiles = true;
+	monaco.editor.setModelLanguage(model, file.language.name);
+	model.setValue(file.content);
+	_changingFiles = false;
+
+	document.getElementById("footerFilename")!.textContent = file.fileName;
+	document.getElementById("footerType")!.textContent = file.language.name;
+
+	if (file.language === SourceLanguage.Html) {
+		if (_currentHtml !== file) {
+			file.used = true;
+			_currentHtml = file;
+
+			_files.forEach(f => { f.used = (f === file); });
+
+			loadPreview();
+		}
+	}
+}
+
+var _editor: monaco.editor.IStandaloneCodeEditor;
+require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
 Promise.all<any>([
 	fetch("p5.global-mode.d.ts").then(response => response.text()),
-	document['ready'](),
-	...files.map(sf => sf.fetch().then(text => { sf.content = text; }))
+	promiseRequire(['vs/editor/editor.main']),
+	document.ready(),
+	..._files.map(sf => sf.fetch().then(text => { sf.content = text; }))
 ]).then((values: any[]) => {
+
+	//console.log('DOM READY');
 
 	var fileContainer = document.getElementById("fileContainer");
 	if (fileContainer) {
-		files.forEach(sf => {
+		_files.forEach(sf => {
 			var elt = sf.element = document.createElement("a");
 			var icon = document.createElement("i");
 			icon.className = "fa fa-" + sf.icon;
@@ -95,204 +103,207 @@ Promise.all<any>([
 				event.preventDefault();
 				loadFile(sf);
 			});
-			fileContainer.appendChild(elt);
+			fileContainer!.appendChild(elt);
 		})
 	}
-	console.log('DOM READY');
 
-	require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
-	require(['vs/editor/editor.main'], function () {
-
-		// validation settings
-		monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-			noSemanticValidation: false,
-			noSyntaxValidation: false
-		});
-
-		// compiler options
-		monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-			noLib: true,
-			target: monaco.languages.typescript.ScriptTarget.ES2017,
-			allowNonTsExtensions: true
-		});
-
-		monaco.languages.typescript.javascriptDefaults.addExtraLib(values[0], "p5.global-mode.d.ts");
-
-		var editorContainer = document.getElementById('editorContainer')!;
-
-		editor = monaco.editor.create(editorContainer, { theme: 'vs-dark', });
-
-		window.addEventListener('resize', () => {
-			editor.layout();
-		}, true);
-
-		var timeout: number;
-
-		editor.onDidChangeCursorPosition(event => {
-			document.getElementById("footerPosition").textContent = "Ln " + event.position.lineNumber + ", Col " + event.position.column;
-		});
-
-		editor.onDidChangeModelContent(event => {
-
-			if (changingFiles || !currentFile.used)
-				return;
-
-			if (timeout)
-				clearTimeout(timeout);
-
-			timeout = setTimeout(() => {
-
-				timeout = 0;
-
-				console.log("RELOAD", currentFile.fileName);
-
-				switch (currentFile.language) {
-					case SourceLanguage.Css:
-						//var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-						var url = previewWindow.document['origin'] + "/" + currentFile.fileName;
-
-						var found = false;
-						(<StyleSheet[]>[]).slice.call(previewWindow.document.styleSheets)
-							.filter(ss => ss.href === url)
-							.forEach(ss => {
-								var linkNode = (<HTMLLinkElement>ss.ownerNode);
-								var cssUrl = linkNode.href;
-								//linkNode.disabled = true;
-								//linkNode.disabled = false;
-								linkNode.href = cssUrl;
-								found = true;
-							});
-
-						if (found)
-							return;
-
-						break;
-				}
-
-				loadPreview();
-
-			}, 500);
-		});
-
-		currentHtml = files.find(f => f.language === SourceLanguage.Html);
-		currentHtml.used = true;
-		loadFile(files[1]);
-		loadPreview();
-
-		document.getElementById("btnRefresh").addEventListener("click", event => {
-			event.preventDefault();
-			loadPreview();
-		});
-
-		var selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
-		selectTheme.addEventListener('change', event => { setTheme(selectTheme.value); });
-		setTheme(window.localStorage.theme || selectTheme.value);
-
-		function setTheme(theme: string)
-		{
-			editor.updateOptions({ theme: theme });
-			[].forEach.call(
-				document.querySelectorAll("#selectTheme > option"),
-				(opt: HTMLOptionElement) => { document.body.classList.remove("theme-" + opt.value); }
-			);
-			document.body.classList.add("theme-" + theme);
-			window.localStorage.theme = theme;
-			selectTheme.value = theme;
-		}
-
-		[].forEach.call(document.querySelectorAll(".flex-horizontal > span"), (span: HTMLElement) => {
-
-			var left = <HTMLElement>(span.previousElementSibling);
-			var parent = <HTMLElement>span.parentNode;
-
-			span.addEventListener('mousedown', event => {
-				event.preventDefault();
-				document.addEventListener('mousemove', onMove);
-				parent.classList.add("dragging");
-
-				document.addEventListener('mouseup', (event) => {
-					document.removeEventListener('mousemove', onMove);
-					parent.classList.remove("dragging");
-				});
-			});
-
-			function onMove(event: MouseEvent) {
-				event.preventDefault();
-
-				var rect = parent.getBoundingClientRect();
-				left.style.width = (event.pageX - rect.left) + "px";
-				left.dispatchEvent(new Event("resize"));
-			}
-
-		});
+	// validation settings
+	monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+		noSemanticValidation: false,
+		noSyntaxValidation: false
 	});
 
+	// compiler options
+	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+		noLib: true,
+		target: monaco.languages.typescript.ScriptTarget.ES2017,
+		allowNonTsExtensions: true
+	});
+
+	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[0], "p5.global-mode.d.ts");
+
+	var editorContainer = document.getElementById('editorContainer')!;
+	_editor = monaco.editor.create(editorContainer, { theme: 'vs-dark', });
+
+	window.addEventListener('resize', () => {
+		_editor.layout();
+	}, true);
+
+
+	_editor.onDidChangeCursorPosition(event => {
+		document.getElementById("footerPosition")!.textContent = "Ln " + event.position.lineNumber + ", Col " + event.position.column;
+	});
+
+	var timeout: number;
+
+	_editor.onDidChangeModelContent(event => {
+
+		if (_changingFiles || !_currentFile.used)
+			return;
+
+		if (timeout)
+			clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+			timeout = 0;
+			//console.log("RELOAD", _currentFile.fileName);
+
+			if (!_previewWindow)
+				return;
+
+			switch (_currentFile.language) {
+				case SourceLanguage.Css:
+					var url = _previewWindow.location.origin + "/" + _currentFile.fileName;
+
+					var found = false;
+					(<StyleSheet[]>[]).slice.call(_previewWindow.document.styleSheets)
+						.filter(ss => ss.href === url)
+						.forEach(ss => {
+							var linkNode = <HTMLLinkElement>ss.ownerNode;
+							linkNode.href = linkNode.href;
+							found = true;
+						});
+
+					if (found)
+						return;
+
+					break;
+			}
+
+			loadPreview();
+
+		}, 500);
+	});
+
+	var firstHtmlFile = _files.find(f => f.language === SourceLanguage.Html);
+	if (firstHtmlFile) {
+		_currentHtml = firstHtmlFile;
+		_currentHtml.used = true;
+		loadFile(_files[1]);
+		loadPreview();
+	}
+
+	document.getElementById("btnRefresh")!.addEventListener("click", event => {
+		event.preventDefault();
+		loadPreview();
+	});
+
+	document.getElementById("btnFloatPreview")!.addEventListener("click", event => {
+		event.preventDefault();
+		loadPreview(false);
+	});
+
+	var selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
+	selectTheme.addEventListener('change', event => { setTheme(selectTheme.value); });
+	setTheme(window.localStorage.theme || selectTheme.value);
+
+	function setTheme(theme: string) {
+		_editor.updateOptions({ theme: theme });
+		[].forEach.call(
+			document.querySelectorAll("#selectTheme > option"),
+			(opt: HTMLOptionElement) => { document.body.classList.remove("theme-" + opt.value); }
+		);
+		document.body.classList.add("theme-" + theme);
+		window.localStorage.theme = theme;
+		selectTheme.value = theme;
+	}
+
+	[].forEach.call(document.querySelectorAll(".flex-horizontal > span"), (span: HTMLElement) => {
+
+		var parent = <HTMLElement>span.parentNode;
+		var fixed = parent.querySelector(":scope > :not(.flex-fill):not(span)") as HTMLElement;
+		var left = [].find.call(parent.childNodes, (e: Node) => e === fixed || e === span) !== span;
+
+		span.addEventListener('mousedown', event => {
+			event.preventDefault();
+			document.addEventListener('mouseup', (event) => {
+				document.removeEventListener('mousemove', onMove);
+				parent.classList.remove("dragging");
+			});
+			document.addEventListener('mousemove', onMove);
+			parent.classList.add("dragging");
+		});
+
+		function onMove(event: MouseEvent) {
+			event.preventDefault();
+			var rect = parent.getBoundingClientRect();
+			var width = left ? (event.pageX - rect.left) : (rect.right - event.pageX);
+			fixed.style.width = width + "px";
+			fixed.dispatchEvent(new Event("resize"));
+		}
+	});
 });
 
-var previewWindow:Window;
-
-function writePreview() {
-
-	previewWindow.document.clear();
-	previewWindow.document.open();
-	previewWindow.document.write(currentHtml.content);
-	previewWindow.document.close();
-}
-
 var _previewLoading = true;
-var _previewPoppedOut = false;
+var _previewDocked = true;
+var _previewWindow: Window | null;
 
-function loadPreview() {
-	console.log("LOAD PREVIEW");
-	_previewLoading = true;
+
+function loadPreview(docked?: boolean) {
 
 	var previewContainer = document.getElementById('previewContainer')!;
-	if (_previewPoppedOut)
-	{
-		var rect = previewContainer.getBoundingClientRect();
-		previewWindow = window.open("/v/blank.html", "previewFrame",
-			"toolbar=0,status=0,menubar=0,location=0,replace=1"+
-			",width=" + previewContainer.clientWidth +
-			",height=" + previewContainer.clientHeight +
-			",left=" + (window.screenX + rect.left)+
-			",top=" + (window.screenY + rect.top)
-		);
-	}
-	else
-	{
-		previewWindow = null;
-		//previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" onload="frameLoaded(event)" src="/v/blank.html"></iframe>';
+
+	_previewLoading = true;
+
+	if (docked === void 0)
+		docked = _previewDocked;
+
+	//console.log("LOAD PREVIEW");
+	if (docked) {
+		_previewWindow = null;
 		previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" src="/v/blank.html"></iframe>';
+	}
+	else {
+
+		var rect = previewContainer.getBoundingClientRect();
+		if (_previewDocked) {
+			_previewWindow = window.open("/v/blank.html", "previewFrame",
+				"toolbar=0,status=0,menubar=0,location=0,replace=1" +
+				",width=" + previewContainer.clientWidth +
+				",height=" + previewContainer.clientHeight +
+				",left=" + (window.screenX + rect.left) +
+				",top=" + (window.screenY + rect.top + 26)
+			);
+			var interval = setInterval(() => {
+				if (!_previewWindow || _previewWindow.closed) {
+					clearInterval(interval);
+					loadPreview(true);
+				}
+			}, 250);
+		}
+		else {
+			_previewWindow!.location.href = "/v/blank.html";
+			window.focus();
+		}
+	}
+
+	if (_previewDocked !== docked) {
+		_previewDocked = docked;
+		document.body.classList.toggle("preview-docked", docked);
+		if (!docked)
+			previewContainer.innerHTML = "";
+		_editor && _editor.layout();
 	}
 }
 
 function frameLoaded(event: any) {
 
-/*
-	console.log("FRAME LOAD", event.target.src);
-
-	if (!event.target.src || event.target.src === "about:blank")
-		return;
-*/
-
 	if (!_previewLoading)
 		return;
 	_previewLoading = false;
 
-	if (!_previewPoppedOut)
-	{
+	if (_previewDocked) {
 		var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-		previewWindow = frame.contentWindow;
+		_previewWindow = frame.contentWindow;
 	}
 
-	if (!previewWindow)
-	{
+	if (!_previewWindow) {
 		console.log("WARNING: no previewWindow");
 		return;
 	}
 
-	previewWindow['__protect'] = loopProtect.protect;
-	var sw = previewWindow.navigator.serviceWorker;
+	(<any>_previewWindow)['__protect'] = loopProtect.protect;
+	var sw = _previewWindow.navigator.serviceWorker;
 
     /*
     window.addEventListener('unload', event => {
@@ -303,48 +314,53 @@ function frameLoaded(event: any) {
 
 	sw.addEventListener('message', event => {
 
-		console.log("MESSAGE", event);
+		//console.log("MESSAGE", event);
+		if (!event.ports)
+			return;	
 
-		var url = event.data;
+		var url = event.data as string;
 		var originLength = event.origin.length;
+		var blob:Blob|null = null;
 		if (url.substring(0, originLength) === event.origin) {
 			url = url.substring(originLength);
 
 			if (url && url.charAt(0) === '/')
 				url = url.substring(1);
 
-			var blob = null;
-			for (var i = 0; i < files.length; i++) {
-				var file = files[i];
-				if (file.fileName === url) {
+			var file = _files.find(f => f.fileName === url);
+			if (file) {
 
-					file.used = true;
-					var language = file.language;
-					var content = (file === currentFile) ? editor.getValue() : file.content;
-					switch (language)
-					{
-						case SourceLanguage.Javascript:
-							content = loopProtect.rewriteLoops(content);
-							break;
-					}
-
-					blob = new Blob([content], { type: language.mimeType });
-					break;
+				file.used = true;
+				var language = file.language;
+				var content = (file === _currentFile) ? _editor.getValue() : file.content;
+				switch (language) {
+					case SourceLanguage.Javascript:
+						content = loopProtect.rewriteLoops(content);
+						break;
 				}
-			}
+
+				blob = new Blob([content], { type: language.mimeType });
+			}	
 		}
-		event.ports && event.ports[0].postMessage(blob);
+		event.ports[0].postMessage(blob);
 	});
 
 	sw.register('/sw.js', { scope: "/v/" })
 		.then(() => {
-			console.log('sw.ready');
+			//console.log('sw.ready');
 			return sw.ready;
 		})
 		.then(reg => {
-			console.log("registered", reg);
-			setTimeout(writePreview, 1);
+			//console.log("registered", reg);
+			setTimeout(() => {
+				if (_previewWindow) {
+					_previewWindow.document.clear();
+					_previewWindow.document.open();
+					_previewWindow.document.write(_currentHtml.content);
+					_previewWindow.document.close();
+				}
+			}, 1);
 		}).catch(err => {
-			console.log('registration failed', err);
+			//console.log('registration failed', err);
 		});
 }
