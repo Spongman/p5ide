@@ -40,6 +40,35 @@ function click(element: HTMLElement | string, fn: (event: MouseEvent) => boolean
 	});
 }
 
+class EventDelayer {
+
+	constructor(private callback: () => void, private delay: number) {
+	}
+
+	private timeUpdate: number;
+
+	private startTimer(delay: number) {
+		setTimeout(() => {
+
+			var timeRemaining = this.timeUpdate - Date.now();
+			if (timeRemaining > 0) {
+				this.startTimer(timeRemaining);
+			} else {
+				this.timeUpdate = 0;
+				this.callback();
+			}
+
+		}, this.delay);
+	}
+
+	trigger() {
+		var timeNow = Date.now();
+		if (!this.timeUpdate)
+			this.startTimer(this.delay);
+		this.timeUpdate = timeNow + this.delay;
+	}
+}
+
 loopProtect.method = "__protect";
 
 var _files = [
@@ -143,45 +172,36 @@ Promise.all<any>([
 		document.getElementById("footerPosition")!.textContent = "Ln " + event.position.lineNumber + ", Col " + event.position.column;
 	});
 
-	var timeout: number;
+	var delayer = new EventDelayer(() => {
 
-	_editor.onDidChangeModelContent(() => {
-
-		if (_changingFiles || !_currentFile.used || _previewPaused)
+		if (!_previewWindow)
 			return;
 
-		if (timeout)
-			clearTimeout(timeout);
+		switch (_currentFile.language) {
+			case SourceLanguage.Css:
+				var url = _previewWindow.location.origin + "/" + _currentFile.fileName;
 
-		timeout = setTimeout(() => {
-			timeout = 0;
-			//console.log("RELOAD", _currentFile.fileName);
+				var found = false;
+				(<StyleSheet[]>[]).slice.call(_previewWindow.document.styleSheets)
+					.filter(ss => ss.href === url)
+					.forEach(ss => {
+						var linkNode = <HTMLLinkElement>ss.ownerNode;
+						linkNode.href = linkNode.href;
+						found = true;
+					});
 
-			if (!_previewWindow)
-				return;
+				if (found)
+					return;
 
-			switch (_currentFile.language) {
-				case SourceLanguage.Css:
-					var url = _previewWindow.location.origin + "/" + _currentFile.fileName;
+				break;
+		}
 
-					var found = false;
-					(<StyleSheet[]>[]).slice.call(_previewWindow.document.styleSheets)
-						.filter(ss => ss.href === url)
-						.forEach(ss => {
-							var linkNode = <HTMLLinkElement>ss.ownerNode;
-							linkNode.href = linkNode.href;
-							found = true;
-						});
+		loadPreview();
+	}, 1000);
 
-					if (found)
-						return;
-
-					break;
-			}
-
-			loadPreview();
-
-		}, 500);
+	_editor.onDidChangeModelContent(() => {
+		if (!_changingFiles && _currentFile.used && !_previewPaused)
+			delayer.trigger();
 	});
 
 	var firstHtmlFile = _files.find(f => f.language === SourceLanguage.Html);
@@ -290,6 +310,8 @@ var _previewWindow: Window | null;
 
 
 function loadPreview(docked?: boolean) {
+
+	console.log("loadPreview");
 
 	var previewContainer = document.getElementById('previewContainer')!;
 
