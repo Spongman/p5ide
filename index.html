@@ -31,23 +31,35 @@
 	<div class="flex-fill flex-horizontal" style="overflow: hidden;">
 		<div id="treePanel" class="flex-vertical" style="width: 150px;">
 			<div class="panelHeader">project-folder</div>
-			<div id="fileContainer" class="flex-fill"></div>
+			<ul id="fileContainer" class="sourceFolder flex-fill"></ul>
 		</div>
 		<span></span>
 		<div class="flex-fill flex-horizontal">
 
 			<div id="editorPanel" class="flex-fill flex-vertical">
-				<div class="panelHeader">
-					<span id="editorFilename">
-						asdasd
-					</span>
-					<a href="#" id="btnRefresh" title="refresh preview"><i class="fa fa-refresh" aria-hidden="true"></i></a>
-					<a href="#" id="btnPause" title="pause preview"><i class="fa fa-pause" aria-hidden="true"></i></a>
-					<a href="#" id="btnRun" title="run preview"><i class="fa fa-play" aria-hidden="true"></i></a>
+
+				<div class="flex-fill flex-vertical">
+					<div class="panelHeader">
+						<span id="editorFilename">filename</span>
+						<a href="#" id="btnRefresh" title="refresh preview"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+						<a href="#" id="btnPause" title="pause preview"><i class="fa fa-pause" aria-hidden="true"></i></a>
+						<a href="#" id="btnRun" title="run preview"><i class="fa fa-play" aria-hidden="true"></i></a>
+					</div>
+					<div class="flex-fill" style="position: relative;">
+						<div id="editorContainer" class="flex-fill"></div>
+					</div>
 				</div>
-				<div class="flex-fill" style="position: relative;">
-					<div id="editorContainer"></div>
+
+				<span class="console-visible-show"></span>
+
+				<div id="consolePanel" class="console-visible-show flex-vertical" style="height: 50px;">
+					<div class="panelHeader">
+						<span>console</span>
+					</div>
+					<div id="consoleContainer">
+					</div>
 				</div>
+
 			</div>
 			<span class="preview-docked-show"></span>
 			<div id="previewPanel" class="flex-vertical preview-docked-show" style="width: 400px;">

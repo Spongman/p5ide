@@ -71,48 +71,103 @@ class EventDelayer {
 
 loopProtect.method = "__protect";
 
-var _files = [
+var mapFileElements: { [name: string]: Element } = {};
 
-	new SourceFile("index.html", SourceLanguage.Html),
-	new SourceFile("sketch.js", SourceLanguage.Javascript),
-	new SourceFile("style.css", SourceLanguage.Css),
-
-	new SourceFile("index2.html", SourceLanguage.Html),
-
-];
-var _currentFile: SourceFile;
+var _currentFile: SourceFile | null = null;
 var _currentHtml: SourceFile;
-var _changingFiles = false;
+var _currentProject: Project;
 
-function loadFile(file: SourceFile) {
-	if (_currentFile === file)
-		return;
+function loadProject(project: Project) {
 
-	_files.forEach(f => { f.selected = (f === file); });
+	_currentProject = project;
 
-	var model = _editor.getModel();
-	if (_currentFile)
-		_currentFile.content = model.getValue();
+	var fileContainer = document.getElementById("fileContainer")!;
 
-	_currentFile = file;
+	function getNodeElement(node?: SourceFolder): Element {
 
-	_changingFiles = true;
-	monaco.editor.setModelLanguage(model, file.language.name);
-	model.setValue(file.content);
-	_changingFiles = false;
+		if (!node)
+			return fileContainer;
 
-	document.getElementById("footerFilename")!.textContent = file.fileName;
-	document.getElementById("footerType")!.textContent = file.language.name;
-	document.getElementById("editorFilename")!.textContent = file.fileName;
+		var elt = mapFileElements[node.path];
+		if (elt)
+			return elt;
 
-	if (file.language === SourceLanguage.Html) {
-		if (_currentHtml !== file) {
-			_currentHtml = file;
+		var parentElement = getNodeElement(node.parent);
 
-			_files.forEach(f => { f.used = (f === file); });
+		var li = parentElement.appendChild(document.createElement("li"));
+		li.className = "sourceNode";
 
-			loadPreview();
+		var anchor = li.appendChild(document.createElement("a"));
+		anchor.href = "#";
+
+		var icon = anchor.appendChild(document.createElement("i"));
+		icon.className = "icon fa fa-" + node.icon;
+
+		var text = anchor.appendChild(document.createElement("span"));
+		text.textContent = node.name;
+
+		node.element = anchor;
+
+		if (node instanceof SourceFile) {
+			click(anchor, () => {
+				loadFile(node);
+				return false;
+			});
+			elt = anchor;
 		}
+		else {
+			var children = elt = li.appendChild(document.createElement("ul"));
+			children.className = "sourceFolder";
+		}
+
+		mapFileElements[node.path] = elt;
+		return elt;
+	}
+
+	project.items.forEach(item => getNodeElement(item));
+}
+
+async function loadFile(file: SourceFile, position?: monaco.IPosition) {
+	if (_currentFile !== file) {
+		_currentProject.items.forEach(f => { f.selected = (f === file); });
+
+		var model = _editor.getModel();
+		if (_currentFile)
+			_currentFile.content = model.getValue();
+
+		_currentFile = null;
+
+		var languageName = file.language && file.language.name;
+
+		monaco.editor.setModelLanguage(model, languageName || "");
+
+		var content: string | null = file.content;
+		if (content === null)
+			content = file.content = await file.fetch(_currentProject);
+
+		model.setValue(content);
+
+
+		_currentFile = file;
+
+		document.getElementById("footerFilename")!.textContent = file.path;
+		document.getElementById("footerType")!.textContent = languageName || "plain";
+		document.getElementById("editorFilename")!.textContent = file.path;
+
+		if (file.language === SourceLanguage.Html) {
+			if (_currentHtml !== file) {
+				_currentHtml = file;
+
+				_currentProject.items.forEach(f => { f.used = (f === file); });
+
+				loadPreview();
+			}
+		}
+	}
+
+	if (position) {
+		_editor.setPosition(position);
+		_editor.focus();
 	}
 }
 
@@ -123,27 +178,11 @@ Promise.all<any>([
 	fetch("p5.global-mode.d.ts").then(response => response.text()),
 	promiseRequire(['vs/editor/editor.main']),
 	document.ready(),
-	..._files.map(sf => sf.fetch().then(text => { sf.content = text; }))
+	//..._files.map(sf => sf.fetch().then(text => { sf.content = text; }))
 ]).then((values: any[]) => {
 
 	//console.log('DOM READY');
-
-	var fileContainer = document.getElementById("fileContainer")!;
-	_files.forEach(sf => {
-		var elt = sf.element = document.createElement("a");
-		var icon = document.createElement("i");
-		icon.className = "icon fa fa-" + sf.icon;
-		elt.appendChild(icon);
-		var text = document.createElement("span");
-		text.textContent = sf.fileName;
-		elt.appendChild(text);
-		elt.href = "#";
-		click(elt, () => {
-			loadFile(sf);
-			return false;
-		});
-		fileContainer.appendChild(elt);
-	})
+	loadProject(defaultProject);
 
 	// validation settings
 	monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -174,12 +213,12 @@ Promise.all<any>([
 
 	var delayer = new EventDelayer(() => {
 
-		if (!_previewWindow)
+		if (!_currentFile || !_previewWindow)
 			return;
 
 		switch (_currentFile.language) {
 			case SourceLanguage.Css:
-				var url = _previewWindow.location.origin + "/" + _currentFile.fileName;
+				var url = _previewWindow.location.origin + "/" + _currentFile.path;
 
 				var found = false;
 				(<StyleSheet[]>[]).slice.call(_previewWindow.document.styleSheets)
@@ -200,10 +239,11 @@ Promise.all<any>([
 	}, 1000);
 
 	_editor.onDidChangeModelContent(() => {
-		if (!_changingFiles && _currentFile.used && !_previewPaused)
+		if (_currentFile && _currentFile.used && !_previewPaused)
 			delayer.trigger();
 	});
 
+	/*
 	var firstHtmlFile = _files.find(f => f.language === SourceLanguage.Html);
 	if (firstHtmlFile) {
 		_currentHtml = firstHtmlFile;
@@ -211,6 +251,7 @@ Promise.all<any>([
 		loadFile(_files[1]);
 		loadPreview();
 	}
+	*/
 
 	function pause(paused: boolean) {
 		_previewPaused = paused;
@@ -253,11 +294,12 @@ Promise.all<any>([
 		selectTheme.value = theme;
 	}
 
-	[].forEach.call(document.querySelectorAll(".flex-horizontal > span"), (span: HTMLElement) => {
+	[].forEach.call(document.querySelectorAll(".flex-horizontal > span, .flex-vertical > span"), (span: HTMLElement) => {
 
 		var parent = <HTMLElement>span.parentNode;
 		var fixed = parent.querySelector(":scope > :not(.flex-fill):not(span)") as HTMLElement;
-		var left = [].find.call(parent.childNodes, (e: Node) => e === fixed || e === span) !== span;
+		var before = [].find.call(parent.childNodes, (e: Node) => e === fixed || e === span) !== span;
+		var horizontal = parent.classList.contains("flex-horizontal");
 
 		span.addEventListener('mousedown', event => {
 			event.preventDefault();
@@ -272,12 +314,17 @@ Promise.all<any>([
 		function onMove(event: MouseEvent) {
 			event.preventDefault();
 			var rect = parent.getBoundingClientRect();
-			var width = left ? (event.pageX - rect.left) : (rect.right - event.pageX);
-			fixed.style.width = width + "px";
+			if (horizontal) {
+				var width = before ? (event.pageX - rect.left) : (rect.right - event.pageX);
+				fixed.style.width = width + "px";
+			}
+			else {
+				var height = before ? (event.pageY - rect.top) : (rect.bottom - event.pageY);
+				fixed.style.height = height + "px";
+			}
 			fixed.dispatchEvent(new Event("resize"));
 		}
 	});
-
 
 	/*
 	const examplesUrl = "https://api.github.com/repos/processing/p5.js-website/contents/dist/assets/examples";
@@ -313,6 +360,9 @@ function loadPreview(docked?: boolean) {
 
 	console.log("loadPreview");
 
+	var consoleContainer = document.getElementById("consoleContainer")!;
+	consoleContainer.innerHTML = "";
+
 	var previewContainer = document.getElementById('previewContainer')!;
 
 	_previewLoading = true;
@@ -341,6 +391,7 @@ function loadPreview(docked?: boolean) {
 				",left=" + (window.screenX + Math.floor(pr * rect.left)) +
 				",top=" + (window.screenY + Math.floor(pr * rect.top) + 26)
 			);
+			_previewWindow.addEventListener("error", handlePreviewError);
 			var interval = setInterval(() => {
 				if (!_previewWindow || _previewWindow.closed) {
 					clearInterval(interval);
@@ -363,13 +414,62 @@ function loadPreview(docked?: boolean) {
 	}
 }
 
+function setConsoleVisibility(show: boolean) {
+	var isVisible = document.body.classList.contains("console-visible");
+	if (isVisible != show) {
+		document.body.classList.toggle("console-visible", show);
+		_editor.layout();
+	}
+}
+
+function handlePreviewError(event: ErrorEvent) {
+
+	setConsoleVisibility(true);
+
+	var consoleContainer = document.getElementById("consoleContainer")!;
+	var div = consoleContainer.appendChild(document.createElement("div"));
+	div.className = "error";
+
+	if (event.error && event.error.stack) {
+		var info = div.appendChild(document.createElement("i"));
+		info.className = "fa fa-info-circle";
+		info.title = event.error.stack;
+	}
+
+	var origin = _previewWindow!.location.origin;
+	var local = event.filename.substr(0, origin.length) === origin;
+	var filename = local ? event.filename.substr(origin.length) : event.filename;
+	if (filename.charAt(0) === '/')
+		filename = filename.substr(1);
+	var fileText = `${filename}(${event.lineno},${event.colno})`;
+	var errorText = ` : ${event.message}`;
+
+	if (local) {
+		var anchor = div.appendChild(document.createElement("a"));
+		anchor.textContent = fileText;
+		anchor.href = "#";
+
+		var span = div.appendChild(document.createElement("span"));
+		span.textContent = errorText;
+
+		click(anchor, () => {
+			loadFile(_currentProject.find(filename) as SourceFile, { lineNumber: event.lineno, column: event.colno });
+			return false;
+		});
+	}
+	else {
+		var span = div.appendChild(document.createElement("span"));
+		span.textContent = fileText + errorText;
+	}
+}
+
 function frameLoaded(event: any) {
 
 	/*	
-		if (!_previewLoading)
-			return;
-		_previewLoading = false;
-		*/
+	if (!_previewLoading)
+		return;
+	_previewLoading = false;
+	*/
 
 	if (_previewDocked) {
 		var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
@@ -391,34 +491,34 @@ function frameLoaded(event: any) {
     });
     */
 
-	sw.addEventListener('message', event => {
+	sw.addEventListener('message', async event => {
 
-		//console.log("MESSAGE", event);
 		if (!event.ports)
 			return;
 
 		var url = event.data as string;
+		console.log("MESSAGE", url);
 		var originLength = event.origin.length;
 		var blob: Blob | null = null;
 		if (url.substring(0, originLength) === event.origin) {
 			url = url.substring(originLength);
 
-			if (url && url.charAt(0) === '/')
-				url = url.substring(1);
-
-			var file = _files.find(f => f.fileName === url);
-			if (file) {
+			var file = _currentProject.find(url);
+			if (file instanceof SourceFile) {
 
 				file.used = true;
 				var language = file.language;
 				var content = (file === _currentFile) ? _editor.getValue() : file.content;
+				if (content === null)
+					content = await file.fetch(_currentProject);
+
 				switch (language) {
 					case SourceLanguage.Javascript:
 						content = loopProtect.rewriteLoops(content);
 						break;
 				}
 
-				blob = new Blob([content], { type: language.mimeType });
+				blob = new Blob([content], { type: language && language.mimeType });
 			}
 		}
 		event.ports[0].postMessage(blob);
@@ -432,10 +532,11 @@ function frameLoaded(event: any) {
 		.then(reg => {
 			//console.log("registered", reg);
 			setTimeout(() => {
-				if (_previewWindow) {
+				if (_previewWindow && _currentHtml) {
 					_previewWindow.document.clear();
 					_previewWindow.document.open();
-					_previewWindow.document.write(_currentHtml.content);
+					_previewWindow.document.write("<script>window.addEventListener('error', parent.handlePreviewError);</script>");
+					_previewWindow.document.write(_currentHtml.content!);
 					_previewWindow.document.close();
 				}
 			}, 1);

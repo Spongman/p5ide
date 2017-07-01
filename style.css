@@ -11,6 +11,10 @@ body {
     font-size: 14px;
 }
 
+ul, li {
+	margin: 0;
+	padding: 0;
+}
 
 a {
     color: #d4d4d4;
@@ -37,8 +41,8 @@ footer {
     display: flex;
 }
 
-.flex-horizontal.dragging > div,
-.flex-vertical.dragging > div {
+.flex-horizontal.dragging > :not(span),
+.flex-vertical.dragging > :not(span) {
 	pointer-events: none;
 }
 
@@ -65,6 +69,13 @@ footer {
     cursor: col-resize;
 }
 
+.flex-vertical > span {
+    display: block;
+    height: 5px;
+    cursor: row-resize;
+}
+
+
 .panelHeader {
     padding: 2px 4px;
 }
@@ -88,32 +99,28 @@ footer {
 	height: 100%;
 }
 
-#fileContainer > a {
-	padding: 2px 4px;
+.sourceNode > a {
+	padding: 1px 4px;
 	display: block;
 }
 
-#fileContainer > a > i {
+.sourceNode > a > i {
 	margin-right: 4px;
 }
 
-#fileContainer > a:hover {
+.sourceNode > a:hover {
 	background: #333;
 }
 
-
-#fileContainer > a.selected {
-	padding: 2px 4px;
-	display: block;
-}
-
-#fileContainer > a i.icon {
+.sourceNode > a i.icon {
 	opacity: 0.5;
 }
-#fileContainer > a.used i.icon {
+.sourceNode > a.used i.icon {
 	opacity: 1;
 }
-
+.sourceNode .sourceFolder {
+	padding-left: 5px;
+}
 /*
 #fileContainer > a.used:afteaaar {
 	content:'\2713';
@@ -164,16 +171,17 @@ body.theme-vs a > i.fa {
 
 body.theme-vs header,
 body.theme-vs footer,
-body.theme-vs .flex-horizontal > span {
+body.theme-vs .flex-horizontal > span,
+body.theme-vs .flex-vertical > span {
     background: #ccc;
 }
 
-body.theme-vs #fileContainer > a:hover,
+body.theme-vs .sourceNode > a:hover,
 body.theme-vs-dark select option {
 	background: #E5EBF1;
 }
 
-body.theme-vs #fileContainer > a.selected {
+body.theme-vs .sourceNode > a.selected {
 	background: #ADD6FF;
 }
 
@@ -200,16 +208,17 @@ body.theme-vs-dark a > i.fa {
 
 body.theme-vs-dark header,
 body.theme-vs-dark footer,
-body.theme-vs-dark .flex-horizontal > span {
+body.theme-vs-dark .flex-horizontal > span,
+body.theme-vs-dark .flex-vertical > span {
     background: #333;
 }
 
-body.theme-vs-dark #fileContainer > a:hover,
+body.theme-vs-dark .sourceNode > a:hover,
 body.theme-vs-dark select option {
 	background: #3A3D41;
 }
 
-body.theme-vs-dark #fileContainer > a.selected {
+body.theme-vs-dark .sourceNode > a.selected {
 	background: #264F78;
 }
 
@@ -233,7 +242,7 @@ body.theme-hc-black a > i.fa {
 	color: hsla(210, 100%, 90%, 1);
 }
 
-body.theme-hc-black #fileContainer > a:hover {
+body.theme-hc-black .sourceNode > a:hover {
 	background: white;
 	color: black;
 }
@@ -244,7 +253,7 @@ body.theme-hc-black select option {
 }
 
 
-body.theme-hc-black #fileContainer > a.selected {
+body.theme-hc-black .sourceNode > a.selected {
 	background: white;
 	color: black;
 }
@@ -260,7 +269,21 @@ body.theme-hc-black .panelHeader {
 }
 
 body:not(.preview-docked) .preview-docked-show,
+body:not(.console-visible) .console-visible-show,
 body.preview-paused #btnPause,
 body:not(.preview-paused) #btnRun {
 	display: none;
+}
+
+
+#consoleContainer {
+	font-family: monospace;
+}
+
+#consoleContainer div.error {
+	color: red !important;
+}
+
+#consoleContainer div.error i {
+	float: right;
 }
