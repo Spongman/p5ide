@@ -225,7 +225,7 @@ var defaultProject = new StaticProject(
 		new SourceFile("index.html"),
 		new SourceFile("sketch.js"),
 		new SourceFile("style.css"),
-		new SourceFile("index2.html"),
+		new SourceFile("b/index2.html"),
 	]
 );
 

@@ -2,6 +2,15 @@
     box-sizing: border-box;
 }
 
+/* latin */
+@font-face {
+  font-family: 'Fira Code';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://cdn.rawgit.com/tonsky/FiraCode/bbd33d9e/distr/woff2/FiraCode-Medium.woff2) format('woff2');
+}
+
+
 html,
 body {
     border: 0;
@@ -23,6 +32,7 @@ a {
 
 a i.fa {
 	opacity: 0.6;
+	transition: opacity .2s;
 }
 
 a:hover i.fa {
@@ -80,6 +90,10 @@ footer {
     padding: 2px 4px;
 }
 
+.panelHeader span {
+	text-shadow: 1px 1px 5px rgba(0,0,0,.5);
+}
+
 #previewContainer {
     position: relative;
 	overflow: hidden;
@@ -102,6 +116,7 @@ footer {
 .sourceNode > a {
 	padding: 1px 4px;
 	display: block;
+	transition: background-color .2s;
 }
 
 .sourceNode > a > i {
@@ -121,6 +136,15 @@ footer {
 .sourceNode .sourceFolder {
 	padding-left: 5px;
 }
+.sourceNode:not(.open) .sourceFolder {
+	display: none;
+}
+
+.sourceNode:not(.open) > a i.fa-folder-open-o,
+.sourceNode.open > a i:not(.fa-folder-open-o) {
+	display: none;
+}
+
 /*
 #fileContainer > a.used:afteaaar {
 	content:'\2713';

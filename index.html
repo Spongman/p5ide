@@ -16,6 +16,7 @@
 
 	<header>
 		p5.js
+		<!--<a href="#" onclick=""-->
 		<div style="float: right;">
 			<label>
 				Theme:
@@ -30,7 +31,9 @@
 
 	<div class="flex-fill flex-horizontal" style="overflow: hidden;">
 		<div id="treePanel" class="flex-vertical" style="width: 150px;">
-			<div class="panelHeader">project-folder</div>
+			<div class="panelHeader">
+				<span>project-folder</span>
+			</div>
 			<ul id="fileContainer" class="sourceFolder flex-fill"></ul>
 		</div>
 		<span></span>
@@ -64,7 +67,7 @@
 			<span class="preview-docked-show"></span>
 			<div id="previewPanel" class="flex-vertical preview-docked-show" style="width: 400px;">
 				<div class="panelHeader">
-					preview
+					<span>preview</span>
 					<a href="#" id="btnFloatPreview" style="float: right;" title="pop out preview window"><i class="fa fa-window-restore" aria-hidden="true"></i></a>
 				</div>
 				<div id="previewContainer" class="flex-fill"></div>

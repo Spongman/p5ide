@@ -103,11 +103,6 @@ function loadProject(project: Project) {
 		var icon = anchor.appendChild(document.createElement("i"));
 		icon.className = "icon fa fa-" + node.icon;
 
-		var text = anchor.appendChild(document.createElement("span"));
-		text.textContent = node.name;
-
-		node.element = anchor;
-
 		if (node instanceof SourceFile) {
 			click(anchor, () => {
 				loadFile(node);
@@ -118,7 +113,21 @@ function loadProject(project: Project) {
 		else {
 			var children = elt = li.appendChild(document.createElement("ul"));
 			children.className = "sourceFolder";
+
+			var icon2 = anchor.appendChild(document.createElement("i"));
+			icon2.className = "icon fa fa-folder-open-o";
+
+			click(anchor, () => {
+				li.classList.toggle("open");
+				return false;
+			});		
 		}
+
+
+		var text = anchor.appendChild(document.createElement("span"));
+		text.textContent = node.name;
+
+		node.element = anchor;
 
 		mapFileElements[node.path] = elt;
 		return elt;
@@ -193,14 +202,25 @@ Promise.all<any>([
 	// compiler options
 	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
 		noLib: true,
-		target: monaco.languages.typescript.ScriptTarget.ES2017,
+		target: monaco.languages.typescript.ScriptTarget.ES2016,
 		allowNonTsExtensions: true
 	});
 
 	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[0], "p5.global-mode.d.ts");
 
 	var editorContainer = document.getElementById('editorContainer')!;
-	_editor = monaco.editor.create(editorContainer, { theme: 'vs-dark', });
+	_editor = monaco.editor.create(editorContainer, {
+		fixedOverflowWidgets: true,
+		fontFamily: 'Fira Code',
+		//fontLigatures: true,
+		//glyphMargin: false,
+		lineNumbersMinChars: 3,
+		mouseWheelZoom: true,
+		scrollBeyondLastLine: false,
+		//useTabStops: true,
+		//renderIndentGuides: true,
+		theme: 'vs-dark',
+	});
 
 	window.addEventListener('resize', () => {
 		_editor.layout();
