@@ -484,6 +484,11 @@ declare class p5 {
   windowWidth: number
   
   /**
+   * System variable that stores the height of the inner window, it maps to window.innerHeight.
+   */
+  windowHeight: number
+  
+  /**
    * The windowResized() function is called once every time the browser window is resized. This is a good place to resize the canvas or do any other adjustments to accommodate the new window size.
    */
   windowResized(): void
@@ -542,7 +547,7 @@ declare class p5 {
   /**
    * Resizes the canvas to given width and height. The canvas will be cleared and draw will be called immediately, allowing the sketch to re-render itself in the resized canvas.
    */
-  resizeCanvas(): void
+  resizeCanvas(w: number, h: number, noRedraw: boolean): void
   
   /**
    * Removes the default canvas for a p5 sketch that doesn't require a canvas

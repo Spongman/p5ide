@@ -486,6 +486,11 @@ declare var displayHeight: number;
 declare var windowWidth: number;
 
 /**
+ * System variable that stores the height of the inner window, it maps to window.innerHeight.
+ */
+declare var windowHeight: number;
+
+/**
  * The windowResized() function is called once every time the browser window is resized. This is a good place to resize the canvas or do any other adjustments to accommodate the new window size.
  */
 declare function windowResized(): void;
@@ -544,7 +549,7 @@ declare function createCanvas(w: number, h: number, renderer?: any): HTMLCanvasE
 /**
  * Resizes the canvas to given width and height. The canvas will be cleared and draw will be called immediately, allowing the sketch to re-render itself in the resized canvas.
  */
-declare function resizeCanvas(): void;
+declare function resizeCanvas(w: number, h: number, noRedraw: boolean): void;
 
 /**
  * Removes the default canvas for a p5 sketch that doesn't require a canvas
