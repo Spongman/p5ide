@@ -22,7 +22,7 @@ class SourceLanguage {
 
 class SourceNode {
 	constructor(public path: string, public icon: string) {
-		var ich = path.lastIndexOf('/');
+		const ich = path.lastIndexOf('/');
 		this.dir = path.substr(0, ich);
 		this.name = path.substr(ich + 1);
 	}
@@ -50,7 +50,7 @@ class SourceFile extends SourceNode {
 
 		super(path, "file-text-o");
 
-		var ich = this.name.lastIndexOf('.');
+		const ich = this.name.lastIndexOf('.');
 		if (ich >= 0)
 			this.extension = this.name.substr(ich);
 		else
@@ -109,13 +109,13 @@ abstract class Project {
 
 	constructor(public items: SourceNode[]) {
 
-		var map: { [name: string]: SourceNode } = {};
+		const map: { [name: string]: SourceNode } = {};
 		items.forEach(item => {
 			map[item.path] = item;
 		});
 
 		items.filter(item => item.dir).forEach(item => {
-			var parent = map[item.dir];
+			let parent = map[item.dir];
 			if (!parent) {
 				parent = map[item.dir] = new SourceFolder(item.dir);
 				items.push(parent);
@@ -141,7 +141,7 @@ class GitHubSourceFile extends SourceFile {
 
 	async fetch(project: GitHubProject): Promise<string> {
 
-		var response = await cachedFetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${this.sha}${project.path}/${this.path}`);
+		const response = await cachedFetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${this.sha}${project.path}/${this.path}`);
 		return response.text();
 	}
 }
@@ -149,9 +149,9 @@ class GitHubSourceFile extends SourceFile {
 async function cachedFetch(url: string): Promise<Response> {
 
 	if (window.caches) {
-		var cache = await window.caches.open("fetch");
+		const cache = await window.caches.open("fetch");
 		console.log("CACHE", cache);
-		var response = await cache.match(url);
+		let response = await cache.match(url);
 		console.log("MATCH", response);
 		if (!response) {
 			response = await fetch(url);
@@ -164,7 +164,7 @@ async function cachedFetch(url: string): Promise<Response> {
 	}
 	else if (window.localStorage) {
 
-		var response: Response;
+		let response: Response;
 		if (!window.localStorage.fetch)
 			window.localStorage.fetch = {};
 
@@ -192,13 +192,13 @@ class GitHubProject extends Project {
 		if (!match)
 			throw new Error("invalid url");
 
-		var branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch}`);
-		var branchJson = await branchResponse.json();
+		const branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch}`);
+		const branchJson = await branchResponse.json();
 
-		var treeResponse = await cachedFetch(branchJson.commit.commit.tree + "?recursive=1");
-		var treeJson = await treeResponse.json() as { tree: [{ path: string, type: string, sha: string }] };
+		const treeResponse = await cachedFetch(branchJson.commit.commit.tree + "?recursive=1");
+		const treeJson = await treeResponse.json() as { tree: [{ path: string, type: string, sha: string }] };
 
-		var items = treeJson.tree.map(e => e.type === "blob" ?
+		const items = treeJson.tree.map(e => e.type === "blob" ?
 			new GitHubSourceFile(e.path, e.sha) :
 			new SourceFolder(e.path)
 		);
@@ -220,7 +220,7 @@ class StaticProject extends Project {
 	}
 }
 
-var defaultProject = new StaticProject(
+const defaultProject = new StaticProject(
 	"./", [
 		new SourceFile("index.html"),
 		new SourceFile("sketch.js"),

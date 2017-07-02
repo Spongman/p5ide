@@ -1,106 +1,45 @@
 /// <reference types="monaco-editor"/>
 /// <reference path="loop-protect.d.ts"/>
 /// <reference path="file.ts"/>
-
-// import loopProtect from "loop-protect";
-
-interface Document {
-	ready(): Promise<any>;
-}
-
-interface Function {
-	call<T>(this: (...args: any[]) => T, thisArg: any, ...argArray: any[]): T;
-}
-
-function promiseRequire(paths: string[]): Promise<any[]> {
-	return new Promise((resolve, reject) => {
-		require(paths, (...modules: any[]) => resolve(modules), (err: RequireError) => reject(err));
-	});
-}
-
-/*
-function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
-	return new Promise(function (resolve) {
-		function handle(event: Event) {
-			console.log("HANDLE", type);
-			elt.removeEventListener(type, handle);
-			resolve(event);
-		}
-		elt.addEventListener(type, handle);
-	});
-}
-*/
-
-function click(element: HTMLElement | string, fn: (event: MouseEvent) => boolean) {
-	if (typeof element === 'string')
-		element = document.getElementById(element)!;
-	element.addEventListener("click", event => {
-		if (fn(event) === false)
-			event.preventDefault();
-	});
-}
-
-class EventDelayer {
-
-	constructor(private callback: () => void, private delay: number) {
-	}
-
-	private timeUpdate: number;
-
-	private startTimer(delay: number) {
-		setTimeout(() => {
-
-			var timeRemaining = this.timeUpdate - Date.now();
-			if (timeRemaining > 0) {
-				this.startTimer(timeRemaining);
-			} else {
-				this.timeUpdate = 0;
-				this.callback();
-			}
-
-		}, this.delay);
-	}
-
-	trigger() {
-		var timeNow = Date.now();
-		if (!this.timeUpdate)
-			this.startTimer(this.delay);
-		this.timeUpdate = timeNow + this.delay;
-	}
-}
+/// <reference path="utils.ts"/>
 
 loopProtect.method = "__protect";
+require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
-var mapFileElements: { [name: string]: Element } = {};
-
+var _editor: monaco.editor.IStandaloneCodeEditor;
+var _currentProject: Project;
 var _currentFile: SourceFile | null = null;
 var _currentHtml: SourceFile;
-var _currentProject: Project;
+
+var loadCompletePromise:Promise<any>;
 
 function loadProject(project: Project) {
+	console.log()
 
-	_currentProject = project;
+	const fileContainer = document.getElementById("fileContainer")!;
+	fileContainer.innerHTML = "";
 
-	var fileContainer = document.getElementById("fileContainer")!;
+	const mapFileElements: { [name: string]: Element } = {};
+	let defaultFile:SourceFile|null = null;
 
 	function getNodeElement(node?: SourceFolder): Element {
 
 		if (!node)
 			return fileContainer;
 
-		var elt = mapFileElements[node.path];
+		let elt = mapFileElements[node.path];
 		if (elt)
 			return elt;
 
-		var parentElement = getNodeElement(node.parent);
+		const parentElement = getNodeElement(node.parent);
 
-		var li = parentElement.appendChild(document.createElement("li"));
+		const li = parentElement.appendChild(document.createElement("li"));
 		li.className = "sourceNode";
 
-		var anchor = li.appendChild(document.createElement("a"));
+		const anchor = li.appendChild(document.createElement("a"));
 		anchor.href = "#";
 
-		var icon = anchor.appendChild(document.createElement("i"));
+		const icon = anchor.appendChild(document.createElement("i"));
 		icon.className = "icon fa fa-" + node.icon;
 
 		if (node instanceof SourceFile) {
@@ -109,12 +48,15 @@ function loadProject(project: Project) {
 				return false;
 			});
 			elt = anchor;
+
+			if (node.path === "index.html")
+				defaultFile = node;
 		}
 		else {
-			var children = elt = li.appendChild(document.createElement("ul"));
+			const children = elt = li.appendChild(document.createElement("ul"));
 			children.className = "sourceFolder";
 
-			var icon2 = anchor.appendChild(document.createElement("i"));
+			const icon2 = anchor.appendChild(document.createElement("i"));
 			icon2.className = "icon fa fa-folder-open-o";
 
 			click(anchor, () => {
@@ -123,8 +65,7 @@ function loadProject(project: Project) {
 			});		
 		}
 
-
-		var text = anchor.appendChild(document.createElement("span"));
+		const text = anchor.appendChild(document.createElement("span"));
 		text.textContent = node.name;
 
 		node.element = anchor;
@@ -134,23 +75,33 @@ function loadProject(project: Project) {
 	}
 
 	project.items.forEach(item => getNodeElement(item));
+	_currentProject = project;
+
+	if (defaultFile)
+	{
+		loadCompletePromise.then(() => {
+			_currentHtml = defaultFile!;
+			_currentHtml.used = true;
+			loadPreview();
+		})
+	}
 }
 
 async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 	if (_currentFile !== file) {
 		_currentProject.items.forEach(f => { f.selected = (f === file); });
 
-		var model = _editor.getModel();
+		const model = _editor.getModel();
 		if (_currentFile)
 			_currentFile.content = model.getValue();
 
 		_currentFile = null;
 
-		var languageName = file.language && file.language.name;
+		const languageName = file.language && file.language.name;
 
 		monaco.editor.setModelLanguage(model, languageName || "");
 
-		var content: string | null = file.content;
+		let content: string | null = file.content;
 		if (content === null)
 			content = file.content = await file.fetch(_currentProject);
 
@@ -180,19 +131,14 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 	}
 }
 
-var _editor: monaco.editor.IStandaloneCodeEditor;
-require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
-
-Promise.all<any>([
+loadCompletePromise = Promise.all([
 	fetch("p5.global-mode.d.ts").then(response => response.text()),
 	fetch("p5.d.ts").then(response => response.text()),
 	promiseRequire(['vs/editor/editor.main']),
-	document.ready(),
-	//..._files.map(sf => sf.fetch().then(text => { sf.content = text; }))
-]).then((values: any[]) => {
+	document.ready().then(() => { loadProject(defaultProject); }),
+]);
 
-	//console.log('DOM READY');
-	loadProject(defaultProject);
+loadCompletePromise.then((values: any[]) => {
 
 	// validation settings
 	monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -210,7 +156,7 @@ Promise.all<any>([
 	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[1], "p5.d.ts");
 	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[0], "p5.global-mode.d.ts");
 
-	var editorContainer = document.getElementById('editorContainer')!;
+	const editorContainer = document.getElementById('editorContainer')!;
 	_editor = monaco.editor.create(editorContainer, {
 		fixedOverflowWidgets: true,
 		fontFamily: 'Fira Code',
@@ -228,25 +174,24 @@ Promise.all<any>([
 		_editor.layout();
 	}, true);
 
-
 	_editor.onDidChangeCursorPosition(event => {
 		document.getElementById("footerPosition")!.textContent = "Ln " + event.position.lineNumber + ", Col " + event.position.column;
 	});
 
-	var delayer = new EventDelayer(() => {
+	const delayer = new EventDelayer(() => {
 
 		if (!_currentFile || !_previewWindow)
 			return;
 
 		switch (_currentFile.language) {
 			case SourceLanguage.Css:
-				var url = _previewWindow.location.origin + "/" + _currentFile.path;
+				const url = _previewWindow.location.origin + "/" + _currentFile.path;
 
-				var found = false;
+				let found = false;
 				(<StyleSheet[]>[]).slice.call(_previewWindow.document.styleSheets)
 					.filter(ss => ss.href === url)
 					.forEach(ss => {
-						var linkNode = <HTMLLinkElement>ss.ownerNode;
+						const linkNode = <HTMLLinkElement>ss.ownerNode;
 						linkNode.href = linkNode.href;
 						found = true;
 					});
@@ -265,43 +210,20 @@ Promise.all<any>([
 			delayer.trigger();
 	});
 
-	/*
-	var firstHtmlFile = _files.find(f => f.language === SourceLanguage.Html);
-	if (firstHtmlFile) {
-		_currentHtml = firstHtmlFile;
-		_currentHtml.used = true;
-		loadFile(_files[1]);
-		loadPreview();
-	}
-	*/
-
 	function pause(paused: boolean) {
 		_previewPaused = paused;
 		document.body.classList.toggle("preview-paused", paused);
+		if (!paused)
+			loadPreview();
 	}
 
-	click("btnRefresh", () => {
-		loadPreview();
-		return false;
-	});
+	click("btnRefresh", () => { loadPreview(); });
+	click("btnPause", () => { pause(true); });
+	click("btnRun", () => { pause(false); });
+	click("btnFloatPreview", () => { loadPreview(false); });
+	click("btnCloseConsole", () => { setConsoleVisibility(false); });
 
-	click("btnPause", () => {
-		pause(true);
-		return false;
-	});
-
-	click("btnRun", () => {
-		pause(false);
-		loadPreview();
-		return false;
-	});
-
-	click("btnFloatPreview", () => {
-		loadPreview(false);
-		return false;
-	});
-
-	var selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
+	const selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
 	selectTheme.addEventListener('change', () => { setTheme(selectTheme.value); });
 	setTheme(window.localStorage.theme || selectTheme.value);
 
@@ -318,10 +240,10 @@ Promise.all<any>([
 
 	[].forEach.call(document.querySelectorAll(".flex-horizontal > span, .flex-vertical > span"), (span: HTMLElement) => {
 
-		var parent = <HTMLElement>span.parentNode;
-		var fixed = parent.querySelector(":scope > :not(.flex-fill):not(span)") as HTMLElement;
-		var before = [].find.call(parent.childNodes, (e: Node) => e === fixed || e === span) !== span;
-		var horizontal = parent.classList.contains("flex-horizontal");
+		const parent = <HTMLElement>span.parentNode;
+		const fixed = parent.querySelector(":scope > :not(.flex-fill):not(span)") as HTMLElement;
+		const before = [].find.call(parent.childNodes, (e: Node) => e === fixed || e === span) !== span;
+		const horizontal = parent.classList.contains("flex-horizontal");
 
 		span.addEventListener('mousedown', event => {
 			event.preventDefault();
@@ -335,59 +257,31 @@ Promise.all<any>([
 
 		function onMove(event: MouseEvent) {
 			event.preventDefault();
-			var rect = parent.getBoundingClientRect();
+			const rect = parent.getBoundingClientRect();
 			if (horizontal) {
-				var width = before ? (event.pageX - rect.left) : (rect.right - event.pageX);
+				const width = before ? (event.pageX - rect.left) : (rect.right - event.pageX);
 				fixed.style.width = width + "px";
 			}
 			else {
-				var height = before ? (event.pageY - rect.top) : (rect.bottom - event.pageY);
+				const height = before ? (event.pageY - rect.top) : (rect.bottom - event.pageY);
 				fixed.style.height = height + "px";
 			}
 			fixed.dispatchEvent(new Event("resize"));
 		}
 	});
-
-	/*
-	const examplesUrl = "https://api.github.com/repos/processing/p5.js-website/contents/dist/assets/examples";
-
-	fetch(examplesUrl + "/en")
-		.then(response => response.json())
-		.then(json => {
-			var categories = json.map(e => {
-				return {
-					name: e.name.replace('_', ' '),
-					path: e.path.substring('dist/assets/examples'.length)
-				};
-			});
-
-			Promise.all(categories.map(c =>
-				fetch(examplesUrl + c.path)
-					.then(response => response.text())
-					.then(text => { c.text = text; })
-			)).then(categories => {
-				debugger;
-			});
-		});
-	*/
 });
 
-var _previewLoading = true;
+var _previewWindow: Window | null;
 var _previewDocked = true;
 var _previewPaused = false;
-var _previewWindow: Window | null;
-
 
 function loadPreview(docked?: boolean) {
 
 	console.log("loadPreview");
 
-	var consoleContainer = document.getElementById("consoleContainer")!;
+	const previewContainer = document.getElementById('previewContainer')!;
+	const consoleContainer = document.getElementById("consoleContainer")!;
 	consoleContainer.innerHTML = "";
-
-	var previewContainer = document.getElementById('previewContainer')!;
-
-	_previewLoading = true;
 
 	if (docked === void 0)
 		docked = _previewDocked;
@@ -395,7 +289,7 @@ function loadPreview(docked?: boolean) {
 	//console.log("LOAD PREVIEW");
 	if (docked) {
 		_previewWindow = null;
-		var previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
+		const previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
 		if (previewFrame)
 			previewFrame.src = "/v/blank.html";
 		else
@@ -403,9 +297,9 @@ function loadPreview(docked?: boolean) {
 	}
 	else {
 
-		var rect = previewContainer.getBoundingClientRect();
+		const rect = previewContainer.getBoundingClientRect();
 		if (_previewDocked) {
-			var pr = window.devicePixelRatio;
+			const pr = window.devicePixelRatio;
 			_previewWindow = window.open("/v/blank.html", "previewFrame",
 				"toolbar=0,status=0,menubar=0,location=0,replace=1" +
 				",width=" + Math.floor(pr * previewContainer.clientWidth) +
@@ -413,8 +307,7 @@ function loadPreview(docked?: boolean) {
 				",left=" + (window.screenX + Math.floor(pr * rect.left)) +
 				",top=" + (window.screenY + Math.floor(pr * rect.top) + 26)
 			);
-			_previewWindow.addEventListener("error", handlePreviewError);
-			var interval = setInterval(() => {
+			const interval = setInterval(() => {
 				if (!_previewWindow || _previewWindow.closed) {
 					clearInterval(interval);
 					loadPreview(true);
@@ -436,8 +329,8 @@ function loadPreview(docked?: boolean) {
 	}
 }
 
-function setConsoleVisibility(show: boolean) {
-	var isVisible = document.body.classList.contains("console-visible");
+function setConsoleVisibility(show: boolean = true) {
+	const isVisible = document.body.classList.contains("console-visible");
 	if (isVisible != show) {
 		document.body.classList.toggle("console-visible", show);
 		_editor.layout();
@@ -446,32 +339,32 @@ function setConsoleVisibility(show: boolean) {
 
 function handlePreviewError(event: ErrorEvent) {
 
-	setConsoleVisibility(true);
+	setConsoleVisibility();
 
-	var consoleContainer = document.getElementById("consoleContainer")!;
-	var div = consoleContainer.appendChild(document.createElement("div"));
+	const consoleContainer = document.getElementById("consoleContainer")!;
+	const div = consoleContainer.appendChild(document.createElement("div"));
 	div.className = "error";
 
 	if (event.error && event.error.stack) {
-		var info = div.appendChild(document.createElement("i"));
+		const info = div.appendChild(document.createElement("i"));
 		info.className = "fa fa-info-circle";
 		info.title = event.error.stack;
 	}
 
-	var origin = _previewWindow!.location.origin;
-	var local = event.filename.substr(0, origin.length) === origin;
-	var filename = local ? event.filename.substr(origin.length) : event.filename;
+	const origin = _previewWindow!.location.origin;
+	const local = event.filename.substr(0, origin.length) === origin;
+	let filename = local ? event.filename.substr(origin.length) : event.filename;
 	if (filename.charAt(0) === '/')
 		filename = filename.substr(1);
-	var fileText = `${filename}(${event.lineno},${event.colno})`;
-	var errorText = ` : ${event.message}`;
+	const fileText = `${filename}(${event.lineno},${event.colno})`;
+	const errorText = ` : ${event.message}`;
 
 	if (local) {
-		var anchor = div.appendChild(document.createElement("a"));
+		const anchor = div.appendChild(document.createElement("a"));
 		anchor.textContent = fileText;
 		anchor.href = "#";
 
-		var span = div.appendChild(document.createElement("span"));
+		const span = div.appendChild(document.createElement("span"));
 		span.textContent = errorText;
 
 		click(anchor, () => {
@@ -480,21 +373,15 @@ function handlePreviewError(event: ErrorEvent) {
 		});
 	}
 	else {
-		var span = div.appendChild(document.createElement("span"));
+		const span = div.appendChild(document.createElement("span"));
 		span.textContent = fileText + errorText;
 	}
 }
 
 function frameLoaded(event: any) {
 
-	/*	
-	if (!_previewLoading)
-		return;
-	_previewLoading = false;
-	*/
-
 	if (_previewDocked) {
-		var frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
+		const frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
 		_previewWindow = frame.contentWindow;
 	}
 
@@ -504,7 +391,7 @@ function frameLoaded(event: any) {
 	}
 
 	(<any>_previewWindow)['__protect'] = loopProtect.protect;
-	var sw = _previewWindow.navigator.serviceWorker;
+	const sw = _previewWindow.navigator.serviceWorker;
 
     /*
     window.addEventListener('unload', event => {
@@ -518,19 +405,19 @@ function frameLoaded(event: any) {
 		if (!event.ports)
 			return;
 
-		var url = event.data as string;
+		let url = event.data as string;
 		console.log("MESSAGE", url);
-		var originLength = event.origin.length;
-		var blob: Blob | null = null;
+		const originLength = event.origin.length;
+		let blob: Blob | null = null;
 		if (url.substring(0, originLength) === event.origin) {
 			url = url.substring(originLength);
 
-			var file = _currentProject.find(url);
+			const file = _currentProject.find(url);
 			if (file instanceof SourceFile) {
 
 				file.used = true;
-				var language = file.language;
-				var content = (file === _currentFile) ? _editor.getValue() : file.content;
+				const language = file.language;
+				let content = (file === _currentFile) ? _editor.getValue() : file.content;
 				if (content === null)
 					content = await file.fetch(_currentProject);
 
@@ -554,15 +441,32 @@ function frameLoaded(event: any) {
 		.then(reg => {
 			//console.log("registered", reg);
 			setTimeout(() => {
-				if (_previewWindow && _currentHtml) {
-					_previewWindow.document.clear();
-					_previewWindow.document.open();
-					_previewWindow.document.write("<script>window.addEventListener('error', parent.handlePreviewError);</script>");
-					_previewWindow.document.write(_currentHtml.content!);
-					_previewWindow.document.close();
-				}
+				_currentHtml &&	_currentHtml.fetch(_currentProject).then((html) => {
+					if (_previewWindow)
+					{
+						_previewWindow.document.clear();
+						_previewWindow.document.open();
+						_previewWindow.document.write("<script>(opener||parent).initializePreview(window);</script>");
+						_previewWindow.document.write(html);
+						_previewWindow.document.close();
+					}
+				});
 			}, 1);
 		}).catch(err => {
 			//console.log('registration failed', err);
 		});
+}
+
+
+function initializePreview(previewWindow:any)
+{
+	previewWindow.addEventListener('error', handlePreviewError);
+	const consoleContainer = document.getElementById("consoleContainer")!;
+	new ProxyConsole(previewWindow.console, row => {
+		var scroll = consoleContainer.scrollTop >= consoleContainer.scrollHeight - consoleContainer.clientHeight - 5;
+		consoleContainer.appendChild(row);
+		if (scroll)
+			consoleContainer.scrollTop = consoleContainer.scrollHeight - consoleContainer.clientHeight;
+		setConsoleVisibility();
+	});
 }

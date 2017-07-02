@@ -94,6 +94,11 @@ footer {
 	text-shadow: 1px 1px 5px rgba(0,0,0,.5);
 }
 
+.panelHeader a {
+    float: right;
+    margin-left: 5px;
+}
+
 #previewContainer {
     position: relative;
 	overflow: hidden;
@@ -214,6 +219,11 @@ body.theme-vs .panelHeader {
 	border-bottom: 1px solid #ddd;
 }
 
+body.theme-vs .console-info { background: #FFFFC8; }
+body.theme-vs .console-warn { background: #EBF5FF; }
+body.theme-vs .console-error { background: #FFEBEB; }
+
+
 /*
 */
 
@@ -251,6 +261,11 @@ body.theme-vs-dark .panelHeader {
 	border-bottom: 1px solid #444;
 }
 
+
+body.theme-vs-dark .console-info { background: #383800; }
+body.theme-vs-dark .console-warn { background: #000a14; }
+body.theme-vs-dark .console-error { background: #140000; }
+
 /*
 */
 
@@ -264,6 +279,11 @@ body.theme-hc-black a {
 
 body.theme-hc-black a > i.fa {
 	color: hsla(210, 100%, 90%, 1);
+}
+
+body.theme-hc-black .flex-horizontal > span,
+body.theme-hc-black .flex-vertical > span {
+    background: #888;
 }
 
 body.theme-hc-black .sourceNode > a:hover {
@@ -287,10 +307,6 @@ body.theme-hc-black .panelHeader {
 	border-bottom: 1px solid #111;
 }
 
-#btnPause, #btnRun, #btnRefresh {
-	float: right;
-	margin-left: 5px;
-}
 
 body:not(.preview-docked) .preview-docked-show,
 body:not(.console-visible) .console-visible-show,
@@ -301,7 +317,8 @@ body:not(.preview-paused) #btnRun {
 
 
 #consoleContainer {
-	font-family: monospace;
+	font-family: 'Fira Code';
+    overflow-y: scroll;
 }
 
 #consoleContainer div.error {
@@ -310,4 +327,8 @@ body:not(.preview-paused) #btnRun {
 
 #consoleContainer div.error i {
 	float: right;
+}
+
+.console-error {
+    color: red;
 }
