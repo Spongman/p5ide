@@ -185,6 +185,7 @@ require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
 Promise.all<any>([
 	fetch("p5.global-mode.d.ts").then(response => response.text()),
+	fetch("p5.d.ts").then(response => response.text()),
 	promiseRequire(['vs/editor/editor.main']),
 	document.ready(),
 	//..._files.map(sf => sf.fetch().then(text => { sf.content = text; }))
@@ -206,6 +207,7 @@ Promise.all<any>([
 		allowNonTsExtensions: true
 	});
 
+	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[1], "p5.d.ts");
 	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[0], "p5.global-mode.d.ts");
 
 	var editorContainer = document.getElementById('editorContainer')!;

@@ -10,17 +10,17 @@
 /**
  * Extracts the alpha value from a color or pixel array.
  */
-declare function alpha(obj: any): void;
+declare function alpha(obj: p5.Color|number[]): void;
 
 /**
  * Extracts the blue value from a color or pixel array.
  */
-declare function blue(obj: any): void;
+declare function blue(obj: p5.Color|number[]): void;
 
 /**
  * Extracts the HSB brightness value from a color or pixel array.
  */
-declare function brightness(color: any): void;
+declare function brightness(color: p5.Color|number[]): void;
 
 /**
  * Creates colors for storing in variables of the color datatype. The parameters are interpreted as RGB or HSB values depending on the current colorMode(). The default mode is RGB values from 0 to 255 and, therefore, the function call color(255, 204, 0) will return a bright yellow color. 
@@ -29,7 +29,7 @@ declare function brightness(color: any): void;
  * 
  * Colors are stored as Numbers or Arrays.
  */
-declare function color(gray: number, alpha?: number): any[];
+declare function color(gray: number, alpha?: number): p5.Color;
 
 /**
  * Creates colors for storing in variables of the color datatype. The parameters are interpreted as RGB or HSB values depending on the current colorMode(). The default mode is RGB values from 0 to 255 and, therefore, the function call color(255, 204, 0) will return a bright yellow color. 
@@ -38,43 +38,61 @@ declare function color(gray: number, alpha?: number): any[];
  * 
  * Colors are stored as Numbers or Arrays.
  */
-declare function color(v1: number|string, v2: number, v3: number, alpha?: number): any[];
+declare function color(v1: number, v2: number, v3: number, alpha?: number): p5.Color;
+
+/**
+ * Creates colors for storing in variables of the color datatype. The parameters are interpreted as RGB or HSB values depending on the current colorMode(). The default mode is RGB values from 0 to 255 and, therefore, the function call color(255, 204, 0) will return a bright yellow color. 
+ * 
+ *  Note that if only one value is provided to color(), it will be interpreted as a grayscale value. Add a second value, and it will be used for alpha transparency. When three values are specified, they are interpreted as either RGB or HSB values. Adding a fourth value applies alpha transparency. If a single string parameter is provided it will be interpreted as a CSS-compatible color string. 
+ * 
+ * Colors are stored as Numbers or Arrays.
+ */
+declare function color(value: string, alpha?: number): p5.Color;
+
+/**
+ * Creates colors for storing in variables of the color datatype. The parameters are interpreted as RGB or HSB values depending on the current colorMode(). The default mode is RGB values from 0 to 255 and, therefore, the function call color(255, 204, 0) will return a bright yellow color. 
+ * 
+ *  Note that if only one value is provided to color(), it will be interpreted as a grayscale value. Add a second value, and it will be used for alpha transparency. When three values are specified, they are interpreted as either RGB or HSB values. Adding a fourth value applies alpha transparency. If a single string parameter is provided it will be interpreted as a CSS-compatible color string. 
+ * 
+ * Colors are stored as Numbers or Arrays.
+ */
+declare function color(values: number[]): p5.Color;
 
 /**
  * Extracts the green value from a color or pixel array.
  */
-declare function green(color: any): void;
+declare function green(color: p5.Color|number[]): void;
 
 /**
  * Extracts the hue value from a color or pixel array. 
  * 
  * Hue exists in both HSB and HSL. This function will return the HSB-normalized hue when supplied with an HSB color object (or when supplied with a pixel array while the color mode is HSB), but will default to the HSL-normalized hue otherwise. (The values will only be different if the maximum hue setting for each system is different.)
  */
-declare function hue(color: any): void;
+declare function hue(color: p5.Color|number[]): void;
 
 /**
  * Blends two colors to find a third color somewhere between them. The amt parameter is the amount to interpolate between the two values where 0.0 equal to the first color, 0.1 is very near the first color, 0.5 is halfway in between, etc. An amount below 0 will be treated as 0. Likewise, amounts above 1 will be capped at 1. This is different from the behavior of lerp(), but necessary because otherwise numbers outside the range will produce strange and unexpected colors. 
  * 
  *  The way that colours are interpolated depends on the current color mode.
  */
-declare function lerpColor(c1: any[]|number, c2: any[]|number, amt: number): any[]|number;
+declare function lerpColor(c1: p5.Color, c2: p5.Color, amt: number): p5.Color;
 
 /**
  * Extracts the HSL lightness value from a color or pixel array.
  */
-declare function lightness(color: any): void;
+declare function lightness(color: p5.Color|number[]): void;
 
 /**
  * Extracts the red value from a color or pixel array.
  */
-declare function red(obj: any): void;
+declare function red(obj: p5.Color|number[]): void;
 
 /**
  * Extracts the saturation value from a color or pixel array. 
  * 
  * Saturation is scaled differently in HSB and HSL. This function will return the HSB saturation when supplied with an HSB color object (or when supplied with a pixel array while the color mode is HSB), but will default to the HSL saturation otherwise.
  */
-declare function saturation(color: any): void;
+declare function saturation(color: p5.Color|number[]): void;
 
 // src/color/setting.js
 
@@ -113,14 +131,42 @@ declare function clear(): void;
  * 
  *  Note: existing color objects remember the mode that they were created in, so you can change modes as you like without affecting their appearance.
  */
-declare function colorMode(mode: any, max1?: number, max2?: number, max3?: number, maxA?: number): void;
+declare function colorMode(mode: any, max?: number): p5;
+
+/**
+ * colorMode() changes the way p5.js interprets color data. By default, the parameters for fill(), stroke(), background(), and color() are defined by values between 0 and 255 using the RGB color model. This is equivalent to setting colorMode(RGB, 255). Setting colorMode(HSB) lets you use the HSB system instead. By default, this is colorMode(HSB, 360, 100, 100, 1). You can also use HSL. 
+ * 
+ *  Note: existing color objects remember the mode that they were created in, so you can change modes as you like without affecting their appearance.
+ */
+declare function colorMode(mode: any, max1: number, max2: number, max3: number, maxA?: number): p5;
 
 /**
  * Sets the color used to fill shapes. For example, if you run fill(204, 102, 0), all subsequent shapes will be filled with orange. This color is either specified in terms of the RGB or HSB color depending on the current colorMode(). (The default color space is RGB, with each value in the range from 0 to 255). 
  * 
  *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the fill color.
  */
-declare function fill(v1: number|any[]|string|p5.Color, v2?: number, v3?: number, a?: number): void;
+declare function fill(v1: number, v2: number, v3: number, alpha?: number): p5;
+
+/**
+ * Sets the color used to fill shapes. For example, if you run fill(204, 102, 0), all subsequent shapes will be filled with orange. This color is either specified in terms of the RGB or HSB color depending on the current colorMode(). (The default color space is RGB, with each value in the range from 0 to 255). 
+ * 
+ *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the fill color.
+ */
+declare function fill(value: string, alpha?: number): p5;
+
+/**
+ * Sets the color used to fill shapes. For example, if you run fill(204, 102, 0), all subsequent shapes will be filled with orange. This color is either specified in terms of the RGB or HSB color depending on the current colorMode(). (The default color space is RGB, with each value in the range from 0 to 255). 
+ * 
+ *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the fill color.
+ */
+declare function fill(values: number[]): p5;
+
+/**
+ * Sets the color used to fill shapes. For example, if you run fill(204, 102, 0), all subsequent shapes will be filled with orange. This color is either specified in terms of the RGB or HSB color depending on the current colorMode(). (The default color space is RGB, with each value in the range from 0 to 255). 
+ * 
+ *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the fill color.
+ */
+declare function fill(color: p5.Color, alpha?: number): p5;
 
 /**
  * Disables filling geometry. If both noStroke() and noFill() are called, nothing will be drawn to the screen.
@@ -137,7 +183,28 @@ declare function noStroke(): void;
  * 
  *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the stroke color.
  */
-declare function stroke(v1: number|any[]|string|p5.Color, v2?: number, v3?: number, a?: number): void;
+declare function stroke(v1: number, v2: number, v3: number, alpha?: number): p5;
+
+/**
+ * Sets the color used to draw lines and borders around shapes. This color is either specified in terms of the RGB or HSB color depending on the current colorMode() (the default color space is RGB, with each value in the range from 0 to 255). 
+ * 
+ *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the stroke color.
+ */
+declare function stroke(value: string, alpha?: number): p5;
+
+/**
+ * Sets the color used to draw lines and borders around shapes. This color is either specified in terms of the RGB or HSB color depending on the current colorMode() (the default color space is RGB, with each value in the range from 0 to 255). 
+ * 
+ *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the stroke color.
+ */
+declare function stroke(values: number[]): p5;
+
+/**
+ * Sets the color used to draw lines and borders around shapes. This color is either specified in terms of the RGB or HSB color depending on the current colorMode() (the default color space is RGB, with each value in the range from 0 to 255). 
+ * 
+ *  If a single string argument is provided, RGB, RGBA and Hex CSS color strings and all named color strings are supported. A p5 Color object can also be provided to set the stroke color.
+ */
+declare function stroke(color: p5.Color, alpha?: number): p5;
 
 // src/core/2d_primitives.js
 
@@ -146,12 +213,7 @@ declare function stroke(v1: number|any[]|string|p5.Color, v2?: number, v3?: numb
  * 
  *  Note that drawing a full circle (ex: 0 to TWO_PI) will appear blank because 0 and TWO_PI are the same position on the unit circle. The best way to handle this is by using the ellipse() function instead to create a closed ellipse, and to use the arc() function only to draw parts of an ellipse.
  */
-declare function arc(a: number, b: number, c: number, d: number, start: number, stop: number, mode?: any): any;
-
-/**
- * Draws an ellipse (oval) to the screen. An ellipse with equal width and height is a circle. By default, the first two parameters set the location, and the third and fourth parameters set the shape's width and height. If no height is specified, the value of width is used for both the width and height. If a negative height or width is specified, the absolute value is taken. The origin may be changed with the ellipseMode() function.
- */
-declare function ellipse(x: number, y: number, w: number, h?: number): p5;
+declare function arc(a: number, b: number, c: number, d: number, start: number, stop: number, mode?: any): p5;
 
 /**
  * Draws an ellipse (oval) to the screen. An ellipse with equal width and height is a circle. By default, the first two parameters set the location, and the third and fourth parameters set the shape's width and height. If no height is specified, the value of width is used for both the width and height. If a negative height or width is specified, the absolute value is taken. The origin may be changed with the ellipseMode() function.
@@ -199,15 +261,6 @@ declare function triangle(x1: number, y1: number, x2: number, y2: number, x3: nu
 
 // src/core/attributes.js
 
-
-declare const enum EllipseMode {
-	CENTER,
-	RADIUS,
-	CORNER,
-	CORNERS
-}
-
-declare const CORNERS: EllipseMode;
 /**
  * Modifies the location from which ellipses are drawn by changing the way in which parameters given to ellipse() are interpreted. 
  * 
@@ -221,7 +274,7 @@ declare const CORNERS: EllipseMode;
  * 
  *  The parameter must be written in ALL CAPS because Javascript is a case-sensitive language.
  */
-declare function ellipseMode(mode: EllipseMode): p5;
+declare function ellipseMode(mode: any): p5;
 
 /**
  * Draws all geometry with jagged (aliased) edges. Note that smooth() is active by default, so it is necessary to call noSmooth() to disable smoothing of geometry, images, and fonts.
@@ -251,12 +304,12 @@ declare function smooth(): p5;
 /**
  * Sets the style for rendering line endings. These ends are either squared, extended, or rounded, each of which specified with the corresponding parameters: SQUARE, PROJECT, and ROUND. The default cap is ROUND.
  */
-declare function strokeCap(cap: number|any): p5;
+declare function strokeCap(cap: any): p5;
 
 /**
  * Sets the style of the joints which connect line segments. These joints are either mitered, beveled, or rounded and specified with the corresponding parameters MITER, BEVEL, and ROUND. The default joint is MITER.
  */
-declare function strokeJoin(join: number|any): p5;
+declare function strokeJoin(join: any): p5;
 
 /**
  * Sets the width of the stroke used for lines, points, and the border around shapes. All widths are set in units of pixels.
@@ -268,27 +321,27 @@ declare function strokeWeight(weight: number): p5;
 /**
  * HALF_PI is a mathematical constant with the value 1.57079632679489661923. It is half the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var HALF_PI: any;
+declare var HALF_PI: number;
 
 /**
  * PI is a mathematical constant with the value 3.14159265358979323846. It is the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var PI: any;
+declare var PI: number;
 
 /**
  * QUARTER_PI is a mathematical constant with the value 0.7853982. It is one quarter the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var QUARTER_PI: any;
+declare var QUARTER_PI: number;
 
 /**
  * TAU is an alias for TWO_PI, a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var TAU: any;
+declare var TAU: number;
 
 /**
  * TWO_PI is a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var TWO_PI: any;
+declare var TWO_PI: number;
 
 // src/core/core.js
 
@@ -331,14 +384,14 @@ declare function remove(): void;
  * 
  * Bezier curves were developed by French automotive engineer Pierre Bezier, and are commonly used in computer graphics to define gently sloping curves. See also curve().
  */
-declare function bezier(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): any;
+declare function bezier(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): p5;
 
 /**
  * Draws a cubic Bezier curve on the screen. These curves are defined by a series of anchor and control points. The first two parameters specify the first anchor point and the last two parameters specify the other anchor point, which become the first and last points on the curve. The middle parameters specify the two control points which define the shape of the curve. Approximately speaking, control points "pull" the curve towards them.
  * 
  * Bezier curves were developed by French automotive engineer Pierre Bezier, and are commonly used in computer graphics to define gently sloping curves. See also curve().
  */
-declare function bezier(z1: number, z2: number, z3: number, z4: number): any;
+declare function bezier(z1: number, z2: number, z3: number, z4: number): p5;
 
 /**
  * Evaluates the Bezier at position t for points a, b, c, d. The parameters a and d are the first and last points on the curve, and b and c are the control points. The final parameter t varies between 0 and 1. This can be done once with the x coordinates and a second time with the y coordinates to get the location of a bezier curve at t.
@@ -355,19 +408,19 @@ declare function bezierTangent(a: number, b: number, c: number, d: number, t: nu
  * 
  *  Longer curves can be created by putting a series of curve() functions together or using curveVertex(). An additional function called curveTightness() provides control for the visual quality of the curve. The curve() function is an implementation of Catmull-Rom splines.
  */
-declare function curve(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): any;
+declare function curve(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): p5;
 
 /**
  * Draws a curved line on the screen between two points, given as the middle four parameters. The first two parameters are a control point, as if the curve came from this point even though it's not drawn. The last two parameters similarly describe the other control point. 
  * 
  *  Longer curves can be created by putting a series of curve() functions together or using curveVertex(). An additional function called curveTightness() provides control for the visual quality of the curve. The curve() function is an implementation of Catmull-Rom splines.
  */
-declare function curve(z1: number, z2: number, z3: number, z4: number): any;
+declare function curve(z1: number, z2: number, z3: number, z4: number): p5;
 
 /**
  * Modifies the quality of forms created with curve() and curveVertex(). The parameter tightness determines how the curve fits to the vertex points. The value 0.0 is the default value for tightness (this value defines the curves to be Catmull-Rom splines) and the value 1.0 connects all the points with straight lines. Values within the range -5.0 and 5.0 will deform the curves but will leave them recognizable and as values increase in magnitude, they will continue to deform.
  */
-declare function curveTightness(amount: number): any;
+declare function curveTightness(amount: number): p5;
 
 /**
  * Evaluates the curve at position t for points a, b, c, d. The parameter t varies between 0 and 1, a and d are points on the curve, and b and c are the control points. This can be done once with the x coordinates and a second time with the y coordinates to get the location of a curve at t.
@@ -391,17 +444,17 @@ declare function print(contents: any): void;
 /**
  * The system variable frameCount contains the number of frames that have been displayed since the program started. Inside setup() the value is 0, after the first iteration of draw it is 1, etc.
  */
-declare var frameCount: any;
+declare var frameCount: number;
 
 /**
  * Confirms if the window a p5.js program is in is "focused," meaning that the sketch will accept mouse or keyboard input. This variable is "true" if the window is focused and "false" if not.
  */
-declare var focused: any;
+declare var focused: boolean;
 
 /**
  * Sets the cursor to a predefined symbol or an image, or makes it visible if already hidden. If you are trying to set an image as the cursor, the recommended size is 16x16 or 32x32 pixels. It is not possible to load an image as the cursor if you are exporting your program for the Web, and not all MODES work with all browsers. The values for parameters x and y must be less than the dimensions of the image.
  */
-declare function cursor(type: number|any, x?: number, y?: number): void;
+declare function cursor(type: string|any, x?: number, y?: number): void;
 
 /**
  * Specifies the number of frames to be displayed every second. For example, the function call frameRate(30) will attempt to refresh 30 times a second. If the processor is not fast enough to maintain the specified rate, the frame rate will not be achieved. Setting the frame rate within setup() is recommended. The default rate is 60 frames per second. This is the same as setFrameRate(val). 
@@ -420,22 +473,17 @@ declare function noCursor(): void;
 /**
  * System variable that stores the width of the entire screen display. This is used to run a full-screen program on any display size.
  */
-declare var displayWidth: any;
+declare var displayWidth: number;
 
 /**
  * System variable that stores the height of the entire screen display. This is used to run a full-screen program on any display size.
  */
-declare var displayHeight: any;
+declare var displayHeight: number;
 
 /**
  * System variable that stores the width of the inner window, it maps to window.innerWidth.
  */
-declare var windowWidth: any;
-
-/**
- * System variable that stores the height of the inner window, it maps to window.innerHeight.
- */
-declare var windowHeight: any;
+declare var windowWidth: number;
 
 /**
  * The windowResized() function is called once every time the browser window is resized. This is a good place to resize the canvas or do any other adjustments to accommodate the new window size.
@@ -445,12 +493,12 @@ declare function windowResized(): void;
 /**
  * System variable that stores the width of the drawing canvas. This value is set by the first parameter of the createCanvas() function. For example, the function call createCanvas(320, 240) sets the width variable to the value 320. The value of width defaults to 100 if createCanvas() is not used in a program.
  */
-declare var width: any;
+declare var width: number;
 
 /**
  * System variable that stores the height of the drawing canvas. This value is set by the second parameter of the createCanvas() function. For example, the function call createCanvas(320, 240) sets the height variable to the value 240. The value of height defaults to 100 if createCanvas() is not used in a program.
  */
-declare var height: any;
+declare var height: number;
 
 /**
  * If argument is given, sets the sketch to fullscreen or not based on the value of the argument. If no argument is given, returns the current fullscreen state. Note that due to browser restrictions this can only be called on user input, for example, on mouse press like the example below.
@@ -475,7 +523,7 @@ declare function getURL(): string;
 /**
  * Gets the current URL path as an array.
  */
-declare function getURLPath(): any[];
+declare function getURLPath(): string[];
 
 /**
  * Gets the current URL params as an Object.
@@ -491,12 +539,12 @@ declare function getURLParams(): any;
  * 
  *  For more ways to position the canvas, see the  positioning the canvas wiki page.
  */
-declare function createCanvas(w: number, h: number, renderer?: any): any;
+declare function createCanvas(w: number, h: number, renderer?: any): HTMLCanvasElement;
 
 /**
  * Resizes the canvas to given width and height. The canvas will be cleared and draw will be called immediately, allowing the sketch to re-render itself in the resized canvas.
  */
-declare function resizeCanvas(w: number, h: number): void;
+declare function resizeCanvas(): void;
 
 /**
  * Removes the default canvas for a p5 sketch that doesn't require a canvas
@@ -506,7 +554,7 @@ declare function noCanvas(): void;
 /**
  * Creates and returns a new p5.Renderer object. Use this class if you need to draw into an off-screen graphics buffer. The two parameters define the width and height in pixels.
  */
-declare function createGraphics(w: number, h: number, renderer?: any): any;
+declare function createGraphics(w: number, h: number, renderer?: any): p5.Graphics;
 
 /**
  * Blends the pixels in the display window according to the defined mode. There is a choice of the following modes to blend the source pixels (A) with the ones of pixels already in the display window (B): 
@@ -655,7 +703,7 @@ declare function translate(x: number, y: number, z?: number): p5;
  * 
  *  These functions can only be used within a beginShape()/endShape() pair and transformations such as translate(), rotate(), and scale() do not work within a beginContour()/endContour() pair. It is also not possible to use other shapes, such as ellipse() or rect() within.
  */
-declare function beginContour(): any;
+declare function beginContour(): p5;
 
 /**
  * Using the beginShape() and endShape() functions allow creating more complex forms. beginShape() begins recording vertices for a shape and endShape() stops recording. The value of the kind parameter tells it which types of shapes to create from the provided vertices. With no mode specified, the shape can be any irregular polygon. 
@@ -664,43 +712,43 @@ declare function beginContour(): any;
  * 
  *  Transformations such as translate(), rotate(), and scale() do not work within beginShape(). It is also not possible to use other shapes, such as ellipse() or rect() within beginShape().
  */
-declare function beginShape(kind: any): any;
+declare function beginShape(kind: any): p5;
 
 /**
  * Specifies vertex coordinates for Bezier curves. Each call to bezierVertex() defines the position of two control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. 
  * 
  *  The first time bezierVertex() is used within a beginShape() call, it must be prefaced with a call to vertex() to set the first anchor point. This function must be used between beginShape() and endShape() and only when there is no MODE parameter specified to beginShape().
  */
-declare function bezierVertex(x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): any;
+declare function bezierVertex(x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): p5;
 
 /**
  * Specifies vertex coordinates for curves. This function may only be used between beginShape() and endShape() and only when there is no MODE parameter specified to beginShape(). 
  * 
  *  The first and last points in a series of curveVertex() lines will be used to guide the beginning and end of a the curve. A minimum of four points is required to draw a tiny curve between the second and third points. Adding a fifth point with curveVertex() will draw the curve between the second, third, and fourth points. The curveVertex() function is an implementation of Catmull-Rom splines.
  */
-declare function curveVertex(x: number, y: number): any;
+declare function curveVertex(x: number, y: number): p5;
 
 /**
  * Use the beginContour() and endContour() functions to create negative shapes within shapes such as the center of the letter 'O'. beginContour() begins recording vertices for the shape and endContour() stops recording. The vertices that define a negative shape must "wind" in the opposite direction from the exterior shape. First draw vertices for the exterior clockwise order, then for internal shapes, draw vertices shape in counter-clockwise. 
  * 
  *  These functions can only be used within a beginShape()/endShape() pair and transformations such as translate(), rotate(), and scale() do not work within a beginContour()/endContour() pair. It is also not possible to use other shapes, such as ellipse() or rect() within.
  */
-declare function endContour(): any;
+declare function endContour(): p5;
 
 /**
  * The endShape() function is the companion to beginShape() and may only be called after beginShape(). When endshape() is called, all of image data defined since the previous call to beginShape() is written into the image buffer. The constant CLOSE as the value for the MODE parameter to close the shape (to connect the beginning and the end).
  */
-declare function endShape(mode: any): any;
+declare function endShape(mode: any): p5;
 
 /**
  * Specifies vertex coordinates for quadratic Bezier curves. Each call to quadraticVertex() defines the position of one control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. The first time quadraticVertex() is used within a beginShape() call, it must be prefaced with a call to vertex() to set the first anchor point. This function must be used between beginShape() and endShape() and only when there is no MODE parameter specified to beginShape().
  */
-declare function quadraticVertex(cx: number, cy: number, x3: number, y3: number): any;
+declare function quadraticVertex(cx: number, cy: number, x3: number, y3: number): p5;
 
 /**
  * All shapes are constructed by connecting a series of vertices. vertex() is used to specify the vertex coordinates for points, lines, triangles, quads, and polygons. It is used exclusively within the beginShape() and endShape() functions.
  */
-declare function vertex(x: number, y: number): any;
+declare function vertex(x: number, y: number): p5;
 
 // src/events/acceleration.js
 
@@ -712,46 +760,46 @@ declare var deviceOrientation: any;
 /**
  * The system variable accelerationX always contains the acceleration of the device along the x axis. Value is represented as meters per second squared.
  */
-declare var accelerationX: any;
+declare var accelerationX: number;
 
 /**
  * The system variable accelerationY always contains the acceleration of the device along the y axis. Value is represented as meters per second squared.
  */
-declare var accelerationY: any;
+declare var accelerationY: number;
 
 /**
  * The system variable accelerationZ always contains the acceleration of the device along the z axis. Value is represented as meters per second squared.
  */
-declare var accelerationZ: any;
+declare var accelerationZ: number;
 
 /**
  * The system variable pAccelerationX always contains the acceleration of the device along the x axis in the frame previous to the current frame. Value is represented as meters per second squared.
  */
-declare var pAccelerationX: any;
+declare var pAccelerationX: number;
 
 /**
  * The system variable pAccelerationY always contains the acceleration of the device along the y axis in the frame previous to the current frame. Value is represented as meters per second squared.
  */
-declare var pAccelerationY: any;
+declare var pAccelerationY: number;
 
 /**
  * The system variable pAccelerationZ always contains the acceleration of the device along the z axis in the frame previous to the current frame. Value is represented as meters per second squared.
  */
-declare var pAccelerationZ: any;
+declare var pAccelerationZ: number;
 
 /**
  * The system variable rotationX always contains the rotation of the device along the x axis. Value is represented as 0 to +/-180 degrees. 
  * 
  *  Note: The order the rotations are called is important, ie. if used together, it must be called in the order Z-X-Y or there might be unexpected behaviour.
  */
-declare var rotationX: any;
+declare var rotationX: number;
 
 /**
  * The system variable rotationY always contains the rotation of the device along the y axis. Value is represented as 0 to +/-90 degrees. 
  * 
  *  Note: The order the rotations are called is important, ie. if used together, it must be called in the order Z-X-Y or there might be unexpected behaviour.
  */
-declare var rotationY: any;
+declare var rotationY: number;
 
 /**
  * The system variable rotationZ always contains the rotation of the device along the z axis. Value is represented as 0 to 359 degrees. 
@@ -760,28 +808,28 @@ declare var rotationY: any;
  * 
  *  Note: The order the rotations are called is important, ie. if used together, it must be called in the order Z-X-Y or there might be unexpected behaviour.
  */
-declare var rotationZ: any;
+declare var rotationZ: number;
 
 /**
  * The system variable pRotationX always contains the rotation of the device along the x axis in the frame previous to the current frame. Value is represented as 0 to +/-180 degrees. 
  * 
  *  pRotationX can also be used with rotationX to determine the rotate direction of the device along the X-axis.
  */
-declare var pRotationX: any;
+declare var pRotationX: number;
 
 /**
  * The system variable pRotationY always contains the rotation of the device along the y axis in the frame previous to the current frame. Value is represented as 0 to +/-90 degrees. 
  * 
  *  pRotationY can also be used with rotationY to determine the rotate direction of the device along the Y-axis.
  */
-declare var pRotationY: any;
+declare var pRotationY: number;
 
 /**
  * The system variable pRotationZ always contains the rotation of the device along the z axis in the frame previous to the current frame. Value is represented as 0 to 359 degrees. 
  * 
  *  pRotationZ can also be used with rotationZ to determine the rotate direction of the device along the Z-axis.
  */
-declare var pRotationZ: any;
+declare var pRotationZ: number;
 
 /**
  * The setMoveThreshold() function is used to set the movement threshold for the deviceMoved() function. The default threshold is set to 0.5.
@@ -815,17 +863,17 @@ declare function deviceShaken(): void;
 /**
  * The boolean system variable keyIsPressed is true if any key is pressed and false if no keys are pressed.
  */
-declare var keyIsPressed: any;
+declare var keyIsPressed: boolean;
 
 /**
  * The system variable key always contains the value of the most recent key on the keyboard that was typed. To get the proper capitalization, it is best to use it within keyTyped(). For non-ASCII keys, use the keyCode variable.
  */
-declare var key: any;
+declare var key: string;
 
 /**
  * The variable keyCode is used to detect special keys such as BACKSPACE, DELETE, ENTER, RETURN, TAB, ESCAPE, SHIFT, CONTROL, OPTION, ALT, UP_ARROW, DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW. You can also check for custom keys by looking up the keyCode of any key on a site like this: keycode.info.
  */
-declare var keyCode: any;
+declare var keyCode: number;
 
 /**
  * The keyPressed() function is called once every time a key is pressed. The keyCode for the key that was pressed is stored in the keyCode variable. 
@@ -866,42 +914,42 @@ declare function keyIsDown(code: number): boolean;
 /**
  * The system variable mouseX always contains the current horizontal position of the mouse, relative to (0, 0) of the canvas. If touch is used instead of mouse input, mouseX will hold the x value of the most recent touch point.
  */
-declare var mouseX: any;
+declare var mouseX: number;
 
 /**
  * The system variable mouseY always contains the current vertical position of the mouse, relative to (0, 0) of the canvas. If touch is used instead of mouse input, mouseY will hold the y value of the most recent touch point.
  */
-declare var mouseY: any;
+declare var mouseY: number;
 
 /**
  * The system variable pmouseX always contains the horizontal position of the mouse or finger in the frame previous to the current frame, relative to (0, 0) of the canvas.
  */
-declare var pmouseX: any;
+declare var pmouseX: number;
 
 /**
  * The system variable pmouseY always contains the vertical position of the mouse or finger in the frame previous to the current frame, relative to (0, 0) of the canvas.
  */
-declare var pmouseY: any;
+declare var pmouseY: number;
 
 /**
  * The system variable winMouseX always contains the current horizontal position of the mouse, relative to (0, 0) of the window.
  */
-declare var winMouseX: any;
+declare var winMouseX: number;
 
 /**
  * The system variable winMouseY always contains the current vertical position of the mouse, relative to (0, 0) of the window.
  */
-declare var winMouseY: any;
+declare var winMouseY: number;
 
 /**
  * The system variable pwinMouseX always contains the horizontal position of the mouse in the frame previous to the current frame, relative to (0, 0) of the window.
  */
-declare var pwinMouseX: any;
+declare var pwinMouseX: number;
 
 /**
  * The system variable pwinMouseY always contains the vertical position of the mouse in the frame previous to the current frame, relative to (0, 0) of the window.
  */
-declare var pwinMouseY: any;
+declare var pwinMouseY: number;
 
 /**
  * Processing automatically tracks if the mouse button is pressed and which button is pressed. The value of the system variable mouseButton is either LEFT, RIGHT, or CENTER depending on which button was pressed last. Warning: different browsers may track mouseButton differently.
@@ -911,7 +959,7 @@ declare var mouseButton: any;
 /**
  * The boolean system variable mouseIsPressed is true if the mouse is pressed and false if not.
  */
-declare var mouseIsPressed: any;
+declare var mouseIsPressed: boolean;
 
 /**
  * The mouseMoved() function is called every time the mouse moves and a mouse button is not pressed.
@@ -968,7 +1016,7 @@ declare function mouseWheel(): void;
  * 
  * The touches[] array is not supported on Safari and IE on touch-based desktops (laptops).
  */
-declare var touches: any;
+declare var touches: any[];
 
 /**
  * The touchStarted() function is called once after every time a touch is registered. If no touchStarted() function is defined, the mousePressed() function will be called instead if it is defined.
@@ -1002,11 +1050,15 @@ declare function touchEnded(): void;
  */
 declare function createImage(width: number, height: number): p5.Image;
 
-// TODO: Fix saveCanvas() errors in src/image/image.js:
-//
-//   param "selectedCanvas" has invalid type: Canvas
-//
-// declare function saveCanvas(selectedCanvas?: Canvas, filename?: string, extension?: string): void;
+/**
+ * Save the current canvas as an image. In Safari, this will open the image in the window and the user must provide their own filename on save-as. Other browsers will either save the file immediately, or prompt the user with a dialogue window.
+ */
+declare function saveCanvas(selectedCanvas: p5.Element|HTMLCanvasElement, filename?: string, extension?: string): void;
+
+/**
+ * Save the current canvas as an image. In Safari, this will open the image in the window and the user must provide their own filename on save-as. Other browsers will either save the file immediately, or prompt the user with a dialogue window.
+ */
+declare function saveCanvas(filename?: string, extension?: string): void;
 
 /**
  * Capture a sequence of frames that can be used to create a movie. Accepts a callback. For example, you may wish to send the frames to a server where they can be stored or converted into a movie. If no callback is provided, the browser will pop up save dialogues in an attempt to download all of the images that have just been created. With the callback provided the image data isn't saved by default but instead passed as an argument to the callback function as an array of objects, with the size of array equal to the total number of frames.
@@ -1015,12 +1067,14 @@ declare function saveFrames(filename: string, extension: string, duration: numbe
 
 // src/image/loading_displaying.js
 
-// TODO: Fix loadImage() errors in src/image/loading_displaying.js:
-//
-//   param "successCallback" has invalid type: Function(p5.Image)
-//   param "failureCallback" has invalid type: Function(Event)
-//
-// declare function loadImage(path: string, successCallback?: Function(p5.Image), failureCallback?: Function(Event)): p5.Image;
+/**
+ * Loads an image from a path and creates a p5.Image from it. 
+ * 
+ *  The image may not be immediately available for rendering If you want to ensure that the image is ready before doing anything with it, place the loadImage() call in preload(). You may also supply a callback function to handle the image when it's ready. 
+ * 
+ *  The path to the image should be relative to the HTML file that links in your sketch. Loading an from a URL or other remote location may be blocked due to your browser's built-in security.
+ */
+declare function loadImage(path: string, successCallback?: (p1:p5.Image) => any, failureCallback?: (p1:Event) => any): p5.Image;
 
 /**
  * Draw an image to the main canvas of the p5js sketch
@@ -1039,7 +1093,34 @@ declare function image(img: p5.Image, dx: number, dy: number, dWidth: number, dH
  * 
  *  The value for the gray parameter must be less than or equal to the current maximum value as specified by colorMode(). The default maximum value is 255.
  */
-declare function tint(v1: number|any[], v2?: number|any[], v3?: number|any[], a?: number|any[]): void;
+declare function tint(v1: number, v2: number, v3: number, alpha?: number): void;
+
+/**
+ * Sets the fill value for displaying images. Images can be tinted to specified colors or made transparent by including an alpha value. 
+ * 
+ *  To apply transparency to an image without affecting its color, use white as the tint color and specify an alpha value. For instance, tint(255, 128) will make an image 50% transparent (assuming the default alpha range of 0-255, which can be changed with colorMode()). 
+ * 
+ *  The value for the gray parameter must be less than or equal to the current maximum value as specified by colorMode(). The default maximum value is 255.
+ */
+declare function tint(value: string, alpha?: number): void;
+
+/**
+ * Sets the fill value for displaying images. Images can be tinted to specified colors or made transparent by including an alpha value. 
+ * 
+ *  To apply transparency to an image without affecting its color, use white as the tint color and specify an alpha value. For instance, tint(255, 128) will make an image 50% transparent (assuming the default alpha range of 0-255, which can be changed with colorMode()). 
+ * 
+ *  The value for the gray parameter must be less than or equal to the current maximum value as specified by colorMode(). The default maximum value is 255.
+ */
+declare function tint(values: number[]): void;
+
+/**
+ * Sets the fill value for displaying images. Images can be tinted to specified colors or made transparent by including an alpha value. 
+ * 
+ *  To apply transparency to an image without affecting its color, use white as the tint color and specify an alpha value. For instance, tint(255, 128) will make an image 50% transparent (assuming the default alpha range of 0-255, which can be changed with colorMode()). 
+ * 
+ *  The value for the gray parameter must be less than or equal to the current maximum value as specified by colorMode(). The default maximum value is 255.
+ */
+declare function tint(color: p5.Color, alpha?: number): void;
 
 /**
  * Removes the current fill value for displaying images and reverts to displaying images with their original hues.
@@ -1070,7 +1151,7 @@ declare function imageMode(mode: any): void;
  * 
  *  Note that this is not a standard javascript array. This means that standard javascript functions such as slice() or arrayCopy() do not work.
  */
-declare var pixels: any;
+declare var pixels: number[];
 
 /**
  * Copies a region of pixels from one image to another, using a specified blend mode to do the operation.
@@ -1166,7 +1247,7 @@ declare function updatePixels(x?: number, y?: number, w?: number, h?: number): v
  * 
  *  The path to the font should be relative to the HTML file that links in your sketch. Loading an from a URL or other remote location may be blocked due to your browser's built-in security.
  */
-declare function loadFont(path: string, callback?: () => any): any;
+declare function loadFont(path: string, callback?: () => any): p5.Font;
 
 /**
  * Loads a JSON file from a file or a URL, and returns an Object or Array. This method is asynchronous, meaning it may not finish before the next line in your sketch is executed. JSONP is supported via a polyfill and you can pass in as the second argument an object with definitions of the json callback following the syntax specified here.
@@ -1210,7 +1291,7 @@ declare function loadTable(filename: string, options?: string, callback?: () => 
  * 
  * This method is asynchronous, meaning it may not finish before the next line in your sketch is executed. Calling loadXML() inside preload() guarantees to complete the operation before setup() and draw() are called. 
  * 
- * Outside of preload(), you may supply a callback function to handle the object:
+ * Outside of preload(), you may supply a callback function to handle the object.
  */
 declare function loadXML(filename: string, callback?: () => any, errorCallback?: () => any): any;
 
@@ -1283,12 +1364,15 @@ declare function ceil(n: number): number;
  */
 declare function constrain(n: number, low: number, high: number): number;
 
-// TODO: Fix dist() errors in src/math/calculation.js:
-//
-//   required param "x2" follows an optional param
-//   required param "y2" follows an optional param
-//
-// declare function dist(x1: number, y1: number, z1?: number, x2: number, y2: number, z2?: number): number;
+/**
+ * Calculates the distance between two points.
+ */
+declare function dist(x1: number, y1: number, x2: number, y2: number): number;
+
+/**
+ * Calculates the distance between two points.
+ */
+declare function dist(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): number;
 
 /**
  * Returns Euler's number e (2.71828...) raised to the power of the n parameter. Maps to Math.exp().
@@ -1518,7 +1602,7 @@ declare function textSize(theSize: number): any|number;
 /**
  * Sets/gets the style of the text for system fonts to NORMAL, ITALIC, or BOLD. Note: this may be is overridden by CSS styling. For non-system fonts (opentype, truetype, etc.) please load styled fonts instead.
  */
-declare function textStyle(theStyle: number|any): any|string;
+declare function textStyle(theStyle: any): any|string;
 
 /**
  * Calculates and returns the width of any character or text string.
@@ -1534,7 +1618,7 @@ declare function textWidth(theText: string): number;
  * 
  *  The x2 and y2 parameters define a rectangular area to display within and may only be used with string data. When these parameters are specified, they are interpreted based on the current rectMode() setting. Text that does not fit completely within the rectangle specified will not be drawn to the screen.
  */
-declare function text(str: string, x: number, y: number, x2: number, y2: number): any;
+declare function text(str: string, x: number, y: number, x2: number, y2: number): p5;
 
 /**
  * Sets the current font that will be drawn with the text() function.
@@ -1548,11 +1632,23 @@ declare function textFont(f: any|string): any|string;
  */
 declare function append(array: any[], value: any): void;
 
-// TODO: Fix arrayCopy() errors in src/utilities/array_functions.js:
-//
-//   required param "dst" follows an optional param
-//
-// declare function arrayCopy(src: any[], srcPosition?: number, dst: any[], dstPosition?: number, length?: number): void;
+/**
+ * Copies an array (or part of an array) to another array. The src array is copied to the dst array, beginning at the position specified by srcPosition and into the position specified by dstPosition. The number of elements to copy is determined by length. Note that copying values overwrites existing values in the destination array. To append values instead of overwriting them, use concat(). 
+ * 
+ *  The simplified version with only two arguments, arrayCopy(src, dst), copies an entire array to another of the same size. It is equivalent to arrayCopy(src, 0, dst, 0, src.length). 
+ * 
+ *  Using this function is far more efficient for copying array data than iterating through a for() loop and copying each element individually.
+ */
+declare function arrayCopy(src: any[], srcPosition: number, dst: any[], dstPosition: number, length: number): void;
+
+/**
+ * Copies an array (or part of an array) to another array. The src array is copied to the dst array, beginning at the position specified by srcPosition and into the position specified by dstPosition. The number of elements to copy is determined by length. Note that copying values overwrites existing values in the destination array. To append values instead of overwriting them, use concat(). 
+ * 
+ *  The simplified version with only two arguments, arrayCopy(src, dst), copies an entire array to another of the same size. It is equivalent to arrayCopy(src, 0, dst, 0, src.length). 
+ * 
+ *  Using this function is far more efficient for copying array data than iterating through a for() loop and copying each element individually.
+ */
+declare function arrayCopy(src: any[], dst: any[], length?: number): void;
 
 /**
  * Concatenates two arrays, maps to Array.concat(). Does not modify the input arrays.
@@ -1666,7 +1762,7 @@ declare function matchAll(str: string, regexp: string): any[];
 /**
  * Utility function for formatting numbers into strings. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
  */
-declare function nf(num: number|any[], left?: number, right?: number): string|any[];
+declare function nf(num: number|any[], left?: number, right?: number): string|string[];
 
 /**
  * Utility function for formatting numbers into strings and placing appropriate commas to mark units of 1000. There are two versions: one for formatting ints, and one for formatting an array of ints. The value for the right parameter should always be a positive integer.
@@ -1761,7 +1857,22 @@ declare function ortho(left: number, right: number, bottom: number, top: number,
 /**
  * Creates an ambient light with a color
  */
-declare function ambientLight(v1: number|any[]|string|p5.Color, v2?: number, v3?: number, a?: number): p5;
+declare function ambientLight(v1: number, v2: number, v3: number, alpha?: number): p5;
+
+/**
+ * Creates an ambient light with a color
+ */
+declare function ambientLight(value: string, alpha?: number): p5;
+
+/**
+ * Creates an ambient light with a color
+ */
+declare function ambientLight(values: number[]): p5;
+
+/**
+ * Creates an ambient light with a color
+ */
+declare function ambientLight(color: p5.Color, alpha?: number): p5;
 
 // TODO: Fix directionalLight() errors in src/webgl/light.js:
 //
@@ -1777,19 +1888,24 @@ declare function ambientLight(v1: number|any[]|string|p5.Color, v2?: number, v3?
 
 // src/webgl/loading.js
 
-// TODO: Fix loadModel() errors in src/webgl/loading.js:
-//
-//   param "successCallback" has invalid type: Function(p5.Geometry3D)
-//   param "failureCallback" has invalid type: Function(Event)
-//   return has invalid type: p5.Geometry
-//
-// declare function loadModel(path: string, normalize?: boolean, successCallback?: Function(p5.Geometry3D), failureCallback?: Function(Event)): p5.Geometry;
+/**
+ * Load a 3d model from an OBJ file. 
+ * 
+ *  One of the limitations of the OBJ format is that it doesn't have a built-in sense of scale. This means that models exported from different programs might be very different sizes. If your model isn't displaying, try calling loadModel() with the normalized parameter set to true. This will resize the model to a scale appropriate for p5. You can also make additional changes to the final size of your model with the scale() function.
+ */
+declare function loadModel(path: string, normalize: boolean, successCallback?: (p1:p5.Geometry) => any, failureCallback?: (p1:Event) => any): p5.Geometry;
 
-// TODO: Fix model() errors in src/webgl/loading.js:
-//
-//   param "model" has invalid type: p5.Geometry
-//
-// declare function model(model: p5.Geometry): void;
+/**
+ * Load a 3d model from an OBJ file. 
+ * 
+ *  One of the limitations of the OBJ format is that it doesn't have a built-in sense of scale. This means that models exported from different programs might be very different sizes. If your model isn't displaying, try calling loadModel() with the normalized parameter set to true. This will resize the model to a scale appropriate for p5. You can also make additional changes to the final size of your model with the scale() function.
+ */
+declare function loadModel(path: string, successCallback?: (p1:p5.Geometry) => any, failureCallback?: (p1:Event) => any): p5.Geometry;
+
+/**
+ * Render a 3d model to the screen.
+ */
+declare function model(model: p5.Geometry): void;
 
 // src/webgl/material.js
 
@@ -1798,11 +1914,10 @@ declare function ambientLight(v1: number|any[]|string|p5.Color, v2?: number, v3?
  */
 declare function normalMaterial(): p5;
 
-// TODO: Fix texture() errors in src/webgl/material.js:
-//
-//   param "tex" has invalid type: p5.Image | p5.MediaElement | p5.Graphics
-//
-// declare function texture(tex: p5.Image | p5.MediaElement | p5.Graphics): p5;
+/**
+ * Texture for geometry. You can view other possible materials in this example.
+ */
+declare function texture(tex: p5.Image|p5.MediaElement|p5.Graphics): p5;
 
 /**
  * Ambient material for geometry with a given color. You can view all possible materials in this example.
@@ -1850,6 +1965,43 @@ declare function ellipsoid(radiusx: number, radiusy: number, radiusz: number, de
  * Draw a torus with given radius and tube radius
  */
 declare function torus(radius: number, tubeRadius: number, detailX?: number, detailY?: number): p5;
+
+// lib/addons/p5.sound.js
+
+/**
+ * Constructor: new p5.SinOsc(). This creates a Sine Wave Oscillator and is equivalent to  new p5.Oscillator('sine')  or creating a p5.Oscillator and then calling its method setType('sine'). See p5.Oscillator for methods.
+ */
+declare function SinOsc(freq?: number): void;
+
+/**
+ * Constructor: new p5.TriOsc(). This creates a Triangle Wave Oscillator and is equivalent to new p5.Oscillator('triangle')  or creating a p5.Oscillator and then calling its method setType('triangle'). See p5.Oscillator for methods.
+ */
+declare function TriOsc(freq?: number): void;
+
+/**
+ * Constructor: new p5.SawOsc(). This creates a SawTooth Wave Oscillator and is equivalent to  new p5.Oscillator('sawtooth')  or creating a p5.Oscillator and then calling its method setType('sawtooth'). See p5.Oscillator for methods.
+ */
+declare function SawOsc(freq?: number): void;
+
+/**
+ * Constructor: new p5.SqrOsc(). This creates a Square Wave Oscillator and is equivalent to  new p5.Oscillator('square')  or creating a p5.Oscillator and then calling its method setType('square'). See p5.Oscillator for methods.
+ */
+declare function SqrOsc(freq?: number): void;
+
+/**
+ * Constructor: new p5.LowPass() Filter. This is the same as creating a p5.Filter and then calling its method setType('lowpass'). See p5.Filter for methods.
+ */
+declare function LowPass(): void;
+
+/**
+ * Constructor: new p5.HighPass() Filter. This is the same as creating a p5.Filter and then calling its method setType('highpass'). See p5.Filter for methods.
+ */
+declare function HighPass(): void;
+
+/**
+ * Constructor: new p5.BandPass() Filter. This is the same as creating a p5.Filter and then calling its method setType('bandpass'). See p5.Filter for methods.
+ */
+declare function BandPass(): void;
 
 // Properties from p5.dom
 
@@ -2003,5 +2155,4 @@ declare function midiToFreq(midiNote: number): number;
 declare function soundFormats(formats: string): void;
 
 // TODO: Property "{String} failedPath path to the file that failed to load", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
-
 
