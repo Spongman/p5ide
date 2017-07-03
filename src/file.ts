@@ -141,7 +141,7 @@ class GitHubSourceFile extends SourceFile {
 
 	async fetch(project: GitHubProject): Promise<string> {
 
-		const response = await cachedFetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${this.sha}${project.path}/${this.path}`);
+		const response = await cachedFetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.path}/${this.path}`);
 		return response.text();
 	}
 }
@@ -150,15 +150,15 @@ async function cachedFetch(url: string): Promise<Response> {
 
 	if (window.caches) {
 		const cache = await window.caches.open("fetch");
-		console.log("CACHE", cache);
+		//console.log("CACHE", cache);
 		let response = await cache.match(url);
-		console.log("MATCH", response);
+		//console.log("MATCH", response);
 		if (!response) {
 			response = await fetch(url);
-			console.log("FETCH", response);
+			//console.log("FETCH", response);
 			await cache.put(url, response);
 			response = await cache.match(url);
-			console.log("MATCH", response);
+			//console.log("MATCH", response);
 		}
 		return response;
 	}
@@ -182,27 +182,34 @@ async function cachedFetch(url: string): Promise<Response> {
 
 class GitHubProject extends Project {
 
-	constructor(public user: string, public repo: string, public branch: string, public path: string, public items: SourceNode[]) {
+	constructor(public user: string, public repo: string, public branch: string, public path: string, public sha: string, public items: SourceNode[]) {
 		super(items);
 	}
 
 	public static async load(url: string): Promise<Project> {
 
-		let [match, user, repo, branch, path] = url.match(/https:\/\/github\.com\/([^/]*)\/([^/]*)\/tree\/([^/]*)\/(.*)/i) || <string[]>[];
+		let [match, user, repo, branch, path] = url.match(/https:\/\/github\.com\/([^/]*)\/([^/]*)(?:\/tree\/([^/]*)\/(.*))?/i) || <string[]>[];
 		if (!match)
 			throw new Error("invalid url");
 
-		const branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch}`);
+		if (!branch)
+			branch = 'master';
+
+		const branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch||'master'}`);
 		const branchJson = await branchResponse.json();
 
-		const treeResponse = await cachedFetch(branchJson.commit.commit.tree + "?recursive=1");
+		let sha = branchJson.commit.sha;
+		const treeResponse = await cachedFetch(branchJson.commit.commit.tree.url + "?recursive=1");
+		var q = 9;
 		const treeJson = await treeResponse.json() as { tree: [{ path: string, type: string, sha: string }] };
+		var q2 = 9;
 
 		const items = treeJson.tree.map(e => e.type === "blob" ?
 			new GitHubSourceFile(e.path, e.sha) :
 			new SourceFolder(e.path)
 		);
-		return new GitHubProject(user, repo, branch, path, items);
+
+		return new GitHubProject(user, repo, branch, path || "", sha, items);
 
 		/*
 		https://api.github.com/repos/processing/p5.js-website/git/trees/6e0333b1146068043d55f00295ef80858df7c3ae

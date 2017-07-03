@@ -44,7 +44,7 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
   loopProtect.debug(false); // off by default
 
   // the method - as this could be aliased to something else
-  loopProtect.alias = 'loopProtect';
+  loopProtect.alias = 'loopProtect.protect';
 
   function inMultilineComment(lineNum, lines) {
     if (lineNum === 0) {
@@ -133,7 +133,7 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
     var recompiled = [];
     var lines = code.split('\n');
     var disableLoopProtection = false;
-    var method = loopProtect.alias + '.protect';
+    var method = loopProtect.alias;
     var ignore = {};
     var pushonly = {};
     var labelPostion = null;

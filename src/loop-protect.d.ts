@@ -2,7 +2,7 @@
 
 interface LoopProtect {
 
-    method: string;
+    alias: string;
 
     debug(enable:boolean): void;
 

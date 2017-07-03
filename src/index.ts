@@ -3,7 +3,6 @@
 /// <reference path="file.ts"/>
 /// <reference path="utils.ts"/>
 
-loopProtect.method = "__protect";
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
 var _editor: monaco.editor.IStandaloneCodeEditor;
@@ -11,7 +10,39 @@ var _currentProject: Project;
 var _currentFile: SourceFile | null = null;
 var _currentHtml: SourceFile;
 
-var loadCompletePromise:Promise<any>;
+class extraLibs {
+
+	private static mapExtraLibs: {[name:string]:monaco.IDisposable} = {};
+
+	public static dispose()
+	{
+		//console.log("DISPOSE LIBS", name);
+		for (var libName in this.mapExtraLibs)
+			this.mapExtraLibs[libName].dispose();
+		this.mapExtraLibs = {};	
+	}
+
+	public static add(name:string, content:string)
+	{
+		if (this.mapExtraLibs[name])
+			return;
+		//console.log("ADD EXTRA LIB", name);
+		var disposable = monaco.languages.typescript.javascriptDefaults.addExtraLib(content, name);
+		this.mapExtraLibs[name] = disposable;
+	}
+
+	public static remove(name:string)
+	{
+		var lib = this.mapExtraLibs[name];
+		if (lib) {
+			lib.dispose();
+			delete this.mapExtraLibs[name];
+		}		
+	}
+}
+
+
+var loadCompletePromise: Promise<any>;
 
 function loadProject(project: Project) {
 	console.log()
@@ -20,7 +51,7 @@ function loadProject(project: Project) {
 	fileContainer.innerHTML = "";
 
 	const mapFileElements: { [name: string]: Element } = {};
-	let defaultFile:SourceFile|null = null;
+	let defaultFile: SourceFile | null = null;
 
 	function getNodeElement(node?: SourceFolder): Element {
 
@@ -62,7 +93,7 @@ function loadProject(project: Project) {
 			click(anchor, () => {
 				li.classList.toggle("open");
 				return false;
-			});		
+			});
 		}
 
 		const text = anchor.appendChild(document.createElement("span"));
@@ -74,11 +105,11 @@ function loadProject(project: Project) {
 		return elt;
 	}
 
+	extraLibs.dispose();
 	project.items.forEach(item => getNodeElement(item));
 	_currentProject = project;
 
-	if (defaultFile)
-	{
+	if (defaultFile) {
 		loadCompletePromise.then(() => {
 			_currentHtml = defaultFile!;
 			_currentHtml.used = true;
@@ -92,14 +123,29 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 		_currentProject.items.forEach(f => { f.selected = (f === file); });
 
 		const model = _editor.getModel();
-		if (_currentFile)
+		if (_currentFile) {
 			_currentFile.content = model.getValue();
+
+			if (_currentFile.language === SourceLanguage.Javascript ||
+				_currentFile.language === SourceLanguage.Typescript)
+			{
+				extraLibs.add(_currentFile.name, _currentFile.content);
+			}
+		}
 
 		_currentFile = null;
 
-		const languageName = file.language && file.language.name;
 
-		monaco.editor.setModelLanguage(model, languageName || "");
+		let languageName:string = "";
+		if (file.language)
+			languageName = file.language.name;
+		else {
+			var l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(file.extension) >= 0 : false);
+			if (l)
+				languageName = l.id; 
+		}
+
+		monaco.editor.setModelLanguage(model, languageName);
 
 		let content: string | null = file.content;
 		if (content === null)
@@ -109,6 +155,7 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 
 
 		_currentFile = file;
+		extraLibs.remove(file.name);
 
 		document.getElementById("footerFilename")!.textContent = file.path;
 		document.getElementById("footerType")!.textContent = languageName || "plain";
@@ -117,6 +164,8 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 		if (file.language === SourceLanguage.Html) {
 			if (_currentHtml !== file) {
 				_currentHtml = file;
+
+				extraLibs.dispose();
 
 				_currentProject.items.forEach(f => { f.used = (f === file); });
 
@@ -131,14 +180,22 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 	}
 }
 
-loadCompletePromise = Promise.all([
-	fetch("p5.global-mode.d.ts").then(response => response.text()),
-	fetch("p5.d.ts").then(response => response.text()),
+var libs = [
+	"p5.global-mode.d.ts",
+	"p5.d.ts",
+	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
+];
+
+loadCompletePromise = Promise.all<any>([
+	Promise.all(libs.map(url => fetch(url).then(response => response.text()))),
 	promiseRequire(['vs/editor/editor.main']),
+	//promiseRequire(['loop-protect']),
 	document.ready().then(() => { loadProject(defaultProject); }),
 ]);
 
 loadCompletePromise.then((values: any[]) => {
+
+	loopProtect.alias = "__protect";
 
 	// validation settings
 	monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -153,8 +210,7 @@ loadCompletePromise.then((values: any[]) => {
 		allowNonTsExtensions: true
 	});
 
-	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[1], "p5.d.ts");
-	monaco.languages.typescript.javascriptDefaults.addExtraLib(values[0], "p5.global-mode.d.ts");
+	values[0].forEach((lib:string, i:number) => monaco.languages.typescript.javascriptDefaults.addExtraLib(lib, "lib" + i));
 
 	const editorContainer = document.getElementById('editorContainer')!;
 	_editor = monaco.editor.create(editorContainer, {
@@ -222,6 +278,12 @@ loadCompletePromise.then((values: any[]) => {
 	click("btnRun", () => { pause(false); });
 	click("btnFloatPreview", () => { loadPreview(false); });
 	click("btnCloseConsole", () => { setConsoleVisibility(false); });
+	click("btnLP", () => {
+		GitHubProject.load("https://github.com/CodingTrain/Frogger")
+			.then(project => {
+				loadProject(project);
+			});
+	});
 
 	const selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
 	selectTheme.addEventListener('change', () => { setTheme(selectTheme.value); });
@@ -406,7 +468,7 @@ function frameLoaded(event: any) {
 			return;
 
 		let url = event.data as string;
-		console.log("MESSAGE", url);
+		//console.log("MESSAGE", url);
 		const originLength = event.origin.length;
 		let blob: Blob | null = null;
 		if (url.substring(0, originLength) === event.origin) {
@@ -423,7 +485,12 @@ function frameLoaded(event: any) {
 
 				switch (language) {
 					case SourceLanguage.Javascript:
-						content = loopProtect.rewriteLoops(content);
+						if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0)
+						{
+							if (file !== _currentFile)
+								extraLibs.add(file.name, content);
+							content = loopProtect(content);
+						}
 						break;
 				}
 
@@ -441,9 +508,8 @@ function frameLoaded(event: any) {
 		.then(reg => {
 			//console.log("registered", reg);
 			setTimeout(() => {
-				_currentHtml &&	_currentHtml.fetch(_currentProject).then((html) => {
-					if (_previewWindow)
-					{
+				_currentHtml && _currentHtml.fetch(_currentProject).then((html) => {
+					if (_previewWindow) {
 						_previewWindow.document.clear();
 						_previewWindow.document.open();
 						_previewWindow.document.write("<script>(opener||parent).initializePreview(window);</script>");
@@ -458,8 +524,7 @@ function frameLoaded(event: any) {
 }
 
 
-function initializePreview(previewWindow:any)
-{
+function initializePreview(previewWindow: any) {
 	previewWindow.addEventListener('error', handlePreviewError);
 	const consoleContainer = document.getElementById("consoleContainer")!;
 	new ProxyConsole(previewWindow.console, row => {

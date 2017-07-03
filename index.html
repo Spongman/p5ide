@@ -6,9 +6,9 @@
 	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
 	 crossorigin="anonymous">
 
+  <script type="text/javascript" src="loop-protect.js"></script>
 	<script type="text/javascript" src="node_modules/monaco-editor/min/vs/loader.js"></script>
 	<script type="text/javascript" src="node_modules/document-ready-promise/document-ready-promise.js"></script>
-	<script type="text/javascript" src="loop-protect.js"></script>
 	<script type="text/javascript" src="index.js"></script>
 </head>
 
@@ -33,6 +33,7 @@
 		<div id="treePanel" class="flex-vertical" style="width: 150px;">
 			<div class="panelHeader">
 				<span>project-folder</span>
+				<a href="#" id="btnLP"><i class="fa fa-snowflake-o" aria-hidden="true"></i></a>
 			</div>
 			<ul id="fileContainer" class="sourceFolder flex-fill"></ul>
 		</div>
