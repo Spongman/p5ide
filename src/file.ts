@@ -20,7 +20,7 @@ class SourceLanguage {
 	}
 }
 
-class SourceNode {
+abstract class SourceNode implements monaco.IDisposable {
 	constructor(public path: string, public icon: string) {
 		const ich = path.lastIndexOf('/');
 		this.dir = path.substr(0, ich);
@@ -36,12 +36,16 @@ class SourceNode {
 
 	get selected(): boolean { return this.element.classList.contains("selected"); }
 	set selected(value: boolean) { this.element.classList[value ? "add" : "remove"]("selected"); }
+
+	abstract dispose():void;
 }
 
 class SourceFolder extends SourceNode {
 	constructor(public path: string) {
 		super(path, "folder-o");
 	}
+
+	dispose():void {}
 }
 
 class SourceFile extends SourceNode {
@@ -66,10 +70,21 @@ class SourceFile extends SourceNode {
 	extension: string;
 	content: string | null = null;
 
+	model?: monaco.editor.IModel;
+
 	fetch(project: Project): Promise<string> {
 		return cachedFetch("/default/" + this.path)
 			.then(response => response.text());
 	}
+
+	dispose():void {
+		if (this.model)
+		{
+			this.model.dispose();
+			delete this.model;
+		}
+	}
+
 }
 
 
@@ -105,7 +120,7 @@ class ExampleCategory {
 
 type SourceMap = { [name: string]: SourceNode };
 
-abstract class Project {
+abstract class Project implements monaco.IDisposable {
 
 	constructor(public items: SourceNode[]) {
 
@@ -130,6 +145,10 @@ abstract class Project {
 			path = path.substring(1);
 
 		return _currentProject.items.find(f => f.path === path);
+	}
+
+	dispose():void {
+		this.items.forEach(i => i.dispose());
 	}
 }
 

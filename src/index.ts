@@ -105,6 +105,9 @@ function loadProject(project: Project) {
 		return elt;
 	}
 
+	if (_currentProject)
+		_currentProject.dispose();
+		
 	extraLibs.dispose();
 	project.items.forEach(item => getNodeElement(item));
 	_currentProject = project;
@@ -122,15 +125,17 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 	if (_currentFile !== file) {
 		_currentProject.items.forEach(f => { f.selected = (f === file); });
 
-		const model = _editor.getModel();
 		if (_currentFile) {
+			const model = _editor.getModel();
 			_currentFile.content = model.getValue();
+			model.dispose();
 
 			if (_currentFile.language === SourceLanguage.Javascript ||
 				_currentFile.language === SourceLanguage.Typescript)
 			{
 				extraLibs.add(_currentFile.name, _currentFile.content);
 			}
+
 		}
 
 		_currentFile = null;
@@ -145,15 +150,19 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 				languageName = l.id; 
 		}
 
-		monaco.editor.setModelLanguage(model, languageName);
+
 
 		let content: string | null = file.content;
 		if (content === null)
 			content = file.content = await file.fetch(_currentProject);
 
+
+		var model = monaco.editor.createModel(content, languageName);
+		_editor.setModel(model);
+		/*
 		model.setValue(content);
-
-
+		monaco.editor.setModelLanguage(model, languageName);
+		*/
 		_currentFile = file;
 		extraLibs.remove(file.name);
 
