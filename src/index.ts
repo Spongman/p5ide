@@ -107,6 +107,8 @@ function loadProject(project: Project) {
 
 	if (_currentProject)
 		_currentProject.dispose();
+
+	closeFile();
 		
 	extraLibs.dispose();
 	project.items.forEach(item => getNodeElement(item));
@@ -121,25 +123,35 @@ function loadProject(project: Project) {
 	}
 }
 
+function closeFile() {
+
+	if (!_currentFile)
+		return;
+
+	_currentFile.selected = false;
+
+	const model = _editor.getModel();
+	if (model)
+	{
+		if (model != _currentFile.model)
+			console.log("model has changed");
+		_currentFile.content = model.getValue();
+
+		if (_currentFile.language === SourceLanguage.Javascript ||
+			_currentFile.language === SourceLanguage.Typescript)
+		{
+			extraLibs.add(_currentFile.name, _currentFile.content);
+		}
+	}
+}
+
 async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 	if (_currentFile !== file) {
-		_currentProject.items.forEach(f => { f.selected = (f === file); });
 
-		if (_currentFile) {
-			const model = _editor.getModel();
-			_currentFile.content = model.getValue();
-			model.dispose();
+		closeFile();
 
-			if (_currentFile.language === SourceLanguage.Javascript ||
-				_currentFile.language === SourceLanguage.Typescript)
-			{
-				extraLibs.add(_currentFile.name, _currentFile.content);
-			}
-
-		}
-
-		_currentFile = null;
-
+		_currentFile = file;
+		_currentFile.selected = true;
 
 		let languageName:string = "";
 		if (file.language)
@@ -150,20 +162,18 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 				languageName = l.id; 
 		}
 
+		var model = file.model;
+		if (!model)
+		{
+			let content: string | null = file.content;
+			if (content === null)
+				content = file.content = await file.fetch(_currentProject);
 
+			model = file.model = monaco.editor.createModel(content, languageName);
+		}
 
-		let content: string | null = file.content;
-		if (content === null)
-			content = file.content = await file.fetch(_currentProject);
-
-
-		var model = monaco.editor.createModel(content, languageName);
 		_editor.setModel(model);
-		/*
-		model.setValue(content);
-		monaco.editor.setModelLanguage(model, languageName);
-		*/
-		_currentFile = file;
+
 		extraLibs.remove(file.name);
 
 		document.getElementById("footerFilename")!.textContent = file.path;
@@ -288,10 +298,7 @@ loadCompletePromise.then((values: any[]) => {
 	click("btnFloatPreview", () => { loadPreview(false); });
 	click("btnCloseConsole", () => { setConsoleVisibility(false); });
 	click("btnLP", () => {
-		GitHubProject.load("https://github.com/CodingTrain/Frogger")
-			.then(project => {
-				loadProject(project);
-			});
+		GitHubProject.load("https://github.com/CodingTrain/Frogger").then(loadProject);
 	});
 
 	const selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
