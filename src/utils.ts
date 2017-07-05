@@ -64,3 +64,8 @@ class EventDelayer {
 		this.timeUpdate = timeNow + this.delay;
 	}
 }
+
+declare namespace JSX {
+  interface Element { }
+  interface IntrinsicElements { div: any; }
+}

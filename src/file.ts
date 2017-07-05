@@ -32,12 +32,16 @@ abstract class SourceNode implements monaco.IDisposable {
 	element: HTMLElement;
 
 	get used(): boolean { return this.element.classList.contains("used"); }
-	set used(value: boolean) { this.element.classList[value ? "add" : "remove"]("used"); }
+	set used(value: boolean) {
+		if (value && this.parent)
+			this.parent.used = true;
+		this.element.classList[value ? "add" : "remove"]("used");
+	}
 
 	get selected(): boolean { return this.element.classList.contains("selected"); }
 	set selected(value: boolean) { this.element.classList[value ? "add" : "remove"]("selected"); }
 
-	abstract dispose():void;
+	abstract dispose(): void;
 }
 
 class SourceFolder extends SourceNode {
@@ -45,7 +49,7 @@ class SourceFolder extends SourceNode {
 		super(path, "folder-o");
 	}
 
-	dispose():void {}
+	dispose(): void { }
 }
 
 class SourceFile extends SourceNode {
@@ -77,9 +81,8 @@ class SourceFile extends SourceNode {
 			.then(response => response.text());
 	}
 
-	dispose():void {
-		if (this.model)
-		{
+	dispose(): void {
+		if (this.model) {
 			this.model.dispose();
 			delete this.model;
 		}
@@ -147,8 +150,18 @@ abstract class Project implements monaco.IDisposable {
 		return _currentProject.items.find(f => f.path === path);
 	}
 
-	dispose():void {
+	dispose(): void {
 		this.items.forEach(i => i.dispose());
+	}
+
+	childrenOf(node: SourceNode): SourceNode[] {
+		return this.items.filter(i => i.parent === node);
+	}
+
+	delete(node: SourceNode) {
+		this.childrenOf(node).forEach(i => this.delete(i));
+		this.items.splice(this.items.indexOf(node), 1);
+		node.element.remove();
 	}
 }
 
@@ -214,7 +227,7 @@ class GitHubProject extends Project {
 		if (!branch)
 			branch = 'master';
 
-		const branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch||'master'}`);
+		const branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch || 'master'}`);
 		const branchJson = await branchResponse.json();
 
 		let sha = branchJson.commit.sha;
