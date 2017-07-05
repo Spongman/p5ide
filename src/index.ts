@@ -117,6 +117,7 @@ function loadProject(project: Project) {
 	if (defaultFile) {
 		loadCompletePromise.then(() => {
 			_currentHtml = defaultFile!;
+			loadFile(_currentHtml);
 			_currentHtml.used = true;
 			loadPreview();
 		})
