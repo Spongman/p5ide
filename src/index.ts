@@ -117,9 +117,10 @@ function loadProject(project: Project) {
 	if (defaultFile) {
 		loadCompletePromise.then(() => {
 			_currentHtml = defaultFile!;
-			loadFile(_currentHtml);
+			//loadFile(_currentHtml);
 			_currentHtml.used = true;
 			loadPreview();
+			_loadingProject = true;
 		})
 	}
 }
@@ -147,6 +148,9 @@ function closeFile() {
 }
 
 async function loadFile(file: SourceFile, position?: monaco.IPosition) {
+	if (!file)
+		return;
+
 	if (_currentFile !== file) {
 
 		closeFile();
@@ -353,9 +357,11 @@ loadCompletePromise.then((values: any[]) => {
 var _previewWindow: Window | null;
 var _previewDocked = true;
 var _previewPaused = false;
+var _loadingProject = false;
 
 function loadPreview(docked?: boolean) {
 
+	_loadingProject = false;
 	console.log("loadPreview");
 
 	const previewContainer = document.getElementById('previewContainer')!;
@@ -457,6 +463,8 @@ function handlePreviewError(event: ErrorEvent) {
 	}
 }
 
+var _previousScript:SourceFile;
+
 function frameLoaded(event: any) {
 
 	if (_previewDocked) {
@@ -504,6 +512,8 @@ function frameLoaded(event: any) {
 					case SourceLanguage.Javascript:
 						if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0)
 						{
+							if (_loadingProject)
+								_previousScript = file;
 							if (file !== _currentFile)
 								extraLibs.add(file.name, content);
 							content = loopProtect(content);
@@ -542,6 +552,12 @@ function frameLoaded(event: any) {
 
 
 function initializePreview(previewWindow: any) {
+	if (_loadingProject)
+	{
+		previewWindow.document.addEventListener('DOMContentLoaded', function () {
+			loadFile(_previousScript || _currentHtml);
+		});
+	}
 	previewWindow.addEventListener('error', handlePreviewError);
 	const consoleContainer = document.getElementById("consoleContainer")!;
 	new ProxyConsole(previewWindow.console, row => {
