@@ -65,7 +65,6 @@ class EventDelayer {
 	}
 }
 
-declare namespace JSX {
-  interface Element { }
-  interface IntrinsicElements { div: any; }
+interface SourceNodeEvent extends Event {
+	sourceNode: SourceNode;
 }

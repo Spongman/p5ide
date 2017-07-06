@@ -1,6 +1,6 @@
 /// <reference types="monaco-editor"/>
 /// <reference path="loop-protect.d.ts"/>
-/// <reference path="file.ts"/>
+/// <reference path="file.tsx"/>
 /// <reference path="utils.ts"/>
 
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
@@ -37,7 +37,7 @@ class extraLibs {
 		if (lib) {
 			lib.dispose();
 			delete this.mapExtraLibs[name];
-		}		
+		}
 	}
 }
 
@@ -50,74 +50,30 @@ function loadProject(project: Project) {
 	const fileContainer = document.getElementById("fileContainer")!;
 	fileContainer.innerHTML = "";
 
-	const mapFileElements: { [name: string]: Element } = {};
-	let defaultFile: SourceFile | null = null;
-
-	function getNodeElement(node?: SourceFolder): Element {
-
-		if (!node)
-			return fileContainer;
-
-		let elt = mapFileElements[node.path];
-		if (elt)
-			return elt;
-
-		const parentElement = getNodeElement(node.parent);
-
-		const li = parentElement.appendChild(document.createElement("li"));
-		li.className = "sourceNode";
-
-		const anchor = li.appendChild(document.createElement("a"));
-		anchor.href = "#";
-
-		const icon = anchor.appendChild(document.createElement("i"));
-		icon.className = "icon fa fa-" + node.icon;
-
-		if (node instanceof SourceFile) {
-			click(anchor, () => {
-				loadFile(node);
-				return false;
-			});
-			elt = anchor;
-
-			if (node.path === "index.html")
-				defaultFile = node;
-		}
-		else {
-			const children = elt = li.appendChild(document.createElement("ul"));
-			children.className = "sourceFolder";
-
-			const icon2 = anchor.appendChild(document.createElement("i"));
-			icon2.className = "icon fa fa-folder-open-o";
-
-			click(anchor, () => {
-				li.classList.toggle("open");
-				return false;
-			});
-		}
-
-		const text = anchor.appendChild(document.createElement("span"));
-		text.textContent = node.name;
-
-		node.element = anchor;
-
-		mapFileElements[node.path] = elt;
-		return elt;
-	}
-
 	if (_currentProject)
 		_currentProject.dispose();
 
 	closeFile();
 		
 	extraLibs.dispose();
-	project.items.forEach(item => getNodeElement(item));
+	
 	_currentProject = project;
 
-	if (defaultFile) {
+	
+	var li = fileContainer.appendChild(project.render());
+
+	li.addEventListener("p5ide_openFile", (event:SourceNodeEvent) => {
+		loadFile(event.sourceNode as SourceFile);
+	});
+
+	li.addEventListener("p5ide_deleteNode", event => {
+		console.log(event);
+	});
+
+	var defaultFile = ["index.html", "README.md"].reduce((p:SourceNode, s, i, rg) => p || project.find(s), void 0);
+	if (defaultFile instanceof SourceFile) {
 		loadCompletePromise.then(() => {
-			_currentHtml = defaultFile!;
-			//loadFile(_currentHtml);
+			_currentHtml = defaultFile as SourceFile;
 			_currentHtml.used = true;
 			loadPreview();
 			_loadingProject = true;

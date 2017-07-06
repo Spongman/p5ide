@@ -35,8 +35,8 @@ a i.fa {
 	transition: opacity .2s;
 }
 
-a:hover i.fa {
-	opacity: 1;
+a i.fa:hover {
+	opacity: 1 !important;
 }
 
 
@@ -123,36 +123,50 @@ footer {
 	white-space: nowrap;	
 }
 
-.sourceNode > a {
+.sourceNode > div {
 	padding: 1px 4px;
 	display: block;
 	transition: background-color .2s;
 }
 
-.sourceNode > a > i {
-	margin-right: 4px;
-}
-
-.sourceNode > a:hover {
+.sourceNode > div:hover {
 	background: #333;
 }
 
-.sourceNode > a i.icon {
-	opacity: 0.5;
+.sourceNode > div > a i {
+	margin-right: 4px;
 }
-.sourceNode > a.used i.icon {
-	opacity: 1;
+
+.sourceNode.used > div > a:not(.btnDelete) i.icon {
+	opacity: 1 !important;
 }
-.sourceNode .sourceFolder {
+.sourceNode > ul {
 	padding-left: 5px;
 }
-.sourceNode:not(.open) .sourceFolder {
+.sourceNode:not(.open) > ul {
 	display: none;
 }
 
-.sourceNode:not(.open) > a i.fa-folder-open-o,
-.sourceNode.open > a i:not(.fa-folder-open-o) {
+.sourceNode:not(.open) > div > a i.fa-folder-open-o,
+.sourceNode.open > div > a i.fa-folder-o {
 	display: none;
+}
+
+.sourceNode a.btnDelete {
+	display: none;
+	float: right;
+}
+
+.sourceNode a.btnDelete i {
+	margin-right: 0;
+}
+
+.sourceNode > div > a:not(.btnDelete) {
+	display: block;
+}
+
+.sourceNode > div:hover a.btnDelete {
+	display: block;
 }
 
 /*
@@ -210,7 +224,7 @@ body.theme-vs .flex-vertical > span {
     background: #ccc;
 }
 
-body.theme-vs .sourceNode > a:hover,
+body.theme-vs .sourceNode > div:hover,
 body.theme-vs-dark select option {
 	background: #E5EBF1;
 }
@@ -252,7 +266,7 @@ body.theme-vs-dark .flex-vertical > span {
     background: #333;
 }
 
-body.theme-vs-dark .sourceNode > a:hover,
+body.theme-vs-dark .sourceNode > div:hover,
 body.theme-vs-dark select option {
 	background: #3A3D41;
 }
@@ -291,7 +305,7 @@ body.theme-hc-black .flex-vertical > span {
     background: #888;
 }
 
-body.theme-hc-black .sourceNode > a:hover {
+body.theme-hc-black .sourceNode > div:hover {
 	background: white;
 	color: black;
 }
