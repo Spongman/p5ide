@@ -173,6 +173,26 @@ loadCompletePromise = Promise.all<any>([
 	document.ready().then(() => { loadProject(defaultProject); }),
 ]);
 
+function openDialog(elt:string|HTMLElement, location:HTMLElement)
+{
+	if (typeof elt === 'string')
+		elt = document.querySelector(elt) as HTMLElement;
+	var left = 100, top = 100;
+	if (location)
+	{
+		var rect = location.getBoundingClientRect();
+		left = rect.right;
+		top = rect.bottom;
+	}
+	elt.style.paddingLeft = left + "px";
+	elt.style.paddingTop = top + "px";
+	elt.style.display = "block";
+
+	var focus = elt.querySelector("input[autofocus]") as HTMLElement;
+	if (focus)
+		focus.focus();
+}
+
 loadCompletePromise.then((values: any[]) => {
 
 	loopProtect.alias = "__protect";
@@ -258,8 +278,9 @@ loadCompletePromise.then((values: any[]) => {
 	click("btnRun", () => { pause(false); });
 	click("btnFloatPreview", () => { loadPreview(false); });
 	click("btnCloseConsole", () => { setConsoleVisibility(false); });
-	click("btnLP", () => {
-		GitHubProject.load("https://github.com/CodingTrain/Frogger").then(loadProject);
+	click("btnLP", (event) => {
+		openDialog("#projectOpenDialog", event.target);
+		//(document.querySelector("#openProjectDialgo") as HTMLElement).style.display = "block";
 	});
 
 	const selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");
@@ -311,7 +332,7 @@ loadCompletePromise.then((values: any[]) => {
 
 	[].forEach.call(document.body.querySelectorAll(".dialog"), (elt:HTMLElement) => {
 		elt.addEventListener("click", event => {
-			if (event.currentTarget === elt)
+			if (event.target === elt)
 				elt.style.display = "none";
 		});
 	});
