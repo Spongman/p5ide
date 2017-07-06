@@ -12,9 +12,9 @@ class GitHubProject extends Project {
 
 	public static async load(url: string): Promise<Project> {
 
-		let [match, user, repo, branch, path] = url.match(/https:\/\/github\.com\/([^/]*)\/([^/]*)(?:\/tree\/([^/]*)\/(.*))?/i) || <string[]>[];
+		let [match, user, repo, branch, path] = url.match(/https:\/\/github\.com\/([^\/]*)\/([^\/]*)(?:\/tree\/([^\/]*)\/(.*))?/i) || <string[]>[];
 		if (!match)
-			throw new Error("invalid url");
+			return Promise.reject("invalid url");
 
 		if (!branch)
 			branch = 'master';

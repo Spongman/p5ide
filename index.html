@@ -6,7 +6,7 @@
 	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
 	 crossorigin="anonymous">
 
-  <script type="text/javascript" src="loop-protect.js"></script>
+	<script type="text/javascript" src="loop-protect.js"></script>
 	<script type="text/javascript" src="node_modules/monaco-editor/min/vs/loader.js"></script>
 	<script type="text/javascript" src="node_modules/document-ready-promise/document-ready-promise.js"></script>
 	<script type="text/javascript" src="index.js"></script>
@@ -82,6 +82,16 @@
 		<div id="footerPosition"></div>
 		<div id="footerType"></div>
 	</footer>
+
+	<form id="projectOpenDialog" class="dialog">
+		<fieldset class="horizontal">
+			<label>
+				project url:
+				<input type="url" name="url" placeholder="the url of a project to open" required="required" autofocus="autofocus"/>
+			</label>
+			<input type="submit" value="Open" />
+		</fieldset>
+	</form>
 
 	<script>
 		document.body.classList.add("theme-" + window.localStorage.theme);

@@ -308,6 +308,28 @@ loadCompletePromise.then((values: any[]) => {
 			fixed.dispatchEvent(new Event("resize"));
 		}
 	});
+
+	[].forEach.call(document.body.querySelectorAll(".dialog"), (elt:HTMLElement) => {
+		elt.addEventListener("click", event => {
+			if (event.currentTarget === elt)
+				elt.style.display = "none";
+		});
+	});
+
+	document.body.querySelector("#projectOpenDialog")!.addEventListener("submit", event => {
+		event.preventDefault();
+
+		var form = event.target as HTMLFormElement;
+		var urlElement = form.elements.namedItem("url") as HTMLInputElement;
+		var url = urlElement.value;
+
+		GitHubProject.load(url)
+			.then(loadProject)
+			.catch(error => {
+				urlElement.setCustomValidity(error);
+				form.reportValidity();
+			});
+	});
 });
 
 var _previewWindow: Window | null;
