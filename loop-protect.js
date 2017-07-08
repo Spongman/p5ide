@@ -45,6 +45,8 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
 
   // the method - as this could be aliased to something else
   loopProtect.alias = 'loopProtect.protect';
+		
+  loopProtect.timeout = 500;
 
   function inMultilineComment(lineNum, lines) {
     if (lineNum === 0) {
@@ -145,7 +147,7 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
       // wrap reset and loop in a block to avoid one line loop behind
       // `if (false)`, insert the open brace in this function, and the close
       // brace after loop close brace.
-      return line.slice(0, matchPosition) + '{;' + method + '({ line: ' + lineNum + ', reset: true }); ' + line.slice(matchPosition);
+      return line.slice(0, matchPosition) + '{;' + method + '(' + lineNum + ', true); ' + line.slice(matchPosition);
     }
 
     if (!offset) {
@@ -290,17 +292,17 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
               if (lineNum !== originalLineNum) {
                 DEBUG && debug('- multiline inline loop'); // jshint ignore:line
                 // affect the compiled line
-                recompiled[originalLineNum] = recompiled[originalLineNum].substring(0, terminator + 1) + '{\nif (' + method + '({ line: ' + printLineNumber + ' })) break;\n' + recompiled[originalLineNum].substring(terminator + 1);
+                recompiled[originalLineNum] = recompiled[originalLineNum].substring(0, terminator + 1) + '{\nif (' + method + '(' + printLineNumber + ')) break;\n' + recompiled[originalLineNum].substring(terminator + 1);
                 line += '\n}}\n';
               } else {
                 // simpler
                 DEBUG && debug('- single line inline loop'); // jshint ignore:line
-                line = line.substring(0, terminator + 1) + '{\nif (' + method + '({ line: ' + printLineNumber + ' })) break;\n' + line.substring(terminator + 1) + '\n}}\n';
+                line = line.substring(0, terminator + 1) + '{\nif (' + method + '(' + printLineNumber + ')) break;\n' + line.substring(terminator + 1) + '\n}}\n';
               }
               foundLoopEnd = true;
             } else if (character === '{') {
               DEBUG && debug('- multiline with braces'); // jshint ignore:line
-              var insert = ';\nif (' + method + '({ line: ' + printLineNumber + ' })) break;\n';
+              var insert = ';\nif (' + method + '(' + printLineNumber + ')) break;\n';
               line = line.substring(0, index + 1) + insert + line.substring(index + 1);
 
               index += insert.length;
@@ -310,7 +312,7 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
             if (lineNum === originalLineNum && labelPostion === null) {
               DEBUG && debug('- simple reset insert'); // jshint ignore:line
               line = insertReset(printLineNumber, line, matchPosition);
-              index += (';' + method + '({ line: ' + lineNum + ', reset: true }); ').length;
+              index += (';' + method + '(' + lineNum + ', true); ').length;
             } else {
               // insert the reset above the originalLineNum OR if this loop used
               // a label, we have to insert the reset *above* the label
@@ -450,21 +452,23 @@ if (typeof DEBUG === 'undefined') { DEBUG = true; } //jshint ignore:line
    * loops cropping up in the code, and killing the browser. Returns true
    * when the loops has been running for more than 100ms.
    */
-  loopProtect.protect = function protect(state) {
-    loopProtect.counters[state.line] = loopProtect.counters[state.line] || {};
-    var line = loopProtect.counters[state.line];
-    var now = (new Date()).getTime();
+  loopProtect.protect = function protect(lineNumber, reset) {
+    
+	var line = loopProtect.counters[lineNumber];
+	if (!line)
+      line = loopProtect.counters[lineNumber] = {};
+    var now = Date.now();
 
-    if (state.reset) {
+    if (reset) {
       line.time = now;
       line.hit = 0;
       line.last = 0;
     }
 
     line.hit++;
-    if ((now - line.time) > 100) {//} && line.hit !== line.last+1) {
+    if ((now - line.time) > loopProtect.timeout) {//} && line.hit !== line.last+1) {
       // We've spent over 100ms on this loop... smells infinite.
-      loopProtect.hit(state.line);
+      loopProtect.hit(lineNumber);
       // Returning true prevents the loop running again
       return true;
     }
