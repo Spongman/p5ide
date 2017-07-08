@@ -555,7 +555,7 @@ function frameLoaded(event: any) {
 				});
 			}, 1);
 		}).catch(err => {
-			//console.log('registration failed', err);
+			console.log('registration failed', err);
 		});
 }
 

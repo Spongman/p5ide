@@ -1,9 +1,13 @@
-self.addEventListener('install', event => {
-    //console.log('INSTALL', event);
+self.addEventListener('install', function(event) {
+  //console.log('install');
+  event.waitUntil(self.skipWaiting());
+  //console.log('install complete');
 });
 
-self.addEventListener('activate', event => {
-    //console.log('ACTIVATE', event);
+self.addEventListener('activate', function(event) {
+  //console.log('activate');
+  event.waitUntil(self.clients.claim());
+  //console.log('activate complete');
 });
 
 self.addEventListener('fetch', event => {
