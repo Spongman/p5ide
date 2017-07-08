@@ -111,6 +111,7 @@ footer {
     border: 0;
     width: 100%;
     height: 100%;
+	background: #eee;
 }
 
 #editorContainer {
@@ -169,6 +170,10 @@ footer {
 	display: block;
 }
 
+#fileContainer {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
 /*
 #fileContainer > a.used:afteaaar {
 	content:'\2713';
@@ -181,15 +186,15 @@ footer {
 }
 */
 
-footer > div {
+footer > div > div {
 	padding: 0 10px;
 }
 
-footer > div:first-child {
+footer > div > div:first-child {
 	padding-left: 0;
 }
 
-footer > div:last-child {
+footer > div > div:last-child {
 	padding-right: 0;
 }
 
@@ -371,7 +376,7 @@ body:not(.preview-paused) #btnRun {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,.5);
+    background: rgba(0,0,0,.25);
  
     padding-left: 100px;
     padding-top: 100px;
@@ -381,11 +386,7 @@ body:not(.preview-paused) #btnRun {
     max-width: 90%;
     border: 1px solid #888;
     border-radius: 4px;
-}
-
-
-.dialog h1 {
-
+	box-shadow: 1px 5px 30px rgba(0,0,0,.75)
 }
 
 .dialog fieldset {
@@ -405,4 +406,33 @@ fieldset.vertical > input[type='submit'] {
 fieldset.horizontal > input,
 fieldset.horizontal > label {
     display: inline-block;
+}
+
+fieldset button.link {
+	display: block;
+}
+
+button.link,
+button.link:focus,
+button.link:active {
+    /* Remove all decorations to look like normal text */
+    background: none;
+    border: none;
+    display: inline;
+    font: inherit;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    outline-offset: 0;
+    /* Additional styles to look like a link */
+    color: inherit;
+    cursor: pointer;
+}
+button.link:hover {
+    text-decoration: underline;
+}
+/* Remove extra space inside buttons in Firefox */
+button.link::-moz-focus-inner {
+    border: none;
+    padding: 0;
 }

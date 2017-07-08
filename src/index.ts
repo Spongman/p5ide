@@ -12,18 +12,16 @@ var _currentHtml: SourceFile;
 
 class extraLibs {
 
-	private static mapExtraLibs: {[name:string]:monaco.IDisposable} = {};
+	private static mapExtraLibs: { [name: string]: monaco.IDisposable } = {};
 
-	public static dispose()
-	{
+	public static dispose() {
 		//console.log("DISPOSE LIBS", name);
 		for (var libName in this.mapExtraLibs)
 			this.mapExtraLibs[libName].dispose();
-		this.mapExtraLibs = {};	
+		this.mapExtraLibs = {};
 	}
 
-	public static add(name:string, content:string)
-	{
+	public static add(name: string, content: string) {
 		if (this.mapExtraLibs[name])
 			return;
 		//console.log("ADD EXTRA LIB", name);
@@ -31,8 +29,7 @@ class extraLibs {
 		this.mapExtraLibs[name] = disposable;
 	}
 
-	public static remove(name:string)
-	{
+	public static remove(name: string) {
 		var lib = this.mapExtraLibs[name];
 		if (lib) {
 			lib.dispose();
@@ -54,15 +51,17 @@ function loadProject(project: Project) {
 		_currentProject.dispose();
 
 	closeFile();
-		
-	extraLibs.dispose();
-	
+
+	if (_previewWindow) {
+		writePreview();
+	}
+
 	_currentProject = project;
 
-	
+
 	var li = fileContainer.appendChild(project.render());
 
-	li.addEventListener("p5ide_openFile", (event:SourceNodeEvent) => {
+	li.addEventListener("p5ide_openFile", (event: SourceNodeEvent) => {
 		loadFile(event.sourceNode as SourceFile);
 	});
 
@@ -70,15 +69,31 @@ function loadProject(project: Project) {
 		console.log(event);
 	});
 
-	var defaultFile = ["index.html", "README.md"].reduce((p:SourceNode, s, i, rg) => p || project.find(s), void 0);
-	if (defaultFile instanceof SourceFile) {
-		loadCompletePromise.then(() => {
-			_currentHtml = defaultFile as SourceFile;
-			_currentHtml.used = true;
-			loadPreview();
-			_loadingProject = true;
-		})
+	var workingDirectory = project.workingDirectory;
+
+	var defaultFile = workingDirectory.find("index.html");
+	if (defaultFile) {
+		previewFile(defaultFile as SourceFile);
+	} else {
+		defaultFile = workingDirectory.find("README.md");
+		if (defaultFile) {
+			loadFile(defaultFile as SourceFile);
+		}
 	}
+}
+
+function previewFile(file: SourceFile)
+{
+	extraLibs.dispose();
+
+	loadCompletePromise.then(() => {
+		_currentHtml = file as SourceFile;
+		_currentHtml.used = true;
+		loadPreview();
+		_loadingPreview = true;
+		
+		document.querySelector("#previewPanel > .panelHeader > span")!.textContent = _currentHtml.name;
+	});
 }
 
 function closeFile() {
@@ -89,15 +104,13 @@ function closeFile() {
 	_currentFile.selected = false;
 
 	const model = _editor.getModel();
-	if (model)
-	{
+	if (model) {
 		if (model != _currentFile.model)
 			console.log("model has changed");
 		_currentFile.content = model.getValue();
 
 		if (_currentFile.language === SourceLanguage.Javascript ||
-			_currentFile.language === SourceLanguage.Typescript)
-		{
+			_currentFile.language === SourceLanguage.Typescript) {
 			extraLibs.add(_currentFile.name, _currentFile.content);
 		}
 	}
@@ -111,21 +124,33 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 
 		closeFile();
 
+		if (file !== _currentHtml && file.language === SourceLanguage.Html) {
+
+			_currentProject.workingDirectory = file.parent!;
+			_currentProject.items.forEach(f => {
+				if (f.parent)
+					f.parent.open = (f.parent === file.parent);
+				f.used = (f === file);
+			});
+
+			previewFile(file);
+			return;
+		}
+
 		_currentFile = file;
 		_currentFile.selected = true;
 
-		let languageName:string = "";
+		let languageName: string = "";
 		if (file.language)
 			languageName = file.language.name;
 		else {
 			var l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(file.extension) >= 0 : false);
 			if (l)
-				languageName = l.id; 
+				languageName = l.id;
 		}
 
 		var model = file.model;
-		if (!model)
-		{
+		if (!model) {
 			let content: string | null = file.content;
 			if (content === null)
 				content = file.content = await file.fetch(_currentProject);
@@ -141,17 +166,8 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 		document.getElementById("footerType")!.textContent = languageName || "plain";
 		document.getElementById("editorFilename")!.textContent = file.path;
 
-		if (file.language === SourceLanguage.Html) {
-			if (_currentHtml !== file) {
-				_currentHtml = file;
-
-				extraLibs.dispose();
-
-				_currentProject.items.forEach(f => { f.used = (f === file); });
-
-				loadPreview();
-			}
-		}
+		if (file.parent)		
+			file.parent.open = true;
 	}
 
 	if (position) {
@@ -173,13 +189,11 @@ loadCompletePromise = Promise.all<any>([
 	document.ready().then(() => { loadProject(defaultProject); }),
 ]);
 
-function openDialog(elt:string|HTMLElement, location:HTMLElement)
-{
+function openDialog(elt: string | HTMLElement, location: HTMLElement) {
 	if (typeof elt === 'string')
 		elt = document.querySelector(elt) as HTMLElement;
 	var left = 100, top = 100;
-	if (location)
-	{
+	if (location) {
 		var rect = location.getBoundingClientRect();
 		left = rect.right;
 		top = rect.bottom;
@@ -210,7 +224,7 @@ loadCompletePromise.then((values: any[]) => {
 		allowNonTsExtensions: true
 	});
 
-	values[0].forEach((lib:string, i:number) => monaco.languages.typescript.javascriptDefaults.addExtraLib(lib, "lib" + i));
+	values[0].forEach((lib: string, i: number) => monaco.languages.typescript.javascriptDefaults.addExtraLib(lib, "lib" + i));
 
 	const editorContainer = document.getElementById('editorContainer')!;
 	_editor = monaco.editor.create(editorContainer, {
@@ -278,8 +292,8 @@ loadCompletePromise.then((values: any[]) => {
 	click("btnRun", () => { pause(false); });
 	click("btnFloatPreview", () => { loadPreview(false); });
 	click("btnCloseConsole", () => { setConsoleVisibility(false); });
-	click("btnLP", (event) => {
-		openDialog("#projectOpenDialog", event.target);
+	click("btnLoadProject", (event) => {
+		openDialog("#projectOpenDialog", event.target as HTMLElement);
 		//(document.querySelector("#openProjectDialgo") as HTMLElement).style.display = "block";
 	});
 
@@ -330,22 +344,25 @@ loadCompletePromise.then((values: any[]) => {
 		}
 	});
 
-	[].forEach.call(document.body.querySelectorAll(".dialog"), (elt:HTMLElement) => {
+	[].forEach.call(document.body.querySelectorAll(".dialog"), (elt: HTMLElement) => {
 		elt.addEventListener("click", event => {
 			if (event.target === elt)
 				elt.style.display = "none";
 		});
 	});
 
-	document.body.querySelector("#projectOpenDialog")!.addEventListener("submit", event => {
+	document.querySelector("#projectOpenDialog")!.addEventListener("submit", event => {
 		event.preventDefault();
 
 		var form = event.target as HTMLFormElement;
-		var urlElement = form.elements.namedItem("url") as HTMLInputElement;
+		var urlElement = (document.activeElement.tagName === "BUTTON" ? document.activeElement : form.elements.namedItem("url")) as HTMLInputElement;
 		var url = urlElement.value;
 
 		GitHubProject.load(url)
-			.then(loadProject)
+			.then(project => {
+				loadProject(project);
+				form.style.display = "none";
+			})
 			.catch(error => {
 				urlElement.setCustomValidity(error);
 				form.reportValidity();
@@ -356,11 +373,12 @@ loadCompletePromise.then((values: any[]) => {
 var _previewWindow: Window | null;
 var _previewDocked = true;
 var _previewPaused = false;
-var _loadingProject = false;
+var _loadingPreview = false;
 
 function loadPreview(docked?: boolean) {
 
-	_loadingProject = false;
+	_loadingPreview = false;
+	_previousScript = null;
 	console.log("loadPreview");
 
 	const previewContainer = document.getElementById('previewContainer')!;
@@ -436,10 +454,9 @@ function handlePreviewError(event: ErrorEvent) {
 	}
 
 	const origin = _previewWindow!.location.origin;
-	const local = event.filename.substr(0, origin.length) === origin;
+	const local = event.filename.startsWith(origin);
 	let filename = local ? event.filename.substr(origin.length) : event.filename;
-	if (filename.charAt(0) === '/')
-		filename = filename.substr(1);
+	filename = filename.trimStart('/');
 	const fileText = `${filename}(${event.lineno},${event.colno})`;
 	const errorText = ` : ${event.message}`;
 
@@ -462,7 +479,7 @@ function handlePreviewError(event: ErrorEvent) {
 	}
 }
 
-var _previousScript:SourceFile;
+var _previousScript: SourceFile|null;
 
 function frameLoaded(event: any) {
 
@@ -498,7 +515,7 @@ function frameLoaded(event: any) {
 		if (url.substring(0, originLength) === event.origin) {
 			url = url.substring(originLength);
 
-			const file = _currentProject.find(url);
+			const file = _currentProject.workingDirectory.find(url);
 			if (file instanceof SourceFile) {
 
 				file.used = true;
@@ -509,9 +526,8 @@ function frameLoaded(event: any) {
 
 				switch (language) {
 					case SourceLanguage.Javascript:
-						if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0)
-						{
-							if (_loadingProject)
+						if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0) {
+							if (_loadingPreview)
 								_previousScript = file;
 							if (file !== _currentFile)
 								extraLibs.add(file.name, content);
@@ -535,13 +551,7 @@ function frameLoaded(event: any) {
 			//console.log("registered", reg);
 			setTimeout(() => {
 				_currentHtml && _currentHtml.fetch(_currentProject).then((html) => {
-					if (_previewWindow) {
-						_previewWindow.document.clear();
-						_previewWindow.document.open();
-						_previewWindow.document.write("<script>(opener||parent).initializePreview(window);</script>");
-						_previewWindow.document.write(html);
-						_previewWindow.document.close();
-					}
+					writePreview("<script>(opener||parent).initializePreview(window);</script>" + html);
 				});
 			}, 1);
 		}).catch(err => {
@@ -549,10 +559,19 @@ function frameLoaded(event: any) {
 		});
 }
 
+function writePreview(html?:string)
+{
+	if (_previewWindow) {
+		_previewWindow.document.open();
+		_previewWindow.document.clear();
+		if (html)
+			_previewWindow.document.write(html);
+		_previewWindow.document.close();
+	}
+}
 
 function initializePreview(previewWindow: any) {
-	if (_loadingProject)
-	{
+	if (_loadingPreview) {
 		previewWindow.document.addEventListener('DOMContentLoaded', function () {
 			loadFile(_previousScript || _currentHtml);
 		});

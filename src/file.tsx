@@ -37,11 +37,11 @@ abstract class SourceNode implements monaco.IDisposable {
 	set used(value: boolean) {
 		if (value && this.parent)
 			this.parent.used = true;
-		this.element.classList[value ? "add" : "remove"]("used");
+		this.element.classList.toggle("used", value);
 	}
 
 	get selected(): boolean { return this.element.classList.contains("selected"); }
-	set selected(value: boolean) { this.element.classList[value ? "add" : "remove"]("selected"); }
+	set selected(value: boolean) { this.element.classList.toggle("selected", value); }
 
 	abstract render(): HTMLElement;
 	abstract dispose(): void;
@@ -87,18 +87,22 @@ class SourceFolder extends SourceNode {
 
 	find(path: string): SourceNode | undefined {
 
-		if (path && path.charAt(0) === '/')
-			path = path.substring(1);
+		if (!path)
+			return void 0;	
+
+		path = path.trimStart('/');
 
 		var ich = path.indexOf('/');
 		if (ich < 0)
-			return this.children.find(i => i.name === path);
-
-		var dir = path.substr(0, ich);
-		var child = this.children.find(i => i.name === dir) as SourceFolder;
+			ich = path.length;
+		
+		var childName = path.substr(0, ich);
+		var child = (childName === "..") ? this.parent : this.children.find(i => i.name === childName) as SourceFolder;
 		if (!child)
 			return void 0;
-		return child.find(path.substr(ich + 1));
+		
+		var rest = path.substr(ich + 1);
+		return rest ? child.find(rest) : child;
 	}
 
 	onClick(event: Event) {
@@ -124,6 +128,20 @@ class SourceFolder extends SourceNode {
 				</ul>
 			</li>
 		);
+	}
+
+	set used(value: boolean) {
+		super.used = value;
+		if (value && this.name !== 'libraries') {
+			this.open = value;
+		}
+	}
+
+	get open(): boolean { return this.element.classList.contains("open"); }
+	set open(value: boolean) {
+		this.element.classList.toggle("open", value);
+		if (value && this.parent)
+			this.parent.open = true;	
 	}
 }
 
@@ -204,45 +222,10 @@ class GitHubSourceFile extends SourceFile {
 	}
 }
 
-async function cachedFetch(url: string): Promise<Response> {
-
-	if (window.caches) {
-		const cache = await window.caches.open("fetch");
-		//console.log("CACHE", cache);
-		let response = await cache.match(url);
-		//console.log("MATCH", response);
-		if (!response) {
-			response = await fetch(url);
-			//console.log("FETCH", response);
-			await cache.put(url, response);
-			response = await cache.match(url);
-			//console.log("MATCH", response);
-		}
-		return response;
-	}
-	else if (window.localStorage) {
-
-		let response: Response;
-		if (!window.localStorage.fetch)
-			window.localStorage.fetch = {};
-
-		response = JSON.parse(window.localStorage.fetch[url]);
-		if (!response) {
-			response = await fetch(url);
-			window.localStorage.fetch[url] = JSON.stringify(response);
-		}
-		return response;
-	}
-	else {
-		return fetch(url);
-	}
-}
-
-
 
 abstract class Project extends SourceFolder implements monaco.IDisposable {
 
-	constructor(public items: SourceNode[]) {
+	constructor(public items: SourceNode[], cwd: string = "") {
 		super("");
 
 		const map: { [name: string]: SourceNode } = {
@@ -265,6 +248,8 @@ abstract class Project extends SourceFolder implements monaco.IDisposable {
 			parent.children.push(item);
 			item.parent = parent;
 		});
+
+		this.workingDirectory = this.find(cwd) as SourceFolder || this;
 	}
 
 	render() {
@@ -272,4 +257,6 @@ abstract class Project extends SourceFolder implements monaco.IDisposable {
 			<div>{this.children} </div>
 		);
 	}
+
+	workingDirectory: SourceFolder;
 }

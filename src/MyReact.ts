@@ -23,7 +23,7 @@ namespace MyReact {
 		if (attributes) {
 			for (let key of Object.keys(attributes)) {
 				var value = attributes[key];
-				if (key.substr(0, 2) === "on" && typeof value === 'function')
+				if (key.startsWith("on") && typeof value === 'function')
 					element.addEventListener(key.substr(2).toLowerCase(), value);
 				else
 					element.setAttribute(key, value);

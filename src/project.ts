@@ -2,12 +2,12 @@
 
 type SourceMap = { [name: string]: SourceNode };
 
-
+//https://github.com/processing/p5.js-website/tree/master/src/data/examples
 
 class GitHubProject extends Project {
 
 	constructor(public user: string, public repo: string, public branch: string, public path: string, public sha: string, public items: SourceNode[]) {
-		super(items);
+		super(items, path);
 	}
 
 	public static async load(url: string): Promise<Project> {
@@ -26,12 +26,17 @@ class GitHubProject extends Project {
 		const treeResponse = await cachedFetch(branchJson.commit.commit.tree.url + "?recursive=1");
 		const treeJson = await treeResponse.json() as { tree: [{ path: string, type: string, sha: string }] };
 
-		const items = treeJson.tree.map(e => e.type === "blob" ?
-			new GitHubSourceFile(e.path, e.sha) :
-			new SourceFolder(e.path)
+		const items = treeJson.tree
+			.filter(e => e.path.startsWith(path) && e.path.length > path.length)	
+			.map(e => {
+				var rest = e.path.substr(path.length).trimStart('/');
+				return e.type === "blob" ?
+					new GitHubSourceFile(rest, e.sha) :
+					new SourceFolder(rest)
+			}
 		);
 
-		return new GitHubProject(user, repo, branch, path || "", sha, items);
+		return new GitHubProject(user, repo, branch, "/" + (path || ""), sha, items);
 
 		/*
 		https://api.github.com/repos/processing/p5.js-website/git/trees/6e0333b1146068043d55f00295ef80858df7c3ae

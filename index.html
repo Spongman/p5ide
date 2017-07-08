@@ -16,7 +16,6 @@
 
 	<header>
 		p5.js
-		<!--<a href="#" onclick=""-->
 		<div style="float: right;">
 			<label>
 				Theme:
@@ -32,8 +31,8 @@
 	<div class="flex-fill flex-horizontal" style="overflow: hidden;">
 		<div id="treePanel" class="flex-vertical" style="width: 150px;">
 			<div class="panelHeader">
-				<span>project-folder</span>
-				<a href="#" id="btnLP"><i class="fa fa-snowflake-o" aria-hidden="true"></i></a>
+				<span>files</span>
+				<a href="#" id="btnLoadProject" title="load project"><i class="fa fa-eject" aria-hidden="true"></i></a>
 			</div>
 			<ul id="fileContainer" class="flex-fill"></ul>
 		</div>
@@ -44,7 +43,7 @@
 
 				<div class="flex-fill flex-vertical">
 					<div class="panelHeader">
-						<span id="editorFilename">filename</span>
+						<span id="editorFilename">editor</span>
 						<a href="#" id="btnRefresh" title="refresh preview"><i class="fa fa-refresh" aria-hidden="true"></i></a>
 						<a href="#" id="btnPause" title="pause preview"><i class="fa fa-pause" aria-hidden="true"></i></a>
 						<a href="#" id="btnRun" title="run preview"><i class="fa fa-play" aria-hidden="true"></i></a>
@@ -73,23 +72,35 @@
 				</div>
 				<div id="previewContainer" class="flex-fill"></div>
 			</div>
-
 		</div>
 	</div>
 
-	<footer class="flex-horizontal">
-		<div id="footerFilename" class="flex-fill"></div>
-		<div id="footerPosition"></div>
-		<div id="footerType"></div>
+	<footer>
+		<div class="flex-horizontal">
+			<div id="footerFilename" class="flex-fill"></div>
+			<div id="footerPosition"></div>
+			<div id="footerType"></div>
+		</div>
 	</footer>
 
 	<form id="projectOpenDialog" class="dialog">
 		<fieldset class="horizontal">
-			<label>
-				project url:
-				<input type="url" name="url" placeholder="the url of a project to open" required="required" autofocus="autofocus"/>
-			</label>
-			<input type="submit" value="Open" />
+			<p>Either choose:</p>
+			<dl>
+				<dt>Coding Train</dt>
+				<dd>
+					<button class="link" type="submit" value="https://github.com/CodingTrain/Rainbow-Code/tree/master/CodingChallenges">Coding Challenges</button>
+					<button class="link" type="submit" value="https://github.com/CodingTrain/Rainbow-Code/tree/master/Courses/A2Z">Programming from A to Z</button>
+					<button class="link" type="submit" value="https://github.com/CodingTrain/Rainbow-Code/tree/master/Courses/natureofcode">Nature of Code</button>
+					<button class="link" type="submit" value="https://github.com/CodingTrain/Rainbow-Code/tree/master/Tutorials/P5JS">Tutorials</button>
+				</dd>
+			</dl>
+
+			<hr/>
+			<p>Or load:</p>
+
+			<input type="url" name="url" placeholder="the url of a project to open" autofocus="autofocus" />
+			<input type="submit" value="Load" />
 		</fieldset>
 	</form>
 
@@ -97,6 +108,5 @@
 		document.body.classList.add("theme-" + window.localStorage.theme);
 	</script>
 </body>
-
 
 </html>
