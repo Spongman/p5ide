@@ -14,7 +14,7 @@ class GitHubProject extends Project {
 
 		let [match, user, repo, branch, path] = url.match(/https:\/\/github\.com\/([^\/]*)\/([^\/]*)(?:\/tree\/([^\/]*)\/(.*))?/i) || <string[]>[];
 		if (!match)
-			return Promise.reject("invalid url");
+			return Promise.reject("invalid GitHub url");
 
 		if (!branch)
 			branch = 'master';
