@@ -25,6 +25,12 @@ ul, li {
 	padding: 0;
 }
 
+header h1 {
+    font-size: 10pt;
+    display: inline-block;
+    margin: 1px 20px 1px 1px;
+}
+
 a {
     color: #d4d4d4;
 	text-decoration: none;
@@ -92,7 +98,7 @@ footer {
 }
 
 .panelHeader span {
-	text-shadow: 1px 1px 5px rgba(0,0,0,.5);
+	text-shadow: 1px 1px 5px rgba(0,0,0,.3);
 }
 
 .panelHeader a {
@@ -224,7 +230,8 @@ body.theme-vs a {
     color: #2c2c2c;
 }
 
-body.theme-vs a > i.fa {
+body.theme-vs a > i.fa,
+body.theme-vs button.link {
 	color: hsla(210, 52%, 55%, 1);
 }
 
@@ -269,7 +276,8 @@ body.theme-vs-dark a {
     color: #d4d4d4;
 }
 
-body.theme-vs-dark a > i.fa {
+body.theme-vs-dark a > i.fa,
+body.theme-vs-dark button.link {
 	color: hsla(210, 52%, 70%, 1);
 }
 
@@ -312,7 +320,8 @@ body.theme-hc-black a {
     color: #ccc;
 }
 
-body.theme-hc-black a > i.fa {
+body.theme-hc-black a > i.fa,
+body.theme-hc-black button.link {
 	color: hsla(210, 100%, 90%, 1);
 }
 
