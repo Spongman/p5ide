@@ -8,17 +8,17 @@ declare class p5 {
   /**
    * Extracts the alpha value from a color or pixel array.
    */
-  alpha(obj: p5.Color|number[]): void
+  alpha(obj: p5.Color|number[]): number
   
   /**
    * Extracts the blue value from a color or pixel array.
    */
-  blue(obj: p5.Color|number[]): void
+  blue(obj: p5.Color|number[]): number
   
   /**
    * Extracts the HSB brightness value from a color or pixel array.
    */
-  brightness(color: p5.Color|number[]): void
+  brightness(color: p5.Color|number[]): number
   
   /**
    * Creates colors for storing in variables of the color datatype. The parameters are interpreted as RGB or HSB values depending on the current colorMode(). The default mode is RGB values from 0 to 255 and, therefore, the function call color(255, 204, 0) will return a bright yellow color. 
@@ -59,14 +59,14 @@ declare class p5 {
   /**
    * Extracts the green value from a color or pixel array.
    */
-  green(color: p5.Color|number[]): void
+  green(color: p5.Color|number[]): number
   
   /**
    * Extracts the hue value from a color or pixel array. 
    * 
    * Hue exists in both HSB and HSL. This function will return the HSB-normalized hue when supplied with an HSB color object (or when supplied with a pixel array while the color mode is HSB), but will default to the HSL-normalized hue otherwise. (The values will only be different if the maximum hue setting for each system is different.)
    */
-  hue(color: p5.Color|number[]): void
+  hue(color: p5.Color|number[]): number
   
   /**
    * Blends two colors to find a third color somewhere between them. The amt parameter is the amount to interpolate between the two values where 0.0 equal to the first color, 0.1 is very near the first color, 0.5 is halfway in between, etc. An amount below 0 will be treated as 0. Likewise, amounts above 1 will be capped at 1. This is different from the behavior of lerp(), but necessary because otherwise numbers outside the range will produce strange and unexpected colors. 
@@ -78,51 +78,51 @@ declare class p5 {
   /**
    * Extracts the HSL lightness value from a color or pixel array.
    */
-  lightness(color: p5.Color|number[]): void
+  lightness(color: p5.Color|number[]): number
   
   /**
    * Extracts the red value from a color or pixel array.
    */
-  red(obj: p5.Color|number[]): void
+  red(obj: p5.Color|number[]): number
   
   /**
    * Extracts the saturation value from a color or pixel array. 
    * 
    * Saturation is scaled differently in HSB and HSL. This function will return the HSB saturation when supplied with an HSB color object (or when supplied with a pixel array while the color mode is HSB), but will default to the HSL saturation otherwise.
    */
-  saturation(color: p5.Color|number[]): void
+  saturation(color: p5.Color|number[]): number
   
   // src/color/setting.js
   
   /**
    * The background() function sets the color used for the background of the p5.js canvas. The default background is light gray. This function is typically used within draw() to clear the display window at the beginning of each frame, but it can be used inside setup() to set the background on the first frame of animation or if the background need only be set once.
    */
-  background(color: p5.Color, a?: number): void
+  background(color: p5.Color, a?: number): p5
   
   /**
    * The background() function sets the color used for the background of the p5.js canvas. The default background is light gray. This function is typically used within draw() to clear the display window at the beginning of each frame, but it can be used inside setup() to set the background on the first frame of animation or if the background need only be set once.
    */
-  background(colorstring: string, a?: number): void
+  background(colorstring: string, a?: number): p5
   
   /**
    * The background() function sets the color used for the background of the p5.js canvas. The default background is light gray. This function is typically used within draw() to clear the display window at the beginning of each frame, but it can be used inside setup() to set the background on the first frame of animation or if the background need only be set once.
    */
-  background(gray: number, a?: number): void
+  background(gray: number, a?: number): p5
   
   /**
    * The background() function sets the color used for the background of the p5.js canvas. The default background is light gray. This function is typically used within draw() to clear the display window at the beginning of each frame, but it can be used inside setup() to set the background on the first frame of animation or if the background need only be set once.
    */
-  background(v1: number, v2: number, v3: number, a?: number): void
+  background(v1: number, v2: number, v3: number, a?: number): p5
   
   /**
    * The background() function sets the color used for the background of the p5.js canvas. The default background is light gray. This function is typically used within draw() to clear the display window at the beginning of each frame, but it can be used inside setup() to set the background on the first frame of animation or if the background need only be set once.
    */
-  background(image: p5.Image, a?: number): void
+  background(image: p5.Image, a?: number): p5
   
   /**
    * Clears the pixels within a buffer. This function only works on p5.Canvas objects created with the createCanvas() function; it won't work with the main display window. Unlike the main graphics context, pixels in additional graphics areas created with createGraphics() can be entirely or partially transparent. This function clears everything to make all of the pixels 100% transparent.
    */
-  clear(): void
+  clear(): p5
   
   /**
    * colorMode() changes the way p5.js interprets color data. By default, the parameters for fill(), stroke(), background(), and color() are defined by values between 0 and 255 using the RGB color model. This is equivalent to setting colorMode(RGB, 255). Setting colorMode(HSB) lets you use the HSB system instead. By default, this is colorMode(HSB, 360, 100, 100, 1). You can also use HSL. 
@@ -169,12 +169,12 @@ declare class p5 {
   /**
    * Disables filling geometry. If both noStroke() and noFill() are called, nothing will be drawn to the screen.
    */
-  noFill(): void
+  noFill(): p5
   
   /**
    * Disables drawing the stroke (outline). If both noStroke() and noFill() are called, nothing will be drawn to the screen.
    */
-  noStroke(): void
+  noStroke(): p5
   
   /**
    * Sets the color used to draw lines and borders around shapes. This color is either specified in terms of the RGB or HSB color depending on the current colorMode() (the default color space is RGB, with each value in the range from 0 to 255). 
@@ -461,7 +461,16 @@ declare class p5 {
    * 
    *  Calling frameRate() with arguments that are not of the type numbers or are non positive also returns current framerate.
    */
-  frameRate(fps?: number): number
+  frameRate(fps: number): p5
+  
+  /**
+   * Specifies the number of frames to be displayed every second. For example, the function call frameRate(30) will attempt to refresh 30 times a second. If the processor is not fast enough to maintain the specified rate, the frame rate will not be achieved. Setting the frame rate within setup() is recommended. The default rate is 60 frames per second. This is the same as setFrameRate(val). 
+   * 
+   *  Calling frameRate() with no arguments returns the current framerate. The draw function must run at least once before it will return a value. This is the same as getFrameRate(). 
+   * 
+   *  Calling frameRate() with arguments that are not of the type numbers or are non positive also returns current framerate.
+   */
+  frameRate(): number
   
   /**
    * Hides the cursor from view.
@@ -715,7 +724,7 @@ declare class p5 {
    * 
    *  Transformations such as translate(), rotate(), and scale() do not work within beginShape(). It is also not possible to use other shapes, such as ellipse() or rect() within beginShape().
    */
-  beginShape(kind: any): p5
+  beginShape(kind?: any): p5
   
   /**
    * Specifies vertex coordinates for Bezier curves. Each call to bezierVertex() defines the position of two control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. 
@@ -741,7 +750,7 @@ declare class p5 {
   /**
    * The endShape() function is the companion to beginShape() and may only be called after beginShape(). When endshape() is called, all of image data defined since the previous call to beginShape() is written into the image buffer. The constant CLOSE as the value for the MODE parameter to close the shape (to connect the beginning and the end).
    */
-  endShape(mode: any): p5
+  endShape(mode?: any): p5
   
   /**
    * Specifies vertex coordinates for quadratic Bezier curves. Each call to quadraticVertex() defines the position of one control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. The first time quadraticVertex() is used within a beginShape() call, it must be prefaced with a call to vertex() to set the first anchor point. This function must be used between beginShape() and endShape() and only when there is no MODE parameter specified to beginShape().
@@ -751,7 +760,7 @@ declare class p5 {
   /**
    * All shapes are constructed by connecting a series of vertices. vertex() is used to specify the vertex coordinates for points, lines, triangles, quads, and polygons. It is used exclusively within the beginShape() and endShape() functions.
    */
-  vertex(x: number, y: number): p5
+  vertex(x: number, y: number, z?: number|boolean): p5
   
   // src/events/acceleration.js
   
@@ -1066,7 +1075,7 @@ declare class p5 {
   /**
    * Capture a sequence of frames that can be used to create a movie. Accepts a callback. For example, you may wish to send the frames to a server where they can be stored or converted into a movie. If no callback is provided, the browser will pop up save dialogues in an attempt to download all of the images that have just been created. With the callback provided the image data isn't saved by default but instead passed as an argument to the callback function as an array of objects, with the size of array equal to the total number of frames.
    */
-  saveFrames(filename: string, extension: string, duration: number, framerate: number, callback?: () => any): void
+  saveFrames(filename: string, extension: string, duration: number, framerate: number, callback?: (p1:any[]) => any): void
   
   // src/image/loading_displaying.js
   
@@ -1082,12 +1091,12 @@ declare class p5 {
   /**
    * Draw an image to the main canvas of the p5js sketch
    */
-  image(img: p5.Image, x: number, y: number, width: number, height: number): void
+  image(img: p5.Image, x: number, y: number, width?: number, height?: number): void
   
   /**
    * Draw an image to the main canvas of the p5js sketch
    */
-  image(img: p5.Image, dx: number, dy: number, dWidth: number, dHeight: number, sx: number, sy: number, sWidth?: number, sHeight?: number): void
+  image(img: p5.Image, x: number, y: number, width: number, height: number, sx: number, sy: number, sWidth?: number, sHeight?: number): void
   
   /**
    * Sets the fill value for displaying images. Images can be tinted to specified colors or made transparent by including an alpha value. 
@@ -1218,7 +1227,7 @@ declare class p5 {
    * 
    *  See the reference for pixels[] for more information.
    */
-  get(x?: number, y?: number, w?: number, h?: number): any[]|p5.Image
+  get(x?: number, y?: number, w?: number, h?: number): number[]|p5.Image
   
   /**
    * Loads the pixel data for the display window into the pixels[] array. This function must always be called before reading from or writing to pixels[]. Note that only changes made with set() or direct manipulation of pixels[] will occur.
@@ -1264,7 +1273,7 @@ declare class p5 {
    * 
    *  This method is asynchronous, meaning it may not finish before the next line in your sketch is executed.
    */
-  loadStrings(filename: string, callback?: () => any, errorCallback?: () => any): any[]
+  loadStrings(filename: string, callback?: () => any, errorCallback?: () => any): string[]
   
   /**
    * Reads the contents of a file or URL and creates a p5.Table object with its values. If a file is specified, it must be located in the sketch's "data" folder. The filename parameter can also be a URL to a file found online. By default, the file is assumed to be comma-separated (in CSV format). Table only looks for a header row if the 'header' option is included. 
@@ -1449,7 +1458,7 @@ declare class p5 {
   /**
    * Creates a new p5.Vector (the datatype for storing vectors). This provides a two or three dimensional vector, specifically a Euclidean (also known as geometric) vector. A vector is an entity that has both magnitude and direction.
    */
-  createVector(x?: number, y?: number, z?: number): void
+  createVector(x?: number, y?: number, z?: number): p5.Vector
   
   // src/math/noise.js
   
@@ -1462,7 +1471,7 @@ declare class p5 {
    * 
    * Another way to adjust the character of the resulting sequence is the scale of the input coordinates. As the function works within an infinite space the value of the coordinates doesn't matter as such, only the distance between successive coordinates does (eg. when using noise() within a loop). As a general rule the smaller the difference between coordinates, the smoother the resulting noise sequence will be. Steps of 0.005-0.03 work best for most applications, but this will differ depending on use.
    */
-  noise(x: number, y: number, z: number): number
+  noise(x: number, y?: number, z?: number): number
   
   /**
    * Adjusts the character and level of detail produced by the Perlin noise function. Similar to harmonics in physics, noise is computed over several octaves. Lower octaves contribute more to the output signal and as such define the overall intensity of the noise, whereas higher octaves create finer grained details in the noise sequence. 
@@ -1515,7 +1524,7 @@ declare class p5 {
    * 
    * If two arguments are given, returns a random number from the first argument up to (but not including) the second argument.
    */
-  random(choices: any[]): number
+  random(choices: any[]): any
   
   /**
    * Returns a random number fitting a Gaussian, or normal, distribution. There is theoretically no minimum or maximum value that randomGaussian() might return. Rather, there is just a very low probability that values far from the mean will be returned; and a higher probability that numbers near the mean will be returned. 
@@ -1590,7 +1599,7 @@ declare class p5 {
    * 
    * So if you write textAlign(LEFT), you are aligning the left edge of your text to the x value you give in text(). If you write textAlign(RIGHT, TOP), you are aligning the right edge of your text to the x value and the top of edge of the text to the y value.
    */
-  textAlign(horizAlign: any, vertAlign: any): number
+  textAlign(horizAlign: any, vertAlign?: any): number
   
   /**
    * Sets/gets the spacing, in pixels, between lines of text. This setting will be used in all subsequent calls to the text() function.
@@ -1621,7 +1630,7 @@ declare class p5 {
    * 
    *  The x2 and y2 parameters define a rectangular area to display within and may only be used with string data. When these parameters are specified, they are interpreted based on the current rectMode() setting. Text that does not fit completely within the rectangle specified will not be drawn to the screen.
    */
-  text(str: string, x: number, y: number, x2: number, y2: number): p5
+  text(str: string, x: number, y: number, x2?: number, y2?: number): p5
   
   /**
    * Sets the current font that will be drawn with the text() function.
@@ -1700,7 +1709,12 @@ declare class p5 {
   /**
    * Converts a boolean, string, or float to its integer representation. When an array of values is passed in, then an int array of the same length is returned.
    */
-  int(n: string|boolean|number|any[]): number
+  int(n: string|boolean|number): number
+  
+  /**
+   * Converts a boolean, string, or float to its integer representation. When an array of values is passed in, then an int array of the same length is returned.
+   */
+  int(ns: any[]): number[]
   
   /**
    * Converts a boolean, string or number to its string representation. When an array of values is passed in, then an array of strings of the same length is returned.
@@ -1715,27 +1729,47 @@ declare class p5 {
   /**
    * Converts a number, string or boolean to its byte representation. A byte can be only a whole number between -128 and 127, so when a value outside of this range is converted, it wraps around to the corresponding byte representation. When an array of number, string or boolean values is passed in, then an array of bytes the same length is returned.
    */
-  byte(n: string|boolean|number|any[]): number
+  byte(n: string|boolean|number): number
+  
+  /**
+   * Converts a number, string or boolean to its byte representation. A byte can be only a whole number between -128 and 127, so when a value outside of this range is converted, it wraps around to the corresponding byte representation. When an array of number, string or boolean values is passed in, then an array of bytes the same length is returned.
+   */
+  byte(ns: any[]): any[]
   
   /**
    * Converts a number or string to its corresponding single-character string representation. If a string parameter is provided, it is first parsed as an integer and then translated into a single-character string. When an array of number or string values is passed in, then an array of single-character strings of the same length is returned.
    */
-  char(n: string|number|any[]): string
+  char(n: string|number): string
+  
+  /**
+   * Converts a number or string to its corresponding single-character string representation. If a string parameter is provided, it is first parsed as an integer and then translated into a single-character string. When an array of number or string values is passed in, then an array of single-character strings of the same length is returned.
+   */
+  char(ns: any[]): string[]
   
   /**
    * Converts a single-character string to its corresponding integer representation. When an array of single-character string values is passed in, then an array of integers of the same length is returned.
    */
-  unchar(n: string|any[]): number
+  unchar(n: string): number
+  
+  /**
+   * Converts a single-character string to its corresponding integer representation. When an array of single-character string values is passed in, then an array of integers of the same length is returned.
+   */
+  unchar(ns: any[]): number[]
   
   /**
    * Converts a number to a string in its equivalent hexadecimal notation. If a second parameter is passed, it is used to set the number of characters to generate in the hexadecimal notation. When an array is passed in, an array of strings in hexadecimal notation of the same length is returned.
    */
-  hex(n: number|any[]): string
+  hex(n: number, digits?: number): string
+  
+  /**
+   * Converts a number to a string in its equivalent hexadecimal notation. If a second parameter is passed, it is used to set the number of characters to generate in the hexadecimal notation. When an array is passed in, an array of strings in hexadecimal notation of the same length is returned.
+   */
+  hex(ns: number[], digits?: number): string[]
   
   /**
    * Converts a string representation of a hexadecimal number to its equivalent integer value. When an array of strings in hexadecimal notation is passed in, an array of integers of the same length is returned.
    */
-  unhex(n: string|any[]): number
+  unhex(n: string|any[]): number|number[]
   
   // src/utilities/string_functions.js
   
@@ -1751,7 +1785,7 @@ declare class p5 {
    * 
    *  If there are groups (specified by sets of parentheses) in the regular expression, then the contents of each will be returned in the array. Element [0] of a regular expression match returns the entire matching string, and the match groups start at element [1] (the first group is [1], the second [2], and so on).
    */
-  match(str: string, regexp: string): any[]
+  match(str: string, regexp: string): string[]
   
   /**
    * This function is used to apply a regular expression to a piece of text, and return a list of matching groups (elements found inside parentheses) as a two-dimensional String array. If there are no matches, a null value will be returned. If no groups are specified in the regular expression, but the sequence matches, a two dimensional array is still returned, but the second dimension is only of length one. 
@@ -1787,14 +1821,14 @@ declare class p5 {
    * 
    * The splitTokens() function works in a similar fashion, except that it splits using a range of characters instead of a specific character or sequence.
    */
-  split(value: string, delim: string): any[]
+  split(value: string, delim: string): string[]
   
   /**
    * The splitTokens() function splits a String at one or many character delimiters or "tokens." The delim parameter specifies the character or characters to be used as a boundary. 
    * 
    *  If no delim characters are specified, any whitespace character is used to split. Whitespace characters include tab (\t), line feed (\n), carriage return (\r), form feed (\f), and space.
    */
-  splitTokens(value: string, delim?: string): any[]
+  splitTokens(value: string, delim?: string): string[]
   
   /**
    * Removes whitespace characters from the beginning and end of a String. In addition to standard whitespace characters such as space, carriage return, and tab, this function also removes the Unicode "nbsp" character.
@@ -1877,13 +1911,13 @@ declare class p5 {
    */
   ambientLight(color: p5.Color, alpha?: number): p5
   
-  // TODO: Fix directionalLight() errors in src/webgl/light.js:
+  // TODO: Fix directionalLight() errors in src/webgl/light.js, line 96:
   //
   //   required param "x" follows an optional param
   //
   // directionalLight(v1: number|any[]|string|p5.Color, v2?: number, v3?: number, a?: number, x: number|p5.Vector, y?: number, z?: number): p5
   
-  // TODO: Fix pointLight() errors in src/webgl/light.js:
+  // TODO: Fix pointLight() errors in src/webgl/light.js, line 190:
   //
   //   required param "x" follows an optional param
   //
@@ -1942,7 +1976,7 @@ declare class p5 {
   /**
    * Draw a box with given width, height and depth
    */
-  box(width: number, Height: number, depth: number, detailX?: number, detailY?: number): p5
+  box(width: number, Height?: number, depth?: number, detailX?: number, detailY?: number): p5
   
   /**
    * Draw a sphere with given radius
@@ -1970,6 +2004,45 @@ declare class p5 {
   torus(radius: number, tubeRadius: number, detailX?: number, detailY?: number): p5
   
   // lib/addons/p5.sound.js
+  
+  /**
+   * Returns the Audio Context for this sketch. Useful for users who would like to dig deeper into the Web Audio API .
+   */
+  getAudioContext(): any
+  
+  /**
+   * Returns a number representing the master amplitude (volume) for sound in this sketch.
+   */
+  getMasterVolume(): number
+  
+  /**
+   * Scale the output of all sound in this sketch Scaled between 0.0 (silence) and 1.0 (full volume). 1.0 is the maximum amplitude of a digital sound, so multiplying by greater than 1.0 may cause digital distortion. To fade, provide a rampTime parameter. For more complex fades, see the Env class. Alternately, you can pass in a signal source such as an oscillator to modulate the amplitude with an audio signal. 
+   * 
+   * How This Works: When you load the p5.sound module, it creates a single instance of p5sound. All sound objects in this module output to p5sound before reaching your computer's output. So if you change the amplitude of p5sound, it impacts all of the sound in this module. 
+   * 
+   * If no value is provided, returns a Web Audio API Gain Node
+   */
+  masterVolume(volume: number|any, rampTime?: number, timeFromNow?: number): void
+  
+  /**
+   * p5.soundOut is the p5.sound master output. It sends output to the destination of this window's web audio context. It contains Web Audio API nodes including a dyanmicsCompressor (.limiter), and Gain Nodes for .input and .output.
+   */
+  soundOut: any
+  
+  /**
+   * Returns a number representing the sample rate, in samples per second, of all sound objects in this audio context. It is determined by the sampling rate of your operating system's sound card, and it is not currently possile to change. It is often 44100, or twice the range of human hearing.
+   */
+  sampleRate(): number
+  
+  /**
+   * Returns the frequency value of a MIDI note value. General MIDI treats notes as integers where middle C is 60, C# is 61, D is 62 etc. Useful for generating musical frequencies with oscillators.
+   */
+  midiToFreq(midiNote: number): number
+  
+  /**
+   * List the SoundFile formats that you will include. LoadSound will search your directory for these extensions, and will pick a format that is compatable with the client's web browser. Here is a free online file converter.
+   */
+  soundFormats(formats?: string): void
   
   /**
    * Constructor: new p5.SinOsc(). This creates a Sine Wave Oscillator and is equivalent to  new p5.Oscillator('sine')  or creating a p5.Oscillator and then calling its method setType('sine'). See p5.Oscillator for methods.
@@ -2028,17 +2101,17 @@ declare class p5 {
   /**
    * Creates a <div></div> element in the DOM with given inner HTML. Appends to the container node if one is specified, otherwise appends to body.
    */
-  createDiv(html: string): any|p5.Element
+  createDiv(html?: string): any|p5.Element
   
   /**
    * Creates a <p></p> element in the DOM with given inner HTML. Used for paragraph length text. Appends to the container node if one is specified, otherwise appends to body.
    */
-  createP(html: string): any|p5.Element
+  createP(html?: string): any|p5.Element
   
   /**
    * Creates a <span></span> element in the DOM with given inner HTML. Appends to the container node if one is specified, otherwise appends to body.
    */
-  createSpan(html: string): any|p5.Element
+  createSpan(html?: string): any|p5.Element
   
   /**
    * Creates an <img> element in the DOM with given src and alternate text. Appends to the container node if one is specified, otherwise appends to body.
@@ -2093,12 +2166,12 @@ declare class p5 {
   /**
    * Creates an HTML5 <video> element in the DOM for simple playback of audio/video. Shown by default, can be hidden with .hide() and drawn into canvas using video(). Appends to the container node if one is specified, otherwise appends to body. The first parameter can be either a single string path to a video file, or an array of string paths to different formats of the same video. This is useful for ensuring that your video can play across different browsers, as each supports different formats. See this page for further information about supported formats.
    */
-  createVideo(src: string|any[], callback?: any): any|p5.Element
+  createVideo(src: string|any[], callback?: any): p5.MediaElement|p5.Element
   
   /**
    * Creates a hidden HTML5 <audio> element in the DOM for simple audio playback. Appends to the container node if one is specified, otherwise appends to body. The first parameter can be either a single string path to a audio file, or an array of string paths to different formats of the same audio. This is useful for ensuring that your audio can play across different browsers, as each supports different formats. See this page for further information about supported formats.
    */
-  createAudio(src: string|any[], callback?: any): any|p5.Element
+  createAudio(src: string|any[], callback?: any): p5.MediaElement|p5.Element
   
   /**
    * Creates a new <video> element that contains the audio/video feed from a webcam. This can be drawn onto the canvas using video(). 
@@ -2113,52 +2186,6 @@ declare class p5 {
    * Creates element with given tag in the DOM with given content. Appends to the container node if one is specified, otherwise appends to body.
    */
   createElement(tag: string, content?: string): any|p5.Element
-  
-  // Properties from p5.sound
-  
-  // lib/addons/p5.sound.js
-  
-  /**
-   * Returns the Audio Context for this sketch. Useful for users who would like to dig deeper into the Web Audio API .
-   */
-  getAudioContext(): any
-  
-  /**
-   * Returns a number representing the master amplitude (volume) for sound in this sketch.
-   */
-  getMasterVolume(): number
-  
-  /**
-   * Scale the output of all sound in this sketch Scaled between 0.0 (silence) and 1.0 (full volume). 1.0 is the maximum amplitude of a digital sound, so multiplying by greater than 1.0 may cause digital distortion. To fade, provide a rampTime parameter. For more complex fades, see the Env class. Alternately, you can pass in a signal source such as an oscillator to modulate the amplitude with an audio signal. 
-   * 
-   * How This Works: When you load the p5.sound module, it creates a single instance of p5sound. All sound objects in this module output to p5sound before reaching your computer's output. So if you change the amplitude of p5sound, it impacts all of the sound in this module. 
-   * 
-   * If no value is provided, returns a Web Audio API Gain Node
-   */
-  masterVolume(volume: number|any, rampTime?: number, timeFromNow?: number): void
-  
-  /**
-   * p5.soundOut is the p5.sound master output. It sends output to the destination of this window's web audio context. It contains Web Audio API nodes including a dyanmicsCompressor (.limiter), and Gain Nodes for .input and .output.
-   */
-  soundOut: any
-  
-  /**
-   * Returns a number representing the sample rate, in samples per second, of all sound objects in this audio context. It is determined by the sampling rate of your operating system's sound card, and it is not currently possile to change. It is often 44100, or twice the range of human hearing.
-   */
-  sampleRate(): number
-  
-  /**
-   * Returns the frequency value of a MIDI note value. General MIDI treats notes as integers where middle C is 60, C# is 61, D is 62 etc. Useful for generating musical frequencies with oscillators.
-   */
-  midiToFreq(midiNote: number): number
-  
-  /**
-   * List the SoundFile formats that you will include. LoadSound will search your directory for these extensions, and will pick a format that is compatable with the client's web browser. Here is a free online file converter.
-   */
-  soundFormats(formats: string): void
-  
-  // TODO: Property "{String} failedPath path to the file that failed to load", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
-  
 }
 
 declare namespace p5 {
@@ -2191,17 +2218,32 @@ declare namespace p5 {
     /**
      * Attaches the element to the parent specified. A way of setting the container for the element. Accepts either a string ID, DOM node, or p5.Element. If no arguments given, parent node is returned. For more ways to position the canvas, see the  positioning the canvas wiki page.
      */
-    parent(parent: string|any): p5.Element
+    parent(parent: string|p5.Element|any): p5.Element
+    
+    /**
+     * Attaches the element to the parent specified. A way of setting the container for the element. Accepts either a string ID, DOM node, or p5.Element. If no arguments given, parent node is returned. For more ways to position the canvas, see the  positioning the canvas wiki page.
+     */
+    parent(): p5.Element
     
     /**
      * Sets the ID of the element. If no ID argument is passed in, it instead returns the current ID of the element.
      */
-    id(id?: string): p5.Element|string
+    id(id: string): p5.Element
+    
+    /**
+     * Sets the ID of the element. If no ID argument is passed in, it instead returns the current ID of the element.
+     */
+    id(): string
     
     /**
      * Adds given class to the element. If no class argument is passed in, it instead returns a string containing the current class(es) of the element.
      */
-    class(theClass?: string): p5.Element|string
+    class(theClass: string): p5.Element
+    
+    /**
+     * Adds given class to the element. If no class argument is passed in, it instead returns a string containing the current class(es) of the element.
+     */
+    class(): string
     
     /**
      * The .mousePressed() function is called once after every time a mouse button is pressed over the element. This can be used to attach element specific event listeners.
@@ -2368,6 +2410,132 @@ declare namespace p5 {
     constructor(elt: string, pInst?: p5, isMainCanvas?: boolean)
   }
   
+  // src/data/p5.TypedDict.js
+  
+  class TypedDict {
+    /**
+     * Base class for all p5.Dictionary types. More specifically typed Dictionary objects inherit from this
+     */
+    constructor()
+    
+    /**
+     * Creates a new instance of p5.StringDict using the key, value pair or object you provide.
+     */
+    createStringDict(key: string|any, value: string): p5.StringDict
+    
+    /**
+     * Creates a new instance of p5.NumberDict using the key, value pair or object you provide.
+     */
+    createNumberDict(key: number|any, value: number): p5.NumberDict
+    
+    /**
+     * Returns the number of key-value pairs currently in Dictionary object
+     */
+    size(): number
+    
+    /**
+     * Returns true if key exists in Dictionary otherwise returns false
+     */
+    hasKey(key: number|string): boolean
+    
+    /**
+     * Returns value stored at supplied key.
+     */
+    get(key: number|string): number|string
+    
+    /**
+     * Changes the value of key if in it already exists in in the Dictionary otherwise makes a new key-value pair
+     */
+    set(key: number|string, value: number|string): void
+    
+    /**
+     * Removes a key-value pair in the Dictionary
+     */
+    create(key: number|string, value: number|string): void
+    
+    /**
+     * Removes a key-value pair in the Dictionary
+     */
+    create(obj: any): void
+    
+    /**
+     * Empties Dictionary of all key-value pairs
+     */
+    clear(): void
+    
+    /**
+     * Removes a key-value pair in the Dictionary
+     */
+    remove(key: number|string): void
+    
+    /**
+     * Logs the list of items currently in the Dictionary to the console
+     */
+    print(): void
+    
+    /**
+     * Converts the Dictionary into a CSV file for local storage.
+     */
+    saveTable(): void
+    
+    /**
+     * Converts the Dictionary into a JSON file for local storage.
+     */
+    saveJSON(): void
+  }
+  class StringDict {
+    /**
+     * A Dictionary class for Strings.
+     */
+    constructor()
+  }
+  class NumberDict extends p5.TypedDict {
+    /**
+     * A simple Dictionary class for Numbers.
+     */
+    constructor()
+    
+    /**
+     * Add to a value stored at a certain key The sum is stored in that location in the Dictionary.
+     */
+    add(Key: number, Amount: number): void
+    
+    /**
+     * Subtract from a value stored at a certain key The difference is stored in that location in the Dictionary.
+     */
+    sub(Key: number, Amount: number): void
+    
+    /**
+     * Multiply a value stored at a certain key The product is stored in that location in the Dictionary.
+     */
+    mult(Key: number, Amount: number): void
+    
+    /**
+     * Divide a value stored at a certain key The quotient is stored in that location in the Dictionary.
+     */
+    div(Key: number, Amount: number): void
+    
+    /**
+     * Return the lowest value.
+     */
+    minValue(): number
+    
+    /**
+     * Return the highest value.
+     */
+    maxValue(): number
+    
+    /**
+     * Return the lowest key.
+     */
+    minKey(): number
+    
+    /**
+     * Return the highest key.
+     */
+    maxKey(): number
+  }
+  
   // src/image/p5.Image.js
   
   class Image {
@@ -2420,7 +2588,7 @@ declare namespace p5 {
      * 
      * Returns undefined if the region is outside the bounds of the image
      */
-    get(x?: number, y?: number, w?: number, h?: number): any[]|Color|p5.Image
+    get(x?: number, y?: number, w?: number, h?: number): number[]|Color|p5.Image
     
     /**
      * Set the color of a single pixel or write an image into this p5.Image. 
@@ -2466,9 +2634,9 @@ declare namespace p5 {
     /**
      * Table objects store data with multiple rows and columns, much like in a traditional spreadsheet. Tables can be generated from scratch, dynamically, or using data from an existing file.
      */
-    constructor(rows?: any[])
-    columns: any[]
-    rows: any[]
+    constructor(rows?: p5.TableRow[])
+    columns: string[]
+    rows: p5.TableRow[]
     
     /**
      * Use addRow() to add a new row of data to a p5.Table object. By default, an empty row is created. Typically, you would store a reference to the new row in a TableRow object (see newRow in the example above), and then set individual values using set(). 
@@ -2485,32 +2653,32 @@ declare namespace p5 {
     /**
      * Returns a reference to the specified p5.TableRow. The reference can then be used to get and set values of the selected row.
      */
-    getRow(rowID: number): TableRow
+    getRow(rowID: number): p5.TableRow
     
     /**
      * Gets all rows from the table. Returns an array of p5.TableRows.
      */
-    getRows(): any[]
+    getRows(): p5.TableRow[]
     
     /**
      * Finds the first row in the Table that contains the value provided, and returns a reference to that row. Even if multiple rows are possible matches, only the first matching row is returned. The column to search may be specified by either its ID or title.
      */
-    findRow(value: string, column: number|string): TableRow
+    findRow(value: string, column: number|string): p5.TableRow
     
     /**
      * Finds the rows in the Table that contain the value provided, and returns references to those rows. Returns an Array, so for must be used to iterate through all the rows, as shown in the example above. The column to search may be specified by either its ID or title.
      */
-    findRows(value: string, column: number|string): any[]
+    findRows(value: string, column: number|string): p5.TableRow[]
     
     /**
      * Finds the first row in the Table that matches the regular expression provided, and returns a reference to that row. Even if multiple rows are possible matches, only the first matching row is returned. The column to search may be specified by either its ID or title.
      */
-    matchRow(regexp: string, column: string|number): TableRow
+    matchRow(regexp: string, column: string|number): p5.TableRow
     
     /**
      * Finds the rows in the Table that match the regular expression provided, and returns references to those rows. Returns an array, so for must be used to iterate through all the rows, as shown in the example. The column to search may be specified by either its ID or title.
      */
-    matchRows(regexp: string, column?: string|number): any[]
+    matchRows(regexp: string, column?: string|number): p5.TableRow[]
     
     /**
      * Retrieves all values in the specified column, and returns them as an array. The column may be specified by either its ID or title.
@@ -2662,12 +2830,12 @@ declare namespace p5 {
     /**
      * Get the names of all of the element's children, and returns the names as an array of Strings. This is the same as looping through and calling getName() on each child element individually.
      */
-    listChildren(): any[]
+    listChildren(): string[]
     
     /**
      * Returns all of the element's children as an array of p5.XML objects. When the name parameter is specified, then it will return all children that match that name.
      */
-    getChildren(name?: string): any[]
+    getChildren(name?: string): p5.XML[]
     
     /**
      * Returns the first of the element's children that matches the name parameter or the child of the given index.It returns undefined if no matching child is found.
@@ -2692,7 +2860,7 @@ declare namespace p5 {
     /**
      * Gets all of the specified element's attributes, and returns them as an array of Strings.
      */
-    listAttributes(): any[]
+    listAttributes(): string[]
     
     /**
      * Checks whether or not an element has the specified attribute.
@@ -2760,7 +2928,7 @@ declare namespace p5 {
     /**
      * Sets the x, y, and z component of the vector using two or three separate variables, the data from a p5.Vector, or the values from a float array.
      */
-    set(x?: number|p5.Vector|any[], y?: number, z?: number): void
+    set(x?: number|p5.Vector|any[], y?: number, z?: number): p5.Vector
     
     /**
      * Gets a copy of the vector, returns a p5.Vector object.
@@ -2773,9 +2941,29 @@ declare namespace p5 {
     add(x: number|p5.Vector|any[], y?: number, z?: number): p5.Vector
     
     /**
+     * Adds x, y, and z components to a vector, adds one vector to another, or adds two independent vectors together. The version of the method that adds two vectors together is a static method and returns a p5.Vector, the others acts directly on the vector. See the examples for more context.
+     */
+    static add(v1: p5.Vector, v2: p5.Vector, target: p5.Vector): void
+    
+    /**
+     * Adds x, y, and z components to a vector, adds one vector to another, or adds two independent vectors together. The version of the method that adds two vectors together is a static method and returns a p5.Vector, the others acts directly on the vector. See the examples for more context.
+     */
+    static add(v1: p5.Vector, v2: p5.Vector): p5.Vector
+    
+    /**
      * Subtracts x, y, and z components from a vector, subtracts one vector from another, or subtracts two independent vectors. The version of the method that subtracts two vectors is a static method and returns a p5.Vector, the other acts directly on the vector. See the examples for more context.
      */
     sub(x: number|p5.Vector|any[], y?: number, z?: number): p5.Vector
+    
+    /**
+     * Subtracts x, y, and z components from a vector, subtracts one vector from another, or subtracts two independent vectors. The version of the method that subtracts two vectors is a static method and returns a p5.Vector, the other acts directly on the vector. See the examples for more context.
+     */
+    static sub(v1: p5.Vector, v2: p5.Vector, target: p5.Vector): void
+    
+    /**
+     * Subtracts x, y, and z components from a vector, subtracts one vector from another, or subtracts two independent vectors. The version of the method that subtracts two vectors is a static method and returns a p5.Vector, the other acts directly on the vector. See the examples for more context.
+     */
+    static sub(v1: p5.Vector, v2: p5.Vector): p5.Vector
     
     /**
      * Multiply the vector by a scalar. The static version of this method creates a new p5.Vector while the non static version acts on the vector directly. See the examples for more context.
@@ -2783,14 +2971,39 @@ declare namespace p5 {
     mult(n: number): p5.Vector
     
     /**
+     * Multiply the vector by a scalar. The static version of this method creates a new p5.Vector while the non static version acts on the vector directly. See the examples for more context.
+     */
+    static mult(v: p5.Vector, n: number, target: p5.Vector): void
+    
+    /**
+     * Multiply the vector by a scalar. The static version of this method creates a new p5.Vector while the non static version acts on the vector directly. See the examples for more context.
+     */
+    static mult(v: p5.Vector, n: number): p5.Vector
+    
+    /**
      * Divide the vector by a scalar. The static version of this method creates a new p5.Vector while the non static version acts on the vector directly. See the examples for more context.
      */
     div(n: number): p5.Vector
     
     /**
+     * Divide the vector by a scalar. The static version of this method creates a new p5.Vector while the non static version acts on the vector directly. See the examples for more context.
+     */
+    static div(v: p5.Vector, n: number, target: p5.Vector): void
+    
+    /**
+     * Divide the vector by a scalar. The static version of this method creates a new p5.Vector while the non static version acts on the vector directly. See the examples for more context.
+     */
+    static div(v: p5.Vector, n: number): p5.Vector
+    
+    /**
      * Calculates the magnitude (length) of the vector and returns the result as a float (this is simply the equation sqrt(xx + yy + z*z).)
      */
     mag(): number
+    
+    /**
+     * Calculates the magnitude (length) of the vector and returns the result as a float (this is simply the equation sqrt(xx + yy + z*z).)
+     */
+    static mag(vecT: p5.Vector): number
     
     /**
      * Calculates the squared magnitude of the vector and returns the result as a float (this is simply the equation (xx + yy + z*z).) Faster if the real length is not required in the case of comparing vectors, etc.
@@ -2803,14 +3016,29 @@ declare namespace p5 {
     dot(x: number|p5.Vector, y?: number, z?: number): number
     
     /**
+     * Calculates the dot product of two vectors. The version of the method that computes the dot product of two independent vectors is a static method. See the examples for more context.
+     */
+    static dot(v1: p5.Vector, v2: p5.Vector): number
+    
+    /**
      * Calculates and returns a vector composed of the cross product between two vectors. Both the static and non static methods return a new p5.Vector. See the examples for more context.
      */
     cross(v: p5.Vector): p5.Vector
     
     /**
+     * Calculates and returns a vector composed of the cross product between two vectors. Both the static and non static methods return a new p5.Vector. See the examples for more context.
+     */
+    static cross(v1: p5.Vector, v2: p5.Vector): number
+    
+    /**
      * Calculates the Euclidean distance between two points (considering a point as a vector object).
      */
     dist(v: p5.Vector): number
+    
+    /**
+     * Calculates the Euclidean distance between two points (considering a point as a vector object).
+     */
+    static dist(v1: p5.Vector, v2: p5.Vector): number
     
     /**
      * Normalize the vector to length 1 (make it a unit vector).
@@ -2853,9 +3081,19 @@ declare namespace p5 {
     lerp(v: p5.Vector, amt: number): p5.Vector
     
     /**
+     * Linear interpolate the vector to another vector
+     */
+    static lerp(v1: p5.Vector, v2: p5.Vector, amt: number, target: p5.Vector): void
+    
+    /**
+     * Linear interpolate the vector to another vector
+     */
+    static lerp(v1: p5.Vector, v2: p5.Vector, amt: number): number
+    
+    /**
      * Return a representation of this vector as a float array. This is only for temporary use. If used in any other fashion, the contents should be copied by using the p5.Vector.copy() method to copy into your own array.
      */
-    array(): any[]
+    array(): number[]
     
     /**
      * Equality check against a p5.Vector
@@ -2917,7 +3155,7 @@ declare namespace p5 {
     /**
      * Basic fill material for geometry with a given color
      */
-    fill(v1: number|any[]|string|p5.Color, v2?: number, v3?: number, a?: number): p5
+    fill(v1: number|any[]|string|p5.Color, v2?: number, v3?: number, a?: number): p5.RendererGL
   }
   
   // lib/addons/p5.dom.js
@@ -2926,7 +3164,7 @@ declare namespace p5 {
     /**
      * Extends p5.Element to handle audio and video. In addition to the methods of p5.Element, it also contains methods for controlling media. It is not called directly, but p5.MediaElements are created by calling createVideo, createAudio, and createCapture.
      */
-    constructor(elt: string, pInst?: any)
+    constructor(elt: string)
     
     /**
      * Path to the media element source.
@@ -3033,7 +3271,7 @@ declare namespace p5 {
     /**
      * Base class for a file Using this for createFileInput
      */
-    constructor(file: File, pInst?: any)
+    constructor(file: File)
     
     /**
      * Underlying File object. All normal File methods can be called on this.
@@ -3155,7 +3393,7 @@ declare namespace p5 {
     currentTime(): number
     
     /**
-     * Move the playhead of the song to a position, in seconds. Start and Stop time. If none are given, will reset the file to play entire duration from start to finish.
+     * Move the playhead of the song to a position, in seconds. Start timing and playback duration. If none are given, will reset the file to play entire duration from start to finish.
      */
     jump(cueTime: number, duration: number): void
     
@@ -3318,7 +3556,7 @@ declare namespace p5 {
     getOctaveBands(N: number, fCtr0: number): any[]
   }
   class Signal {
-    // TODO: Fix p5.Signal() errors in lib/addons/p5.sound.js:
+    // TODO: Fix p5.Signal() errors in lib\addons\p5.sound.js, line 4268:
     //
     //   return has invalid type: Tone.Signal
     //
@@ -3329,19 +3567,19 @@ declare namespace p5 {
      */
     fade(value: number, secondsFromNow?: number): void
     
-    // TODO: Fix add() errors in lib/addons/p5.sound.js:
+    // TODO: Fix add() errors in lib/addons/p5.sound.js, line 4337:
     //
     //   return has invalid type: p5.SignalAdd
     //
     // add(number: number): any
     
-    // TODO: Fix mult() errors in lib/addons/p5.sound.js:
+    // TODO: Fix mult() errors in lib/addons/p5.sound.js, line 4356:
     //
     //   return has invalid type: Tone.Multiply
     //
     // mult(number: number): any
     
-    // TODO: Fix scale() errors in lib/addons/p5.sound.js:
+    // TODO: Fix scale() errors in lib/addons/p5.sound.js, line 4375:
     //
     //   return has invalid type: p5.SignalScale
     //
@@ -3366,15 +3604,15 @@ declare namespace p5 {
      */
     stop(secondsFromNow: number): void
     
-    // TODO: Fix amp() errors in lib/addons/p5.sound.js:
+    // TODO: Fix amp() errors in lib/addons/p5.sound.js, line 4567:
     //
-    //   return has invalid type: p5.AudioParam
+    //   return has invalid type: AudioParam
     //
     // amp(vol: number|any, rampTime?: number, timeFromNow?: number): any
     
-    // TODO: Fix freq() errors in lib/addons/p5.sound.js:
+    // TODO: Fix freq() errors in lib/addons/p5.sound.js, line 4602:
     //
-    //   return has invalid type: p5.AudioParam
+    //   return has invalid type: AudioParam
     //
     // freq(Frequency: number|any, rampTime?: number, timeFromNow?: number): any
     
@@ -3476,7 +3714,7 @@ declare namespace p5 {
     /**
      * Assign a parameter to be controlled by this envelope. If a p5.Sound object is given, then the p5.Env will control its output gain. If multiple inputs are provided, the env will control all of them.
      */
-    setInput(unit: any): void
+    setInput(inputs?: any): void
     
     /**
      * Set whether the envelope ramp is linear (default) or exponential. Exponential ramps can be useful because we perceive amplitude and frequency logarithmically.
@@ -3588,7 +3826,7 @@ declare namespace p5 {
      * 
      * Certain browsers limit access to the user's microphone. For example, Chrome only allows access from localhost and over https. For this reason, you may want to include an errorCallback—a function that is called in case the browser won't provide mic access.
      */
-    start(successCallback: () => any, errorCallback: () => any): void
+    start(successCallback?: () => any, errorCallback?: () => any): void
     
     /**
      * Turn the AudioIn off. If the AudioIn is stopped, it cannot getLevel(). If re-starting, the user may be prompted for permission access.
@@ -3625,6 +3863,42 @@ declare namespace p5 {
      */
     setSource(num: number): void
   }
+  class Effect {
+    /**
+     * Effect is bases class for audio effects in p5 This module handles the nodes and methods that are common and useful for all current and future effects.
+     */
+    constructor()
+    
+    // TODO: Property "_drywet  ToneJS node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    
+    // TODO: Property "wet  Web Audio Gain Node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    
+    /**
+     * Set the output level of the filter.
+     */
+    amp(volume: number, rampTime?: number, timeFromNow?: number): void
+    
+    /**
+     * Send output to a p5.sound or web audio object
+     */
+    connect(unit: any): void
+    
+    /**
+     * Disconnect all output.
+     */
+    disconnect(): void
+    
+    /**
+     * Adjust the dry/wet knob value.
+     */
+    drywet(fade?: number): void
+    
+    /**
+     * Link effects together in a chain
+     * Example uUsage: filter.chain(reverb,delay,panner); May be used with open-ended number of arguments
+     */
+    chain(effects?: any): void
+  }
   class Filter {
     /**
      * A p5.Filter uses a Web Audio Biquad Filter to filter the frequency response of an input source. Inheriting classes include:
@@ -3648,7 +3922,7 @@ declare namespace p5 {
     /**
      * Set the frequency and the resonance of the filter.
      */
-    set(freq: number, res: number, timeFromNow?: number): void
+    set(freq?: number, res?: number, timeFromNow?: number): void
     
     /**
      * Set the filter frequency, in Hz, from 10 to 22050 (the range of human hearing, although in reality most people hear in a narrower range).
@@ -3664,25 +3938,10 @@ declare namespace p5 {
      * Set the type of a p5.Filter. Possible types include: "lowpass" (default), "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass".
      */
     setType(t: string): void
-    
-    /**
-     * Set the output level of the filter.
-     */
-    amp(volume: number, rampTime?: number, timeFromNow?: number): void
-    
-    /**
-     * Send output to a p5.sound or web audio object
-     */
-    connect(unit: any): void
-    
-    /**
-     * Disconnect all output.
-     */
-    disconnect(): void
   }
   class Delay {
     /**
-     * Delay is an echo effect. It processes an existing sound source, and outputs a delayed version of that sound. The p5.Delay can produce different effects depending on the delayTime, feedback, filter, and type. In the example below, a feedback of 0.5 will produce a looping delay that decreases in volume by 50% each repeat. A filter will cut out the high frequencies so that the delay does not sound as piercing as the original source.
+     * Delay is an echo effect. It processes an existing sound source, and outputs a delayed version of that sound. The p5.Delay can produce different effects depending on the delayTime, feedback, filter, and type. In the example below, a feedback of 0.5 (the defaul value) will produce a looping delay that decreases in volume by 50% each repeat. A filter will cut out the high frequencies so that the delay does not sound as piercing as the original source.
      */
     constructor()
     
@@ -3701,9 +3960,9 @@ declare namespace p5 {
     delayTime(delayTime: number): void
     
     /**
-     * Feedback occurs when Delay sends its signal back through its input in a loop. The feedback amount determines how much signal to send each time through the loop. A feedback greater than 1.0 is not desirable because it will increase the overall output each time through the loop, creating an infinite feedback loop.
+     * Feedback occurs when Delay sends its signal back through its input in a loop. The feedback amount determines how much signal to send each time through the loop. A feedback greater than 1.0 is not desirable because it will increase the overall output each time through the loop, creating an infinite feedback loop. The default value is 0.5
      */
-    feedback(feedback: number|any): void
+    feedback(feedback: number|any): number
     
     /**
      * Set a lowpass filter frequency for the delay. A lowpass filter will cut off any frequencies higher than the filter frequency.
@@ -3747,7 +4006,7 @@ declare namespace p5 {
     set(seconds?: number, decayRate?: number, reverse?: boolean): void
     
     /**
-     * Set the output level of the delay effect.
+     * Set the output level of the reverb effect.
      */
     amp(volume: number, rampTime?: number, timeFromNow?: number): void
     
@@ -3915,6 +4174,37 @@ declare namespace p5 {
      */
     noLoop(): void
   }
+  class Compressor {
+    /**
+     * Compressor is an audio effect class that performs dynamics compression on an audio input source. This is a very commonly used technique in music and sound production. Compression creates an overall louder, richer, and fuller sound by lowering the volume of louds and raising that of softs. Compression can be used to avoid clipping (sound distortion due to peaks in volume) and is especially useful when many sounds are being used at once. Compression can be used on indivudal sound sources in addition to the master output. This class is built using the Web Audio Dynamics Compressor Node https://www.w3.org/TR/webaudio/#the-dynamicscompressornode-interface
+     */
+    constructor()
+    
+    /**
+     * set attack w/ time ramp or get current attack
+     */
+    attack(): void
+    
+    /**
+     * set knee w/ time ramp or get current knee
+     */
+    knee(): void
+    
+    /**
+     * set ratio w/ time ramp or get current ratio
+     */
+    ratio(): void
+    
+    /**
+     * set threshold w/ time ramp or get current threshold
+     */
+    threshold(): void
+    
+    /**
+     * set release w/ time ramp or get current release
+     */
+    release(): void
+  }
   class SoundRecorder {
     /**
      * Record sounds for playback and/or to save as a .wav file. The p5.SoundRecorder records all sound output from your sketch, or can be assigned a specific source with setInput(). 
@@ -4025,6 +4315,11 @@ declare namespace p5 {
      * Disconnect all output.
      */
     disconnect(): void
+    
+    /**
+     * Set the output level.
+     */
+    amp(volume: number, rampTime?: number, timeFromNow?: number): void
   }
 }
 
