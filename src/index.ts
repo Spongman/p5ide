@@ -549,10 +549,9 @@ function frameLoaded(event: any) {
 		})
 		.then(reg => {
 			//console.log("registered", reg);
-			setTimeout(() => {
-				_currentHtml && _currentHtml.fetch(_currentProject).then((html) => {
-					writePreview("<script>(opener||parent).initializePreview(window);</script>" + html);
-				});
+			setTimeout(async () => {
+				var html = _currentHtml && (_currentHtml.content || await _currentHtml.fetch(_currentProject));
+				writePreview("<script>(opener||parent).initializePreview(window);</script>" + html);
 			}, 1);
 		}).catch(err => {
 			console.log('registration failed', err);
