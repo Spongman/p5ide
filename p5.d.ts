@@ -316,92 +316,25 @@ declare class p5 {
   
   // src/core/constants.js
   
-  const P2D: 'p2d'
-  const WEBGL: 'webgl'
-  
   /**
    * HALF_PI is a mathematical constant with the value 1.57079632679489661923. It is half the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  const HALF_PI: number
   
   /**
    * PI is a mathematical constant with the value 3.14159265358979323846. It is the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  const PI: number
   
   /**
    * QUARTER_PI is a mathematical constant with the value 0.7853982. It is one quarter the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  const QUARTER_PI: number
   
   /**
    * TAU is an alias for TWO_PI, a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  const TAU: number
   
   /**
    * TWO_PI is a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  const TWO_PI: number
-  const DEGREES: 'degrees'
-  const RADIANS: 'radians'
-  const CORNER: 'corner'
-  const CORNERS: 'corners'
-  const RADIUS: 'radius'
-  const RIGHT: 'right'
-  const LEFT: 'left'
-  const CENTER: 'center'
-  const TOP: 'top'
-  const BOTTOM: 'bottom'
-  const BASELINE: 'alphabetic'
-  const POINTS: 0x0000
-  const LINES: 0x0001
-  const LINE_STRIP: 0x0003
-  const LINE_LOOP: 0x0002
-  const TRIANGLES: 0x0004
-  const TRIANGLE_FAN: 0x0006
-  const TRIANGLE_STRIP: 0x0005
-  const QUADS: 'quads'
-  const QUAD_STRIP: 'quad_strip'
-  const CLOSE: 'close'
-  const OPEN: 'open'
-  const CHORD: 'chord'
-  const PIE: 'pie'
-  const PROJECT: 'square'
-  const SQUARE: 'butt'
-  const ROUND: 'round'
-  const BEVEL: 'bevel'
-  const MITER: 'miter'
-  const RGB: 'rgb'
-  const HSB: 'hsb'
-  const HSL: 'hsl'
-  const BLEND: 'source-over'
-  const ADD: 'lighter'
-  const DARKEST: 'darkest'
-  const LIGHTEST: 'lighten'
-  const DIFFERENCE: 'difference'
-  const EXCLUSION: 'exclusion'
-  const MULTIPLY: 'multiply'
-  const SCREEN: 'screen'
-  const REPLACE: 'copy'
-  const OVERLAY: 'overlay'
-  const HARD_LIGHT: 'hard-light'
-  const SOFT_LIGHT: 'soft-light'
-  const DODGE: 'color-dodge'
-  const BURN: 'color-burn'
-  const THRESHOLD: 'threshold'
-  const GRAY: 'gray'
-  const OPAQUE: 'opaque'
-  const INVERT: 'invert'
-  const POSTERIZE: 'posterize'
-  const DILATE: 'dilate'
-  const ERODE: 'erode'
-  const BLUR: 'blur'
-  const NORMAL: 'normal'
-  const ITALIC: 'italic'
-  const BOLD: 'bold'
-  const LANDSCAPE: 'landscape'
-  const PORTRAIT: 'portrait'
   
   // src/core/core.js
   
