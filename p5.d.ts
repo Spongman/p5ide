@@ -129,7 +129,7 @@ declare class p5 {
    * 
    *  Note: existing color objects remember the mode that they were created in, so you can change modes as you like without affecting their appearance.
    */
-  colorMode(mode: any, max?: number): p5
+  colorMode(mode: COLOR_MODE, max?: number): p5
   
   /**
    * colorMode() changes the way p5.js interprets color data. By default, the parameters for fill(), stroke(), background(), and color() are defined by values between 0 and 255 using the RGB color model. This is equivalent to setting colorMode(RGB, 255). Setting colorMode(HSB) lets you use the HSB system instead. By default, this is colorMode(HSB, 360, 100, 100, 1). You can also use HSL. 
@@ -211,7 +211,7 @@ declare class p5 {
    * 
    *  Note that drawing a full circle (ex: 0 to TWO_PI) will appear blank because 0 and TWO_PI are the same position on the unit circle. The best way to handle this is by using the ellipse() function instead to create a closed ellipse, and to use the arc() function only to draw parts of an ellipse.
    */
-  arc(a: number, b: number, c: number, d: number, start: number, stop: number, mode?: any): p5
+  arc(a: number, b: number, c: number, d: number, start: number, stop: number, mode?: ARC_MODE): p5
   
   /**
    * Draws an ellipse (oval) to the screen. An ellipse with equal width and height is a circle. By default, the first two parameters set the location, and the third and fourth parameters set the shape's width and height. If no height is specified, the value of width is used for both the width and height. If a negative height or width is specified, the absolute value is taken. The origin may be changed with the ellipseMode() function.
@@ -272,7 +272,7 @@ declare class p5 {
    * 
    *  The parameter must be written in ALL CAPS because Javascript is a case-sensitive language.
    */
-  ellipseMode(mode: any): p5
+  ellipseMode(mode: ELLIPSE_MODE): p5
   
   /**
    * Draws all geometry with jagged (aliased) edges. Note that smooth() is active by default, so it is necessary to call noSmooth() to disable smoothing of geometry, images, and fonts.
@@ -292,7 +292,7 @@ declare class p5 {
    * 
    *  The parameter must be written in ALL CAPS because Javascript is a case-sensitive language.
    */
-  rectMode(mode: any): p5
+  rectMode(mode: RECT_MODE): p5
   
   /**
    * Draws all geometry with smooth (anti-aliased) edges. smooth() will also improve image quality of resized images. Note that smooth() is active by default; noSmooth() can be used to disable smoothing of geometry, images, and fonts.
@@ -302,12 +302,12 @@ declare class p5 {
   /**
    * Sets the style for rendering line endings. These ends are either squared, extended, or rounded, each of which specified with the corresponding parameters: SQUARE, PROJECT, and ROUND. The default cap is ROUND.
    */
-  strokeCap(cap: any): p5
+  strokeCap(cap: STROKE_CAP): p5
   
   /**
    * Sets the style of the joints which connect line segments. These joints are either mitered, beveled, or rounded and specified with the corresponding parameters MITER, BEVEL, and ROUND. The default joint is MITER.
    */
-  strokeJoin(join: any): p5
+  strokeJoin(join: STROKE_JOIN): p5
   
   /**
    * Sets the width of the stroke used for lines, points, and the border around shapes. All widths are set in units of pixels.
@@ -316,30 +316,92 @@ declare class p5 {
   
   // src/core/constants.js
   
+  const P2D: 'p2d'
+  const WEBGL: 'webgl'
+  
   /**
    * HALF_PI is a mathematical constant with the value 1.57079632679489661923. It is half the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  HALF_PI: number
+  const HALF_PI: number
   
   /**
    * PI is a mathematical constant with the value 3.14159265358979323846. It is the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  PI: number
+  const PI: number
   
   /**
    * QUARTER_PI is a mathematical constant with the value 0.7853982. It is one quarter the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  QUARTER_PI: number
+  const QUARTER_PI: number
   
   /**
    * TAU is an alias for TWO_PI, a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  TAU: number
+  const TAU: number
   
   /**
    * TWO_PI is a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
    */
-  TWO_PI: number
+  const TWO_PI: number
+  const DEGREES: 'degrees'
+  const RADIANS: 'radians'
+  const CORNER: 'corner'
+  const CORNERS: 'corners'
+  const RADIUS: 'radius'
+  const RIGHT: 'right'
+  const LEFT: 'left'
+  const CENTER: 'center'
+  const TOP: 'top'
+  const BOTTOM: 'bottom'
+  const BASELINE: 'alphabetic'
+  const POINTS: 0x0000
+  const LINES: 0x0001
+  const LINE_STRIP: 0x0003
+  const LINE_LOOP: 0x0002
+  const TRIANGLES: 0x0004
+  const TRIANGLE_FAN: 0x0006
+  const TRIANGLE_STRIP: 0x0005
+  const QUADS: 'quads'
+  const QUAD_STRIP: 'quad_strip'
+  const CLOSE: 'close'
+  const OPEN: 'open'
+  const CHORD: 'chord'
+  const PIE: 'pie'
+  const PROJECT: 'square'
+  const SQUARE: 'butt'
+  const ROUND: 'round'
+  const BEVEL: 'bevel'
+  const MITER: 'miter'
+  const RGB: 'rgb'
+  const HSB: 'hsb'
+  const HSL: 'hsl'
+  const BLEND: 'source-over'
+  const ADD: 'lighter'
+  const DARKEST: 'darkest'
+  const LIGHTEST: 'lighten'
+  const DIFFERENCE: 'difference'
+  const EXCLUSION: 'exclusion'
+  const MULTIPLY: 'multiply'
+  const SCREEN: 'screen'
+  const REPLACE: 'copy'
+  const OVERLAY: 'overlay'
+  const HARD_LIGHT: 'hard-light'
+  const SOFT_LIGHT: 'soft-light'
+  const DODGE: 'color-dodge'
+  const BURN: 'color-burn'
+  const THRESHOLD: 'threshold'
+  const GRAY: 'gray'
+  const OPAQUE: 'opaque'
+  const INVERT: 'invert'
+  const POSTERIZE: 'posterize'
+  const DILATE: 'dilate'
+  const ERODE: 'erode'
+  const BLUR: 'blur'
+  const NORMAL: 'normal'
+  const ITALIC: 'italic'
+  const BOLD: 'bold'
+  const LANDSCAPE: 'landscape'
+  const PORTRAIT: 'portrait'
   
   // src/core/core.js
   
@@ -551,7 +613,7 @@ declare class p5 {
    * 
    *  For more ways to position the canvas, see the  positioning the canvas wiki page.
    */
-  createCanvas(w: number, h: number, renderer?: any): HTMLCanvasElement
+  createCanvas(w: number, h: number, renderer?: RENDERER): HTMLCanvasElement
   
   /**
    * Resizes the canvas to given width and height. The canvas will be cleared and draw will be called immediately, allowing the sketch to re-render itself in the resized canvas.
@@ -566,7 +628,7 @@ declare class p5 {
   /**
    * Creates and returns a new p5.Renderer object. Use this class if you need to draw into an off-screen graphics buffer. The two parameters define the width and height in pixels.
    */
-  createGraphics(w: number, h: number, renderer?: any): p5.Graphics
+  createGraphics(w: number, h: number, renderer?: RENDERER): p5.Graphics
   
   /**
    * Blends the pixels in the display window according to the defined mode. There is a choice of the following modes to blend the source pixels (A) with the ones of pixels already in the display window (B): 
@@ -586,7 +648,7 @@ declare class p5 {
    * - DODGE - lightens light tones and increases contrast, ignores darks.
    * - BURN - darker areas are applied, increasing contrast, ignores lights.
    */
-  blendMode(mode: any): void
+  blendMode(mode: BLEND_MODE): void
   
   // src/core/structure.js
   
@@ -648,16 +710,7 @@ declare class p5 {
    * 
    *  Technically, rotate() multiplies the current transformation matrix by a rotation matrix. This function can be further controlled by the push() and pop().
    */
-  rotate(angle: number): p5
-  
-  /**
-   * Rotates a shape the amount specified by the angle parameter. This function accounts for angleMode, so angles can be entered in either RADIANS or DEGREES. 
-   * 
-   *  Objects are always rotated around their relative position to the origin and positive numbers rotate objects in a clockwise direction. Transformations apply to everything that happens after and subsequent calls to the function accumulates the effect. For example, calling rotate(HALF_PI) and then rotate(HALF_PI) is the same as rotate(PI). All tranformations are reset when draw() begins again. 
-   * 
-   *  Technically, rotate() multiplies the current transformation matrix by a rotation matrix. This function can be further controlled by the push() and pop().
-   */
-  rotate(rad: number, axis: p5.Vector|any[]): p5
+  rotate(angle: number, axis?: p5.Vector|any[]): p5
   
   /**
    * Rotates around X axis.
@@ -724,7 +777,7 @@ declare class p5 {
    * 
    *  Transformations such as translate(), rotate(), and scale() do not work within beginShape(). It is also not possible to use other shapes, such as ellipse() or rect() within beginShape().
    */
-  beginShape(kind?: any): p5
+  beginShape(kind?: BEGIN_KIND): p5
   
   /**
    * Specifies vertex coordinates for Bezier curves. Each call to bezierVertex() defines the position of two control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. 
@@ -750,7 +803,7 @@ declare class p5 {
   /**
    * The endShape() function is the companion to beginShape() and may only be called after beginShape(). When endshape() is called, all of image data defined since the previous call to beginShape() is written into the image buffer. The constant CLOSE as the value for the MODE parameter to close the shape (to connect the beginning and the end).
    */
-  endShape(mode?: any): p5
+  endShape(mode?: END_MODE): p5
   
   /**
    * Specifies vertex coordinates for quadratic Bezier curves. Each call to quadraticVertex() defines the position of one control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. The first time quadraticVertex() is used within a beginShape() call, it must be prefaced with a call to vertex() to set the first anchor point. This function must be used between beginShape() and endShape() and only when there is no MODE parameter specified to beginShape().
@@ -765,7 +818,7 @@ declare class p5 {
   // src/events/acceleration.js
   
   /**
-   * The system variable deviceOrientation always contains the orientation of the device. The value of this variable will either be set 'landscape' or 'portrait'. If no data is available it will be set to 'undefined'.
+   * The system variable deviceOrientation always contains the orientation of the device. The value of this variable will either be set 'landscape' or 'portrait'. If no data is available it will be set to 'undefined'. either LANDSCAPE or PORTRAIT.
    */
   deviceOrientation: any
   
@@ -1146,7 +1199,7 @@ declare class p5 {
    * 
    *  imageMode(CENTER) interprets the second and third parameters of image() as the image's center point. If two additional parameters are specified, they are used to set the image's width and height.
    */
-  imageMode(mode: any): void
+  imageMode(mode: IMAGE_MODE): void
   
   // src/image/pixels.js
   
@@ -1216,7 +1269,7 @@ declare class p5 {
    * 
    * DILATE Increases the light areas. No parameter is used.
    */
-  filter(filterType: any, filterParam: number): void
+  filter(filterType: FILTER_TYPE, filterParam: number): void
   
   /**
    * Returns an array of [R,G,B,A] values for any pixel or grabs a section of an image. If no parameters are specified, the entire image is returned. Use the x and y parameters to get the value of one pixel. Get a section of the display window by specifying additional w and h parameters. When getting an image, the x and y parameters define the coordinates for the upper-left corner of the image, regardless of the current imageMode(). 
@@ -1588,7 +1641,7 @@ declare class p5 {
   /**
    * Sets the current mode of p5 to given mode. Default mode is RADIANS.
    */
-  angleMode(mode: any): void
+  angleMode(mode: ANGLE_MODE): void
   
   // src/typography/attributes.js
   
@@ -1599,27 +1652,52 @@ declare class p5 {
    * 
    * So if you write textAlign(LEFT), you are aligning the left edge of your text to the x value you give in text(). If you write textAlign(RIGHT, TOP), you are aligning the right edge of your text to the x value and the top of edge of the text to the y value.
    */
-  textAlign(horizAlign: any, vertAlign?: any): number
+  textAlign(horizAlign: HORIZ_ALIGN, vertAlign?: VERT_ALIGN): number
   
   /**
    * Sets/gets the spacing, in pixels, between lines of text. This setting will be used in all subsequent calls to the text() function.
    */
-  textLeading(leading: number): any|number
+  textLeading(leading: number): p5
+  
+  /**
+   * Sets/gets the spacing, in pixels, between lines of text. This setting will be used in all subsequent calls to the text() function.
+   */
+  textLeading(): number
   
   /**
    * Sets/gets the current font size. This size will be used in all subsequent calls to the text() function. Font size is measured in pixels.
    */
-  textSize(theSize: number): any|number
+  textSize(size: number): p5
+  
+  /**
+   * Sets/gets the current font size. This size will be used in all subsequent calls to the text() function. Font size is measured in pixels.
+   */
+  textSize(): number
   
   /**
    * Sets/gets the style of the text for system fonts to NORMAL, ITALIC, or BOLD. Note: this may be is overridden by CSS styling. For non-system fonts (opentype, truetype, etc.) please load styled fonts instead.
    */
-  textStyle(theStyle: any): any|string
+  textStyle(style: TEXT_STYLE): p5
+  
+  /**
+   * Sets/gets the style of the text for system fonts to NORMAL, ITALIC, or BOLD. Note: this may be is overridden by CSS styling. For non-system fonts (opentype, truetype, etc.) please load styled fonts instead.
+   */
+  textStyle(): string
   
   /**
    * Calculates and returns the width of any character or text string.
    */
-  textWidth(theText: string): number
+  textWidth(text: string): number
+  
+  /**
+   * Returns the ascent of the current font at its current size. The ascent represents the distance, in pixels, of the tallest character above the baseline.
+   */
+  textAscent(): number
+  
+  /**
+   * Returns the descent of the current font at its current size. The descent represents the distance, in pixels, of the character with the longest descender below the baseline.
+   */
+  textDescent(): number
   
   // src/typography/loading_displaying.js
   
@@ -1635,7 +1713,12 @@ declare class p5 {
   /**
    * Sets the current font that will be drawn with the text() function.
    */
-  textFont(f: any|string): any|string
+  textFont(): any
+  
+  /**
+   * Sets the current font that will be drawn with the text() function.
+   */
+  textFont(font: any|string, size?: number): p5
   
   // src/utilities/array_functions.js
   
@@ -1734,7 +1817,7 @@ declare class p5 {
   /**
    * Converts a number, string or boolean to its byte representation. A byte can be only a whole number between -128 and 127, so when a value outside of this range is converted, it wraps around to the corresponding byte representation. When an array of number, string or boolean values is passed in, then an array of bytes the same length is returned.
    */
-  byte(ns: any[]): any[]
+  byte(ns: any[]): number[]
   
   /**
    * Converts a number or string to its corresponding single-character string representation. If a string parameter is provided, it is first parsed as an integer and then translated into a single-character string. When an array of number or string values is passed in, then an array of single-character strings of the same length is returned.
@@ -1769,7 +1852,12 @@ declare class p5 {
   /**
    * Converts a string representation of a hexadecimal number to its equivalent integer value. When an array of strings in hexadecimal notation is passed in, an array of integers of the same length is returned.
    */
-  unhex(n: string|any[]): number|number[]
+  unhex(n: string): number
+  
+  /**
+   * Converts a string representation of a hexadecimal number to its equivalent integer value. When an array of strings in hexadecimal notation is passed in, an array of integers of the same length is returned.
+   */
+  unhex(ns: any[]): number[]
   
   // src/utilities/string_functions.js
   
@@ -1794,27 +1882,47 @@ declare class p5 {
    * 
    *  If there are groups (specified by sets of parentheses) in the regular expression, then the contents of each will be returned in the array. Assuming a loop with counter variable i, element [i][0] of a regular expression match returns the entire matching string, and the match groups start at element [i][1] (the first group is [i][1], the second [i][2], and so on).
    */
-  matchAll(str: string, regexp: string): any[]
+  matchAll(str: string, regexp: string): string[]
   
   /**
    * Utility function for formatting numbers into strings. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
    */
-  nf(num: number|any[], left?: number, right?: number): string|string[]
+  nf(num: number, left?: number, right?: number): string
+  
+  /**
+   * Utility function for formatting numbers into strings. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
+   */
+  nf(nums: number[], left?: number, right?: number): string[]
   
   /**
    * Utility function for formatting numbers into strings and placing appropriate commas to mark units of 1000. There are two versions: one for formatting ints, and one for formatting an array of ints. The value for the right parameter should always be a positive integer.
    */
-  nfc(num: number|any[], right?: number): string|any[]
+  nfc(num: number, right?: number): string
+  
+  /**
+   * Utility function for formatting numbers into strings and placing appropriate commas to mark units of 1000. There are two versions: one for formatting ints, and one for formatting an array of ints. The value for the right parameter should always be a positive integer.
+   */
+  nfc(nums: number[], right?: number): string[]
   
   /**
    * Utility function for formatting numbers into strings. Similar to nf() but puts a "+" in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for left, and right parameters should always be positive integers.
    */
-  nfp(num: number|any[], left?: number, right?: number): string|any[]
+  nfp(num: number, left?: number, right?: number): string
+  
+  /**
+   * Utility function for formatting numbers into strings. Similar to nf() but puts a "+" in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for left, and right parameters should always be positive integers.
+   */
+  nfp(nums: number[], left?: number, right?: number): string[]
   
   /**
    * Utility function for formatting numbers into strings. Similar to nf() but puts a " " (space) in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
    */
-  nfs(num: number|any[], left?: number, right?: number): string|any[]
+  nfs(num: number, left?: number, right?: number): string
+  
+  /**
+   * Utility function for formatting numbers into strings. Similar to nf() but puts a " " (space) in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
+   */
+  nfs(nums: number[], left?: number, right?: number): string[]
   
   /**
    * The split() function maps to String.split(), it breaks a String into pieces using a character or string as the delimiter. The delim parameter specifies the character or characters that mark the boundaries between each piece. A String[] array is returned that contains each of the pieces. 
@@ -1833,7 +1941,12 @@ declare class p5 {
   /**
    * Removes whitespace characters from the beginning and end of a String. In addition to standard whitespace characters such as space, carriage return, and tab, this function also removes the Unicode "nbsp" character.
    */
-  trim(str: string|any[]): string|any[]
+  trim(str: string): string
+  
+  /**
+   * Removes whitespace characters from the beginning and end of a String. In addition to standard whitespace characters such as space, carriage return, and tab, this function also removes the Unicode "nbsp" character.
+   */
+  trim(strs: string[]): string[]
   
   // src/utilities/time_date.js
   
@@ -2398,7 +2511,7 @@ declare namespace p5 {
     /**
      * Thin wrapper around a renderer, to be used for creating a graphics buffer object. Use this class if you need to draw into an off-screen graphics buffer. The two parameters define the width and height in pixels. The fields and methods for this class are extensive, but mirror the normal drawing API for p5.
      */
-    constructor(w: number, h: number, renderer: any, pInst?: p5)
+    constructor(w: number, h: number, renderer: GRAPHICS_RENDERER, pInst?: p5)
   }
   
   // src/core/p5.Renderer.js
@@ -2483,7 +2596,7 @@ declare namespace p5 {
      */
     saveJSON(): void
   }
-  class StringDict {
+  class StringDict extends p5.TypedDict {
     /**
      * A Dictionary class for Strings.
      */
@@ -2579,7 +2692,12 @@ declare namespace p5 {
     /**
      * Updates the backing canvas for this image with the contents of the [pixels] array.
      */
-    updatePixels(x: number|undefined, y: number|undefined, w: number|undefined, h: number|undefined): void
+    updatePixels(x: number, y: number, w: number, h: number): void
+    
+    /**
+     * Updates the backing canvas for this image with the contents of the [pixels] array.
+     */
+    updatePixels(): void
     
     /**
      * Get a region of pixels from an image. 
@@ -2810,7 +2928,7 @@ declare namespace p5 {
     /**
      * Gets a copy of the element's parent. Returns the parent as another p5.XML object.
      */
-    getParent(): any
+    getParent(): p5.XML
     
     /**
      * Gets the element's full name, which is returned as a String.
@@ -3231,7 +3349,7 @@ declare namespace p5 {
      * 
      * This method is meant to be used with the p5.sound.js addon library.
      */
-    connect(audioNode: any|any): void
+    connect(audioNode: AudioNode|any): void
     
     /**
      * Disconnect all Web Audio routing, including to master output. This is useful if you want to re-route the output through audio effects, for example.
@@ -3556,7 +3674,7 @@ declare namespace p5 {
     getOctaveBands(N: number, fCtr0: number): any[]
   }
   class Signal {
-    // TODO: Fix p5.Signal() errors in lib\addons\p5.sound.js, line 4268:
+    // TODO: Fix p5.Signal() errors in lib\addons\p5.sound.js, line 4265:
     //
     //   return has invalid type: Tone.Signal
     //
@@ -3567,19 +3685,19 @@ declare namespace p5 {
      */
     fade(value: number, secondsFromNow?: number): void
     
-    // TODO: Fix add() errors in lib/addons/p5.sound.js, line 4337:
+    // TODO: Fix add() errors in lib/addons/p5.sound.js, line 4334:
     //
     //   return has invalid type: p5.SignalAdd
     //
     // add(number: number): any
     
-    // TODO: Fix mult() errors in lib/addons/p5.sound.js, line 4356:
+    // TODO: Fix mult() errors in lib/addons/p5.sound.js, line 4353:
     //
     //   return has invalid type: Tone.Multiply
     //
     // mult(number: number): any
     
-    // TODO: Fix scale() errors in lib/addons/p5.sound.js, line 4375:
+    // TODO: Fix scale() errors in lib/addons/p5.sound.js, line 4372:
     //
     //   return has invalid type: p5.SignalScale
     //
@@ -3604,17 +3722,15 @@ declare namespace p5 {
      */
     stop(secondsFromNow: number): void
     
-    // TODO: Fix amp() errors in lib/addons/p5.sound.js, line 4567:
-    //
-    //   return has invalid type: AudioParam
-    //
-    // amp(vol: number|any, rampTime?: number, timeFromNow?: number): any
+    /**
+     * Set the amplitude between 0 and 1.0. Or, pass in an object such as an oscillator to modulate amplitude with an audio signal.
+     */
+    amp(vol: number|any, rampTime?: number, timeFromNow?: number): AudioParam
     
-    // TODO: Fix freq() errors in lib/addons/p5.sound.js, line 4602:
-    //
-    //   return has invalid type: AudioParam
-    //
-    // freq(Frequency: number|any, rampTime?: number, timeFromNow?: number): any
+    /**
+     * Set frequency of an oscillator to a value. Or, pass in an object such as an oscillator to modulate the frequency with an audio signal.
+     */
+    freq(Frequency: number|any, rampTime?: number, timeFromNow?: number): AudioParam
     
     /**
      * Set type to 'sine', 'triangle', 'sawtooth' or 'square'.
@@ -3756,7 +3872,7 @@ declare namespace p5 {
      */
     scale(inMin: number, inMax: number, outMin: number, outMax: number): p5.Env
   }
-  class Pulse {
+  class Pulse extends p5.Oscillator {
     /**
      * Creates a Pulse object, an oscillator that implements Pulse Width Modulation. The pulse is created with two oscillators. Accepts a parameter for frequency, and to set the width between the pulses. See  p5.Oscillator for a full list of methods.
      */
@@ -3767,7 +3883,7 @@ declare namespace p5 {
      */
     width(width?: number): void
   }
-  class Noise {
+  class Noise extends p5.Oscillator {
     /**
      * Noise is a type of oscillator that generates a buffer with random values.
      */
@@ -3869,9 +3985,15 @@ declare namespace p5 {
      */
     constructor()
     
-    // TODO: Property "_drywet  ToneJS node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * The p5.Effect class is built using Tone.js CrossFade
+     */
+    _drywet: any
     
-    // TODO: Property "wet  Web Audio Gain Node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * In classes that extend p5.Effect, connect effect nodes to the wet parameter
+     */
+    wet: GainNode
     
     /**
      * Set the output level of the filter.
@@ -3899,7 +4021,7 @@ declare namespace p5 {
      */
     chain(effects?: any): void
   }
-  class Filter {
+  class Filter extends p5.Effect {
     /**
      * A p5.Filter uses a Web Audio Biquad Filter to filter the frequency response of an input source. Inheriting classes include:
      *  
@@ -3912,7 +4034,10 @@ declare namespace p5 {
      */
     constructor(type?: string)
     
-    // TODO: Property "biquadFilter   Web Audio Delay Node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * The p5.Filter is built with a  Web Audio BiquadFilter Node.
+     */
+    biquadFilter: DelayNode
     
     /**
      * Filter an audio signal according to a set of filter parameters.
@@ -3939,15 +4064,21 @@ declare namespace p5 {
      */
     setType(t: string): void
   }
-  class Delay {
+  class Delay extends p5.Effect {
     /**
      * Delay is an echo effect. It processes an existing sound source, and outputs a delayed version of that sound. The p5.Delay can produce different effects depending on the delayTime, feedback, filter, and type. In the example below, a feedback of 0.5 (the defaul value) will produce a looping delay that decreases in volume by 50% each repeat. A filter will cut out the high frequencies so that the delay does not sound as piercing as the original source.
      */
     constructor()
     
-    // TODO: Property "leftDelay   Web Audio Delay Node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * The p5.Delay is built with two  Web Audio Delay Nodes, one for each stereo channel.
+     */
+    leftDelay: DelayNode
     
-    // TODO: Property "rightDelay   Web Audio Delay Node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * The p5.Delay is built with two  Web Audio Delay Nodes, one for each stereo channel.
+     */
+    rightDelay: DelayNode
     
     /**
      * Add delay to an audio signal according to a set of delay parameters.
@@ -3989,7 +4120,7 @@ declare namespace p5 {
      */
     disconnect(): void
   }
-  class Reverb {
+  class Reverb extends p5.Effect {
     /**
      * Reverb adds depth to a sound through a large number of decaying echoes. It creates the perception that sound is occurring in a physical space. The p5.Reverb has paramters for Time (how long does the reverb last) and decayRate (how much the sound decays with each echo) that can be set with the .set() or .process() methods. The p5.Convolver extends p5.Reverb allowing you to recreate the sound of actual physical spaces through convolution.
      */
@@ -4020,7 +4151,7 @@ declare namespace p5 {
      */
     disconnect(): void
   }
-  class Convolver {
+  class Convolver extends p5.Effect {
     /**
      * p5.Convolver extends p5.Reverb. It can emulate the sound of real physical spaces through a process called  convolution. 
      * 
@@ -4030,7 +4161,10 @@ declare namespace p5 {
      */
     constructor(path: string, callback?: () => any, errorCallback?: () => any)
     
-    // TODO: Property "convolverNode   Web Audio Convolver Node", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * Internally, the p5.Convolver uses the a  Web Audio Convolver Node.
+     */
+    convolverNod: ConvolverNode
     
     /**
      * Create a p5.Convolver. Accepts a path to a soundfile that will be used to generate an impulse response.
@@ -4042,7 +4176,10 @@ declare namespace p5 {
      */
     process(src: any): void
     
-    // TODO: Property "impulses  Array of Web Audio Buffers", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * If you load multiple impulse files using the .addImpulse method, they will be stored as Objects in this Array. Toggle between them with the toggleImpulse(id) method.
+     */
+    impulses: any[]
     
     /**
      * Load and assign a new Impulse Response to the p5.Convolver. The impulse is added to the .impulses array. Previous impulses can be accessed with the .toggleImpulse(id) method.
@@ -4174,7 +4311,7 @@ declare namespace p5 {
      */
     noLoop(): void
   }
-  class Compressor {
+  class Compressor extends p5.Effect {
     /**
      * Compressor is an audio effect class that performs dynamics compression on an audio input source. This is a very commonly used technique in music and sound production. Compression creates an overall louder, richer, and fuller sound by lowering the volume of louds and raising that of softs. Compression can be used to avoid clipping (sound distortion due to peaks in volume) and is especially useful when many sounds are being used at once. Compression can be used on indivudal sound sources in addition to the master output. This class is built using the Web Audio Dynamics Compressor Node https://www.w3.org/TR/webaudio/#the-dynamicscompressornode-interface
      */
@@ -4288,13 +4425,16 @@ declare namespace p5 {
      */
     amp(volume: number, rampTime?: number, timeFromNow?: number): void
   }
-  class Distortion {
+  class Distortion extends p5.Effect {
     /**
      * A Distortion effect created with a Waveshaper Node, with an approach adapted from Kevin Ennis
      */
     constructor(amount?: number, oversample?: string)
     
-    // TODO: Property "WaveShaperNode   AudioNode", defined in lib/addons/p5.sound.js, is not a valid JS symbol name
+    /**
+     * The p5.Distortion is built with a  Web Audio WaveShaper Node.
+     */
+    WaveShaperNode: AudioNode
     
     /**
      * Set the amount and oversample of the waveshaper distortion.

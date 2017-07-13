@@ -131,7 +131,7 @@ declare function clear(): p5;
  * 
  *  Note: existing color objects remember the mode that they were created in, so you can change modes as you like without affecting their appearance.
  */
-declare function colorMode(mode: any, max?: number): p5;
+declare function colorMode(mode: COLOR_MODE, max?: number): p5;
 
 /**
  * colorMode() changes the way p5.js interprets color data. By default, the parameters for fill(), stroke(), background(), and color() are defined by values between 0 and 255 using the RGB color model. This is equivalent to setting colorMode(RGB, 255). Setting colorMode(HSB) lets you use the HSB system instead. By default, this is colorMode(HSB, 360, 100, 100, 1). You can also use HSL. 
@@ -213,7 +213,7 @@ declare function stroke(color: p5.Color, alpha?: number): p5;
  * 
  *  Note that drawing a full circle (ex: 0 to TWO_PI) will appear blank because 0 and TWO_PI are the same position on the unit circle. The best way to handle this is by using the ellipse() function instead to create a closed ellipse, and to use the arc() function only to draw parts of an ellipse.
  */
-declare function arc(a: number, b: number, c: number, d: number, start: number, stop: number, mode?: any): p5;
+declare function arc(a: number, b: number, c: number, d: number, start: number, stop: number, mode?: ARC_MODE): p5;
 
 /**
  * Draws an ellipse (oval) to the screen. An ellipse with equal width and height is a circle. By default, the first two parameters set the location, and the third and fourth parameters set the shape's width and height. If no height is specified, the value of width is used for both the width and height. If a negative height or width is specified, the absolute value is taken. The origin may be changed with the ellipseMode() function.
@@ -274,7 +274,7 @@ declare function triangle(x1: number, y1: number, x2: number, y2: number, x3: nu
  * 
  *  The parameter must be written in ALL CAPS because Javascript is a case-sensitive language.
  */
-declare function ellipseMode(mode: any): p5;
+declare function ellipseMode(mode: ELLIPSE_MODE): p5;
 
 /**
  * Draws all geometry with jagged (aliased) edges. Note that smooth() is active by default, so it is necessary to call noSmooth() to disable smoothing of geometry, images, and fonts.
@@ -294,7 +294,7 @@ declare function noSmooth(): p5;
  * 
  *  The parameter must be written in ALL CAPS because Javascript is a case-sensitive language.
  */
-declare function rectMode(mode: any): p5;
+declare function rectMode(mode: RECT_MODE): p5;
 
 /**
  * Draws all geometry with smooth (anti-aliased) edges. smooth() will also improve image quality of resized images. Note that smooth() is active by default; noSmooth() can be used to disable smoothing of geometry, images, and fonts.
@@ -304,12 +304,12 @@ declare function smooth(): p5;
 /**
  * Sets the style for rendering line endings. These ends are either squared, extended, or rounded, each of which specified with the corresponding parameters: SQUARE, PROJECT, and ROUND. The default cap is ROUND.
  */
-declare function strokeCap(cap: any): p5;
+declare function strokeCap(cap: STROKE_CAP): p5;
 
 /**
  * Sets the style of the joints which connect line segments. These joints are either mitered, beveled, or rounded and specified with the corresponding parameters MITER, BEVEL, and ROUND. The default joint is MITER.
  */
-declare function strokeJoin(join: any): p5;
+declare function strokeJoin(join: STROKE_JOIN): p5;
 
 /**
  * Sets the width of the stroke used for lines, points, and the border around shapes. All widths are set in units of pixels.
@@ -318,30 +318,92 @@ declare function strokeWeight(weight: number): p5;
 
 // src/core/constants.js
 
+declare const P2D: 'p2d';
+declare const WEBGL: 'webgl';
+
 /**
  * HALF_PI is a mathematical constant with the value 1.57079632679489661923. It is half the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var HALF_PI: number;
+declare const HALF_PI: number;
 
 /**
  * PI is a mathematical constant with the value 3.14159265358979323846. It is the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var PI: number;
+declare const PI: number;
 
 /**
  * QUARTER_PI is a mathematical constant with the value 0.7853982. It is one quarter the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var QUARTER_PI: number;
+declare const QUARTER_PI: number;
 
 /**
  * TAU is an alias for TWO_PI, a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var TAU: number;
+declare const TAU: number;
 
 /**
  * TWO_PI is a mathematical constant with the value 6.28318530717958647693. It is twice the ratio of the circumference of a circle to its diameter. It is useful in combination with the trigonometric functions sin() and cos().
  */
-declare var TWO_PI: number;
+declare const TWO_PI: number;
+declare const DEGREES: 'degrees';
+declare const RADIANS: 'radians';
+declare const CORNER: 'corner';
+declare const CORNERS: 'corners';
+declare const RADIUS: 'radius';
+declare const RIGHT: 'right';
+declare const LEFT: 'left';
+declare const CENTER: 'center';
+declare const TOP: 'top';
+declare const BOTTOM: 'bottom';
+declare const BASELINE: 'alphabetic';
+declare const POINTS: 0x0000;
+declare const LINES: 0x0001;
+declare const LINE_STRIP: 0x0003;
+declare const LINE_LOOP: 0x0002;
+declare const TRIANGLES: 0x0004;
+declare const TRIANGLE_FAN: 0x0006;
+declare const TRIANGLE_STRIP: 0x0005;
+declare const QUADS: 'quads';
+declare const QUAD_STRIP: 'quad_strip';
+declare const CLOSE: 'close';
+declare const OPEN: 'open';
+declare const CHORD: 'chord';
+declare const PIE: 'pie';
+declare const PROJECT: 'square';
+declare const SQUARE: 'butt';
+declare const ROUND: 'round';
+declare const BEVEL: 'bevel';
+declare const MITER: 'miter';
+declare const RGB: 'rgb';
+declare const HSB: 'hsb';
+declare const HSL: 'hsl';
+declare const BLEND: 'source-over';
+declare const ADD: 'lighter';
+declare const DARKEST: 'darkest';
+declare const LIGHTEST: 'lighten';
+declare const DIFFERENCE: 'difference';
+declare const EXCLUSION: 'exclusion';
+declare const MULTIPLY: 'multiply';
+declare const SCREEN: 'screen';
+declare const REPLACE: 'copy';
+declare const OVERLAY: 'overlay';
+declare const HARD_LIGHT: 'hard-light';
+declare const SOFT_LIGHT: 'soft-light';
+declare const DODGE: 'color-dodge';
+declare const BURN: 'color-burn';
+declare const THRESHOLD: 'threshold';
+declare const GRAY: 'gray';
+declare const OPAQUE: 'opaque';
+declare const INVERT: 'invert';
+declare const POSTERIZE: 'posterize';
+declare const DILATE: 'dilate';
+declare const ERODE: 'erode';
+declare const BLUR: 'blur';
+declare const NORMAL: 'normal';
+declare const ITALIC: 'italic';
+declare const BOLD: 'bold';
+declare const LANDSCAPE: 'landscape';
+declare const PORTRAIT: 'portrait';
 
 // src/core/core.js
 
@@ -553,7 +615,7 @@ declare function getURLParams(): any;
  * 
  *  For more ways to position the canvas, see the  positioning the canvas wiki page.
  */
-declare function createCanvas(w: number, h: number, renderer?: any): HTMLCanvasElement;
+declare function createCanvas(w: number, h: number, renderer?: RENDERER): HTMLCanvasElement;
 
 /**
  * Resizes the canvas to given width and height. The canvas will be cleared and draw will be called immediately, allowing the sketch to re-render itself in the resized canvas.
@@ -568,7 +630,7 @@ declare function noCanvas(): void;
 /**
  * Creates and returns a new p5.Renderer object. Use this class if you need to draw into an off-screen graphics buffer. The two parameters define the width and height in pixels.
  */
-declare function createGraphics(w: number, h: number, renderer?: any): p5.Graphics;
+declare function createGraphics(w: number, h: number, renderer?: RENDERER): p5.Graphics;
 
 /**
  * Blends the pixels in the display window according to the defined mode. There is a choice of the following modes to blend the source pixels (A) with the ones of pixels already in the display window (B): 
@@ -588,7 +650,7 @@ declare function createGraphics(w: number, h: number, renderer?: any): p5.Graphi
  * - DODGE - lightens light tones and increases contrast, ignores darks.
  * - BURN - darker areas are applied, increasing contrast, ignores lights.
  */
-declare function blendMode(mode: any): void;
+declare function blendMode(mode: BLEND_MODE): void;
 
 // src/core/structure.js
 
@@ -650,16 +712,7 @@ declare function resetMatrix(): p5;
  * 
  *  Technically, rotate() multiplies the current transformation matrix by a rotation matrix. This function can be further controlled by the push() and pop().
  */
-declare function rotate(angle: number): p5;
-
-/**
- * Rotates a shape the amount specified by the angle parameter. This function accounts for angleMode, so angles can be entered in either RADIANS or DEGREES. 
- * 
- *  Objects are always rotated around their relative position to the origin and positive numbers rotate objects in a clockwise direction. Transformations apply to everything that happens after and subsequent calls to the function accumulates the effect. For example, calling rotate(HALF_PI) and then rotate(HALF_PI) is the same as rotate(PI). All tranformations are reset when draw() begins again. 
- * 
- *  Technically, rotate() multiplies the current transformation matrix by a rotation matrix. This function can be further controlled by the push() and pop().
- */
-declare function rotate(rad: number, axis: p5.Vector|any[]): p5;
+declare function rotate(angle: number, axis?: p5.Vector|any[]): p5;
 
 /**
  * Rotates around X axis.
@@ -726,7 +779,7 @@ declare function beginContour(): p5;
  * 
  *  Transformations such as translate(), rotate(), and scale() do not work within beginShape(). It is also not possible to use other shapes, such as ellipse() or rect() within beginShape().
  */
-declare function beginShape(kind?: any): p5;
+declare function beginShape(kind?: BEGIN_KIND): p5;
 
 /**
  * Specifies vertex coordinates for Bezier curves. Each call to bezierVertex() defines the position of two control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. 
@@ -752,7 +805,7 @@ declare function endContour(): p5;
 /**
  * The endShape() function is the companion to beginShape() and may only be called after beginShape(). When endshape() is called, all of image data defined since the previous call to beginShape() is written into the image buffer. The constant CLOSE as the value for the MODE parameter to close the shape (to connect the beginning and the end).
  */
-declare function endShape(mode?: any): p5;
+declare function endShape(mode?: END_MODE): p5;
 
 /**
  * Specifies vertex coordinates for quadratic Bezier curves. Each call to quadraticVertex() defines the position of one control points and one anchor point of a Bezier curve, adding a new segment to a line or shape. The first time quadraticVertex() is used within a beginShape() call, it must be prefaced with a call to vertex() to set the first anchor point. This function must be used between beginShape() and endShape() and only when there is no MODE parameter specified to beginShape().
@@ -767,7 +820,7 @@ declare function vertex(x: number, y: number, z?: number|boolean): p5;
 // src/events/acceleration.js
 
 /**
- * The system variable deviceOrientation always contains the orientation of the device. The value of this variable will either be set 'landscape' or 'portrait'. If no data is available it will be set to 'undefined'.
+ * The system variable deviceOrientation always contains the orientation of the device. The value of this variable will either be set 'landscape' or 'portrait'. If no data is available it will be set to 'undefined'. either LANDSCAPE or PORTRAIT.
  */
 declare var deviceOrientation: any;
 
@@ -1148,7 +1201,7 @@ declare function noTint(): void;
  * 
  *  imageMode(CENTER) interprets the second and third parameters of image() as the image's center point. If two additional parameters are specified, they are used to set the image's width and height.
  */
-declare function imageMode(mode: any): void;
+declare function imageMode(mode: IMAGE_MODE): void;
 
 // src/image/pixels.js
 
@@ -1218,7 +1271,7 @@ declare function copy(srcImage: p5.Image|undefined, sx: number, sy: number, sw: 
  * 
  * DILATE Increases the light areas. No parameter is used.
  */
-declare function filter(filterType: any, filterParam: number): void;
+declare function filter(filterType: FILTER_TYPE, filterParam: number): void;
 
 /**
  * Returns an array of [R,G,B,A] values for any pixel or grabs a section of an image. If no parameters are specified, the entire image is returned. Use the x and y parameters to get the value of one pixel. Get a section of the display window by specifying additional w and h parameters. When getting an image, the x and y parameters define the coordinates for the upper-left corner of the image, regardless of the current imageMode(). 
@@ -1590,7 +1643,7 @@ declare function radians(degrees: number): number;
 /**
  * Sets the current mode of p5 to given mode. Default mode is RADIANS.
  */
-declare function angleMode(mode: any): void;
+declare function angleMode(mode: ANGLE_MODE): void;
 
 // src/typography/attributes.js
 
@@ -1601,27 +1654,52 @@ declare function angleMode(mode: any): void;
  * 
  * So if you write textAlign(LEFT), you are aligning the left edge of your text to the x value you give in text(). If you write textAlign(RIGHT, TOP), you are aligning the right edge of your text to the x value and the top of edge of the text to the y value.
  */
-declare function textAlign(horizAlign: any, vertAlign?: any): number;
+declare function textAlign(horizAlign: HORIZ_ALIGN, vertAlign?: VERT_ALIGN): number;
 
 /**
  * Sets/gets the spacing, in pixels, between lines of text. This setting will be used in all subsequent calls to the text() function.
  */
-declare function textLeading(leading: number): any|number;
+declare function textLeading(leading: number): p5;
+
+/**
+ * Sets/gets the spacing, in pixels, between lines of text. This setting will be used in all subsequent calls to the text() function.
+ */
+declare function textLeading(): number;
 
 /**
  * Sets/gets the current font size. This size will be used in all subsequent calls to the text() function. Font size is measured in pixels.
  */
-declare function textSize(theSize: number): any|number;
+declare function textSize(size: number): p5;
+
+/**
+ * Sets/gets the current font size. This size will be used in all subsequent calls to the text() function. Font size is measured in pixels.
+ */
+declare function textSize(): number;
 
 /**
  * Sets/gets the style of the text for system fonts to NORMAL, ITALIC, or BOLD. Note: this may be is overridden by CSS styling. For non-system fonts (opentype, truetype, etc.) please load styled fonts instead.
  */
-declare function textStyle(theStyle: any): any|string;
+declare function textStyle(style: TEXT_STYLE): p5;
+
+/**
+ * Sets/gets the style of the text for system fonts to NORMAL, ITALIC, or BOLD. Note: this may be is overridden by CSS styling. For non-system fonts (opentype, truetype, etc.) please load styled fonts instead.
+ */
+declare function textStyle(): string;
 
 /**
  * Calculates and returns the width of any character or text string.
  */
-declare function textWidth(theText: string): number;
+declare function textWidth(text: string): number;
+
+/**
+ * Returns the ascent of the current font at its current size. The ascent represents the distance, in pixels, of the tallest character above the baseline.
+ */
+declare function textAscent(): number;
+
+/**
+ * Returns the descent of the current font at its current size. The descent represents the distance, in pixels, of the character with the longest descender below the baseline.
+ */
+declare function textDescent(): number;
 
 // src/typography/loading_displaying.js
 
@@ -1637,7 +1715,12 @@ declare function text(str: string, x: number, y: number, x2?: number, y2?: numbe
 /**
  * Sets the current font that will be drawn with the text() function.
  */
-declare function textFont(f: any|string): any|string;
+declare function textFont(): any;
+
+/**
+ * Sets the current font that will be drawn with the text() function.
+ */
+declare function textFont(font: any|string, size?: number): p5;
 
 // src/utilities/array_functions.js
 
@@ -1736,7 +1819,7 @@ declare function byte(n: string|boolean|number): number;
 /**
  * Converts a number, string or boolean to its byte representation. A byte can be only a whole number between -128 and 127, so when a value outside of this range is converted, it wraps around to the corresponding byte representation. When an array of number, string or boolean values is passed in, then an array of bytes the same length is returned.
  */
-declare function byte(ns: any[]): any[];
+declare function byte(ns: any[]): number[];
 
 /**
  * Converts a number or string to its corresponding single-character string representation. If a string parameter is provided, it is first parsed as an integer and then translated into a single-character string. When an array of number or string values is passed in, then an array of single-character strings of the same length is returned.
@@ -1771,7 +1854,12 @@ declare function hex(ns: number[], digits?: number): string[];
 /**
  * Converts a string representation of a hexadecimal number to its equivalent integer value. When an array of strings in hexadecimal notation is passed in, an array of integers of the same length is returned.
  */
-declare function unhex(n: string|any[]): number|number[];
+declare function unhex(n: string): number;
+
+/**
+ * Converts a string representation of a hexadecimal number to its equivalent integer value. When an array of strings in hexadecimal notation is passed in, an array of integers of the same length is returned.
+ */
+declare function unhex(ns: any[]): number[];
 
 // src/utilities/string_functions.js
 
@@ -1796,27 +1884,47 @@ declare function match(str: string, regexp: string): string[];
  * 
  *  If there are groups (specified by sets of parentheses) in the regular expression, then the contents of each will be returned in the array. Assuming a loop with counter variable i, element [i][0] of a regular expression match returns the entire matching string, and the match groups start at element [i][1] (the first group is [i][1], the second [i][2], and so on).
  */
-declare function matchAll(str: string, regexp: string): any[];
+declare function matchAll(str: string, regexp: string): string[];
 
 /**
  * Utility function for formatting numbers into strings. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
  */
-declare function nf(num: number|any[], left?: number, right?: number): string|string[];
+declare function nf(num: number, left?: number, right?: number): string;
+
+/**
+ * Utility function for formatting numbers into strings. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
+ */
+declare function nf(nums: number[], left?: number, right?: number): string[];
 
 /**
  * Utility function for formatting numbers into strings and placing appropriate commas to mark units of 1000. There are two versions: one for formatting ints, and one for formatting an array of ints. The value for the right parameter should always be a positive integer.
  */
-declare function nfc(num: number|any[], right?: number): string|any[];
+declare function nfc(num: number, right?: number): string;
+
+/**
+ * Utility function for formatting numbers into strings and placing appropriate commas to mark units of 1000. There are two versions: one for formatting ints, and one for formatting an array of ints. The value for the right parameter should always be a positive integer.
+ */
+declare function nfc(nums: number[], right?: number): string[];
 
 /**
  * Utility function for formatting numbers into strings. Similar to nf() but puts a "+" in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for left, and right parameters should always be positive integers.
  */
-declare function nfp(num: number|any[], left?: number, right?: number): string|any[];
+declare function nfp(num: number, left?: number, right?: number): string;
+
+/**
+ * Utility function for formatting numbers into strings. Similar to nf() but puts a "+" in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for left, and right parameters should always be positive integers.
+ */
+declare function nfp(nums: number[], left?: number, right?: number): string[];
 
 /**
  * Utility function for formatting numbers into strings. Similar to nf() but puts a " " (space) in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
  */
-declare function nfs(num: number|any[], left?: number, right?: number): string|any[];
+declare function nfs(num: number, left?: number, right?: number): string;
+
+/**
+ * Utility function for formatting numbers into strings. Similar to nf() but puts a " " (space) in front of positive numbers and a "-" in front of negative numbers. There are two versions: one for formatting floats, and one for formatting ints. The values for the digits, left, and right parameters should always be positive integers.
+ */
+declare function nfs(nums: number[], left?: number, right?: number): string[];
 
 /**
  * The split() function maps to String.split(), it breaks a String into pieces using a character or string as the delimiter. The delim parameter specifies the character or characters that mark the boundaries between each piece. A String[] array is returned that contains each of the pieces. 
@@ -1835,7 +1943,12 @@ declare function splitTokens(value: string, delim?: string): string[];
 /**
  * Removes whitespace characters from the beginning and end of a String. In addition to standard whitespace characters such as space, carriage return, and tab, this function also removes the Unicode "nbsp" character.
  */
-declare function trim(str: string|any[]): string|any[];
+declare function trim(str: string): string;
+
+/**
+ * Removes whitespace characters from the beginning and end of a String. In addition to standard whitespace characters such as space, carriage return, and tab, this function also removes the Unicode "nbsp" character.
+ */
+declare function trim(strs: string[]): string[];
 
 // src/utilities/time_date.js
 
@@ -2188,3 +2301,107 @@ declare function createCapture(type: string|any|any, callback: () => any): any|p
  * Creates element with given tag in the DOM with given content. Appends to the container node if one is specified, otherwise appends to body.
  */
 declare function createElement(tag: string, content?: string): any|p5.Element;
+// Constants 
+type COLOR_MODE =
+      typeof RGB
+    | typeof HSB
+    | typeof HSL;
+
+type ARC_MODE =
+      typeof CHORD
+    | typeof PIE;
+
+type ELLIPSE_MODE =
+      typeof CENTER
+    | typeof RADIUS
+    | typeof CORNER
+    | typeof CORNERS;
+
+type RECT_MODE =
+      typeof CORNER
+    | typeof CORNERS
+    | typeof CENTER
+    | typeof RADIUS;
+
+type STROKE_CAP =
+      typeof SQUARE
+    | typeof PROJECT
+    | typeof ROUND;
+
+type STROKE_JOIN =
+      typeof MITER
+    | typeof BEVEL
+    | typeof ROUND;
+
+type RENDERER =
+      typeof P2D
+    | typeof WEBGL;
+
+type BLEND_MODE =
+      typeof BLEND
+    | typeof DARKEST
+    | typeof LIGHTEST
+    | typeof DIFFERENCE
+    | typeof MULTIPLY
+    | typeof EXCLUSION
+    | typeof SCREEN
+    | typeof REPLACE
+    | typeof OVERLAY
+    | typeof HARD_LIGHT
+    | typeof SOFT_LIGHT
+    | typeof DODGE
+    | typeof BURN
+    | typeof ADD
+    | typeof NORMAL;
+
+type BEGIN_KIND =
+      typeof POINTS
+    | typeof LINES
+    | typeof TRIANGLES
+    | typeof TRIANGLE_FAN
+    | typeof TRIANGLE_STRIP
+    | typeof QUADS
+    | typeof QUAD_STRIP;
+
+type END_MODE =
+      typeof CLOSE;
+
+type IMAGE_MODE =
+      typeof CORNER
+    | typeof CORNERS
+    | typeof CENTER;
+
+type FILTER_TYPE =
+      typeof THRESHOLD
+    | typeof GRAY
+    | typeof OPAQUE
+    | typeof INVERT
+    | typeof POSTERIZE
+    | typeof BLUR
+    | typeof ERODE
+    | typeof DILATE;
+
+type ANGLE_MODE =
+      typeof RADIANS
+    | typeof DEGREES;
+
+type HORIZ_ALIGN =
+      typeof LEFT
+    | typeof CENTER
+    | typeof RIGHT;
+
+type VERT_ALIGN =
+      typeof TOP
+    | typeof BOTTOM
+    | typeof CENTER
+    | typeof BASELINE;
+
+type TEXT_STYLE =
+      typeof NORMAL
+    | typeof ITALIC
+    | typeof BOLD;
+
+type GRAPHICS_RENDERER =
+      typeof P2D
+    | typeof WEBGL;
+
