@@ -5,7 +5,8 @@
 
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
-var _editor: monaco.editor.IStandaloneCodeEditor;
+
+var _editor: P5Editor;
 var _currentProject: Project;
 var _currentFile: SourceFile | null = null;
 var _currentHtml: SourceFile;
@@ -99,6 +100,8 @@ function closeFile() {
 			extraLibs.add(_currentFile.name, _currentFile.content);
 		}
 	}
+
+	_currentFile = null;
 }
 
 async function loadFile(file: SourceFile, position?: monaco.IPosition) {
@@ -140,7 +143,7 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 			if (content === null)
 				content = file.content = await file.fetch(_currentProject);
 
-			model = file.model = monaco.editor.createModel(content, languageName);
+			file.model = model = monaco.editor.createModel(content, languageName, monaco.Uri.parse(file.path));
 		}
 
 		_editor.setModel(model);
@@ -157,7 +160,6 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 
 	if (position) {
 		_editor.setPosition(position);
-		_editor.focus();
 	}
 }
 
@@ -210,62 +212,7 @@ loadCompletePromise.then(values => {
 
 	loopProtect.alias = "__protect";
 
-	// validation settings
-	monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-		noSemanticValidation: false,
-		noSyntaxValidation: false
-	});
-
-	// compiler options
-	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-		noLib: true,
-		target: monaco.languages.typescript.ScriptTarget.ES2016,
-		allowNonTsExtensions: true
-	});
-
-	var textModelResolverService = new SimpleEditorModelResolverService();
-
-	var editorService = {
-		openEditor: function (options, sideBySide) {
-			var model = monaco.editor.getModel(options.resource.path);
-			if (!model)
-				return monaco.Promise.as(null);
-			_editor.setModel(model);
-			return monaco.Promise.as(_editor);
-		},
-		resolveEditor: function () {
-			alert(`resolve editor called!` + JSON.stringify(arguments));
-		}
-	};
-	
-	const editorContainer = document.getElementById('editorContainer')!;
-	_editor = monaco.editor.create(
-		editorContainer, {
-			fixedOverflowWidgets: true,
-			fontFamily: 'Fira Code',
-			//fontLigatures: true,
-			//glyphMargin: false,
-			lineNumbersMinChars: 3,
-			mouseWheelZoom: true,
-			scrollBeyondLastLine: false,
-			//useTabStops: true,
-			//renderIndentGuides: true,
-			theme: 'vs-dark',
-		}, {
-			//editorService: editorService,
-			textModelResolverService: textModelResolverService,
-		});
-	
-	textModelResolverService.setEditor(_editor);
-
-
-	values[0].forEach((lib, i: number) => {
-		console.log("addExtraLib: " + lib.url);
-		monaco.languages.typescript.javascriptDefaults.addExtraLib(lib.text, lib.url);
-	});
-	values[0].forEach((lib, i: number) => {
-		monaco.editor.createModel(lib.text, "typescript", monaco.Uri.parse(lib.url));
-	});
+	_editor = new P5Editor(values[0]);
 
 
 	window.addEventListener('resize', () => {
@@ -274,6 +221,26 @@ loadCompletePromise.then(values => {
 
 	_editor.onDidChangeCursorPosition(event => {
 		document.getElementById("footerPosition")!.textContent = "Ln " + event.position.lineNumber + ", Col " + event.position.column;
+	});
+
+	_editor.onDidChangeModel(event => {
+		var model = _editor.getModel();
+		if (_currentFile!.model === model)
+			return;
+
+		var file = _currentProject.items.find((item: SourceFile) => item.model === model) as SourceFile;
+		if (file)
+			loadFile(file);
+		else {
+			closeFile();
+
+			var path = model.uri.toString();
+			// TODO: factor
+			document.getElementById("footerFilename")!.textContent = path;
+			document.getElementById("footerType")!.textContent = "";
+			document.getElementById("editorFilename")!.textContent = path;
+
+		}
 	});
 
 	const delayer = new EventDelayer(() => {
