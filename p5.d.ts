@@ -437,12 +437,12 @@ declare class p5 {
   /**
    * The system variable frameCount contains the number of frames that have been displayed since the program started. Inside setup() the value is 0, after the first iteration of draw it is 1, etc.
    */
-  frameCount: number
+  readonly frameCount: number
   
   /**
    * Confirms if the window a p5.js program is in is "focused," meaning that the sketch will accept mouse or keyboard input. This variable is "true" if the window is focused and "false" if not.
    */
-  focused: boolean
+  readonly focused: boolean
   
   /**
    * Sets the cursor to a predefined symbol or an image, or makes it visible if already hidden. If you are trying to set an image as the cursor, the recommended size is 16x16 or 32x32 pixels. It is not possible to load an image as the cursor if you are exporting your program for the Web, and not all MODES work with all browsers. The values for parameters x and y must be less than the dimensions of the image.
@@ -475,22 +475,22 @@ declare class p5 {
   /**
    * System variable that stores the width of the entire screen display. This is used to run a full-screen program on any display size.
    */
-  displayWidth: number
+  readonly displayWidth: number
   
   /**
    * System variable that stores the height of the entire screen display. This is used to run a full-screen program on any display size.
    */
-  displayHeight: number
+  readonly displayHeight: number
   
   /**
    * System variable that stores the width of the inner window, it maps to window.innerWidth.
    */
-  windowWidth: number
+  readonly windowWidth: number
   
   /**
    * System variable that stores the height of the inner window, it maps to window.innerHeight.
    */
-  windowHeight: number
+  readonly windowHeight: number
   
   /**
    * The windowResized() function is called once every time the browser window is resized. This is a good place to resize the canvas or do any other adjustments to accommodate the new window size.
@@ -500,12 +500,12 @@ declare class p5 {
   /**
    * System variable that stores the width of the drawing canvas. This value is set by the first parameter of the createCanvas() function. For example, the function call createCanvas(320, 240) sets the width variable to the value 320. The value of width defaults to 100 if createCanvas() is not used in a program.
    */
-  width: number
+  readonly width: number
   
   /**
    * System variable that stores the height of the drawing canvas. This value is set by the second parameter of the createCanvas() function. For example, the function call createCanvas(320, 240) sets the height variable to the value 240. The value of height defaults to 100 if createCanvas() is not used in a program.
    */
-  height: number
+  readonly height: number
   
   /**
    * If argument is given, sets the sketch to fullscreen or not based on the value of the argument. If no argument is given, returns the current fullscreen state. Note that due to browser restrictions this can only be called on user input, for example, on mouse press like the example below.
@@ -753,51 +753,51 @@ declare class p5 {
   /**
    * The system variable deviceOrientation always contains the orientation of the device. The value of this variable will either be set 'landscape' or 'portrait'. If no data is available it will be set to 'undefined'. either LANDSCAPE or PORTRAIT.
    */
-  deviceOrientation: any
+  readonly deviceOrientation: any
   
   /**
    * The system variable accelerationX always contains the acceleration of the device along the x axis. Value is represented as meters per second squared.
    */
-  accelerationX: number
+  readonly accelerationX: number
   
   /**
    * The system variable accelerationY always contains the acceleration of the device along the y axis. Value is represented as meters per second squared.
    */
-  accelerationY: number
+  readonly accelerationY: number
   
   /**
    * The system variable accelerationZ always contains the acceleration of the device along the z axis. Value is represented as meters per second squared.
    */
-  accelerationZ: number
+  readonly accelerationZ: number
   
   /**
    * The system variable pAccelerationX always contains the acceleration of the device along the x axis in the frame previous to the current frame. Value is represented as meters per second squared.
    */
-  pAccelerationX: number
+  readonly pAccelerationX: number
   
   /**
    * The system variable pAccelerationY always contains the acceleration of the device along the y axis in the frame previous to the current frame. Value is represented as meters per second squared.
    */
-  pAccelerationY: number
+  readonly pAccelerationY: number
   
   /**
    * The system variable pAccelerationZ always contains the acceleration of the device along the z axis in the frame previous to the current frame. Value is represented as meters per second squared.
    */
-  pAccelerationZ: number
+  readonly pAccelerationZ: number
   
   /**
    * The system variable rotationX always contains the rotation of the device along the x axis. Value is represented as 0 to +/-180 degrees. 
    * 
    *  Note: The order the rotations are called is important, ie. if used together, it must be called in the order Z-X-Y or there might be unexpected behaviour.
    */
-  rotationX: number
+  readonly rotationX: number
   
   /**
    * The system variable rotationY always contains the rotation of the device along the y axis. Value is represented as 0 to +/-90 degrees. 
    * 
    *  Note: The order the rotations are called is important, ie. if used together, it must be called in the order Z-X-Y or there might be unexpected behaviour.
    */
-  rotationY: number
+  readonly rotationY: number
   
   /**
    * The system variable rotationZ always contains the rotation of the device along the z axis. Value is represented as 0 to 359 degrees. 
@@ -806,28 +806,28 @@ declare class p5 {
    * 
    *  Note: The order the rotations are called is important, ie. if used together, it must be called in the order Z-X-Y or there might be unexpected behaviour.
    */
-  rotationZ: number
+  readonly rotationZ: number
   
   /**
    * The system variable pRotationX always contains the rotation of the device along the x axis in the frame previous to the current frame. Value is represented as 0 to +/-180 degrees. 
    * 
    *  pRotationX can also be used with rotationX to determine the rotate direction of the device along the X-axis.
    */
-  pRotationX: number
+  readonly pRotationX: number
   
   /**
    * The system variable pRotationY always contains the rotation of the device along the y axis in the frame previous to the current frame. Value is represented as 0 to +/-90 degrees. 
    * 
    *  pRotationY can also be used with rotationY to determine the rotate direction of the device along the Y-axis.
    */
-  pRotationY: number
+  readonly pRotationY: number
   
   /**
    * The system variable pRotationZ always contains the rotation of the device along the z axis in the frame previous to the current frame. Value is represented as 0 to 359 degrees. 
    * 
    *  pRotationZ can also be used with rotationZ to determine the rotate direction of the device along the Z-axis.
    */
-  pRotationZ: number
+  readonly pRotationZ: number
   
   /**
    * The setMoveThreshold() function is used to set the movement threshold for the deviceMoved() function. The default threshold is set to 0.5.
@@ -861,17 +861,17 @@ declare class p5 {
   /**
    * The boolean system variable keyIsPressed is true if any key is pressed and false if no keys are pressed.
    */
-  keyIsPressed: boolean
+  readonly keyIsPressed: boolean
   
   /**
    * The system variable key always contains the value of the most recent key on the keyboard that was typed. To get the proper capitalization, it is best to use it within keyTyped(). For non-ASCII keys, use the keyCode variable.
    */
-  key: string
+  readonly key: string
   
   /**
    * The variable keyCode is used to detect special keys such as BACKSPACE, DELETE, ENTER, RETURN, TAB, ESCAPE, SHIFT, CONTROL, OPTION, ALT, UP_ARROW, DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW. You can also check for custom keys by looking up the keyCode of any key on a site like this: keycode.info.
    */
-  keyCode: number
+  readonly keyCode: number
   
   /**
    * The keyPressed() function is called once every time a key is pressed. The keyCode for the key that was pressed is stored in the keyCode variable. 
@@ -912,52 +912,52 @@ declare class p5 {
   /**
    * The system variable mouseX always contains the current horizontal position of the mouse, relative to (0, 0) of the canvas. If touch is used instead of mouse input, mouseX will hold the x value of the most recent touch point.
    */
-  mouseX: number
+  readonly mouseX: number
   
   /**
    * The system variable mouseY always contains the current vertical position of the mouse, relative to (0, 0) of the canvas. If touch is used instead of mouse input, mouseY will hold the y value of the most recent touch point.
    */
-  mouseY: number
+  readonly mouseY: number
   
   /**
    * The system variable pmouseX always contains the horizontal position of the mouse or finger in the frame previous to the current frame, relative to (0, 0) of the canvas.
    */
-  pmouseX: number
+  readonly pmouseX: number
   
   /**
    * The system variable pmouseY always contains the vertical position of the mouse or finger in the frame previous to the current frame, relative to (0, 0) of the canvas.
    */
-  pmouseY: number
+  readonly pmouseY: number
   
   /**
    * The system variable winMouseX always contains the current horizontal position of the mouse, relative to (0, 0) of the window.
    */
-  winMouseX: number
+  readonly winMouseX: number
   
   /**
    * The system variable winMouseY always contains the current vertical position of the mouse, relative to (0, 0) of the window.
    */
-  winMouseY: number
+  readonly winMouseY: number
   
   /**
    * The system variable pwinMouseX always contains the horizontal position of the mouse in the frame previous to the current frame, relative to (0, 0) of the window.
    */
-  pwinMouseX: number
+  readonly pwinMouseX: number
   
   /**
    * The system variable pwinMouseY always contains the vertical position of the mouse in the frame previous to the current frame, relative to (0, 0) of the window.
    */
-  pwinMouseY: number
+  readonly pwinMouseY: number
   
   /**
    * Processing automatically tracks if the mouse button is pressed and which button is pressed. The value of the system variable mouseButton is either LEFT, RIGHT, or CENTER depending on which button was pressed last. Warning: different browsers may track mouseButton differently.
    */
-  mouseButton: any
+  readonly mouseButton: any
   
   /**
    * The boolean system variable mouseIsPressed is true if the mouse is pressed and false if not.
    */
-  mouseIsPressed: boolean
+  readonly mouseIsPressed: boolean
   
   /**
    * The mouseMoved() function is called every time the mouse moves and a mouse button is not pressed.
@@ -1014,7 +1014,7 @@ declare class p5 {
    * 
    * The touches[] array is not supported on Safari and IE on touch-based desktops (laptops).
    */
-  touches: any[]
+  readonly touches: any[]
   
   /**
    * The touchStarted() function is called once after every time a touch is registered. If no touchStarted() function is defined, the mousePressed() function will be called instead if it is defined.
@@ -2259,7 +2259,7 @@ declare namespace p5 {
     /**
      * Underlying HTML element. All normal HTML methods can be called on this.
      */
-    elt: any
+    readonly elt: any
     
     /**
      * Attaches the element to the parent specified. A way of setting the container for the element. Accepts either a string ID, DOM node, or p5.Element. If no arguments given, parent node is returned. For more ways to position the canvas, see the  positioning the canvas wiki page.
@@ -2599,12 +2599,12 @@ declare namespace p5 {
     /**
      * Image width.
      */
-    width: number
+    readonly width: number
     
     /**
      * Image height.
      */
-    height: number
+    readonly height: number
     
     /**
      * Array containing the values for all the pixels in the display window. These values are numbers. This array is the size (include an appropriate factor for pixelDensity) of the display window x4, representing the R, G, B, A values in order for each pixel, moving from left to right across each row, then down each column. Retina and other high denisty displays may have more pixels[] (by a factor of pixelDensity^2). For example, if the image is 100x100 pixels, there will be 40,000. With pixelDensity = 2, there will be 160,000. The first four values (indices 0-3) in the array will be the R, G, B, A values of the pixel at (0, 0). The second four values (indices 4-7) will contain the R, G, B, A values of the pixel at (1, 0). More generally, to set values for a pixel at (x, y): 
