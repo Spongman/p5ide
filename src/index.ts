@@ -39,7 +39,6 @@ class extraLibs {
 }
 
 
-var loadCompletePromise: Promise<any>;
 
 function loadProject(project: Project) {
 	console.log()
@@ -80,20 +79,6 @@ function loadProject(project: Project) {
 			loadFile(defaultFile as SourceFile);
 		}
 	}
-}
-
-function previewFile(file: SourceFile)
-{
-	extraLibs.dispose();
-
-	loadCompletePromise.then(() => {
-		_currentHtml = file as SourceFile;
-		_currentHtml.used = true;
-		loadPreview();
-		_loadingPreview = true;
-		
-		document.querySelector("#previewPanel > .panelHeader > span")!.textContent = _currentHtml.name;
-	});
 }
 
 function closeFile() {
@@ -166,7 +151,7 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 		document.getElementById("footerType")!.textContent = languageName || "plain";
 		document.getElementById("editorFilename")!.textContent = file.path;
 
-		if (file.parent)		
+		if (file.parent)
 			file.parent.open = true;
 	}
 
@@ -177,17 +162,30 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 }
 
 var libs = [
-	"p5.global-mode.d.ts",
 	"p5.d.ts",
+	"p5.global-mode.d.ts",
 	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
 ];
 
-loadCompletePromise = Promise.all<any>([
-	Promise.all(libs.map(url => fetch(url).then(response => response.text()))),
+var loadCompletePromise = Promise.all([
+	Promise.all(libs.map(url => fetch(url).then(response => response.text()).then(text => { return { url: url, text: text }; }))),
 	promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
 	document.ready().then(() => { loadProject(defaultProject); }),
 ]);
+
+function previewFile(file: SourceFile) {
+	extraLibs.dispose();
+
+	loadCompletePromise.then(() => {
+		_currentHtml = file as SourceFile;
+		_currentHtml.used = true;
+		loadPreview();
+		_loadingPreview = true;
+
+		document.querySelector("#previewPanel > .panelHeader > span")!.textContent = _currentHtml.name;
+	});
+}
 
 function openDialog(elt: string | HTMLElement, location: HTMLElement) {
 	if (typeof elt === 'string')
@@ -207,7 +205,8 @@ function openDialog(elt: string | HTMLElement, location: HTMLElement) {
 		focus.focus();
 }
 
-loadCompletePromise.then((values: any[]) => {
+
+loadCompletePromise.then(values => {
 
 	loopProtect.alias = "__protect";
 
@@ -224,21 +223,50 @@ loadCompletePromise.then((values: any[]) => {
 		allowNonTsExtensions: true
 	});
 
-	values[0].forEach((lib: string, i: number) => monaco.languages.typescript.javascriptDefaults.addExtraLib(lib, "lib" + i));
+	var textModelResolverService = new SimpleEditorModelResolverService();
 
+	var editorService = {
+		openEditor: function (options, sideBySide) {
+			var model = monaco.editor.getModel(options.resource.path);
+			if (!model)
+				return monaco.Promise.as(null);
+			_editor.setModel(model);
+			return monaco.Promise.as(_editor);
+		},
+		resolveEditor: function () {
+			alert(`resolve editor called!` + JSON.stringify(arguments));
+		}
+	};
+	
 	const editorContainer = document.getElementById('editorContainer')!;
-	_editor = monaco.editor.create(editorContainer, {
-		fixedOverflowWidgets: true,
-		fontFamily: 'Fira Code',
-		//fontLigatures: true,
-		//glyphMargin: false,
-		lineNumbersMinChars: 3,
-		mouseWheelZoom: true,
-		scrollBeyondLastLine: false,
-		//useTabStops: true,
-		//renderIndentGuides: true,
-		theme: 'vs-dark',
+	_editor = monaco.editor.create(
+		editorContainer, {
+			fixedOverflowWidgets: true,
+			fontFamily: 'Fira Code',
+			//fontLigatures: true,
+			//glyphMargin: false,
+			lineNumbersMinChars: 3,
+			mouseWheelZoom: true,
+			scrollBeyondLastLine: false,
+			//useTabStops: true,
+			//renderIndentGuides: true,
+			theme: 'vs-dark',
+		}, {
+			//editorService: editorService,
+			textModelResolverService: textModelResolverService,
+		});
+	
+	textModelResolverService.setEditor(_editor);
+
+
+	values[0].forEach((lib, i: number) => {
+		console.log("addExtraLib: " + lib.url);
+		monaco.languages.typescript.javascriptDefaults.addExtraLib(lib.text, lib.url);
 	});
+	values[0].forEach((lib, i: number) => {
+		monaco.editor.createModel(lib.text, "typescript", monaco.Uri.parse(lib.url));
+	});
+
 
 	window.addEventListener('resize', () => {
 		_editor.layout();
@@ -479,7 +507,7 @@ function handlePreviewError(event: ErrorEvent) {
 	}
 }
 
-var _previousScript: SourceFile|null;
+var _previousScript: SourceFile | null;
 
 function frameLoaded(event: any) {
 
@@ -558,8 +586,7 @@ function frameLoaded(event: any) {
 		});
 }
 
-function writePreview(html?:string)
-{
+function writePreview(html?: string) {
 	if (_previewWindow) {
 		_previewWindow.document.open();
 		_previewWindow.document.clear();
