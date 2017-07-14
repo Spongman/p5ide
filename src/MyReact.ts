@@ -9,6 +9,8 @@ declare namespace JSX {
 		i: any;
 		li: any;
 		ul: any;
+		form: any;
+		fieldset: any;
 	}
 }
 

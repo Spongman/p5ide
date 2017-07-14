@@ -34,7 +34,9 @@ abstract class SourceNode implements monaco.IDisposable {
 	element: HTMLElement;
 
 	get used(): boolean { return this.element.classList.contains("used"); }
-	set used(value: boolean) {
+	set used(value: boolean) { this.setUsed(value); }
+
+	protected setUsed(value: boolean) {
 		if (value && this.parent)
 			this.parent.used = true;
 		this.element.classList.toggle("used", value);
@@ -131,7 +133,7 @@ class SourceFolder extends SourceNode {
 	}
 
 	set used(value: boolean) {
-		super.used = value;
+		super.setUsed(value);
 		if (value && this.name !== 'libraries') {
 			this.open = value;
 		}
@@ -162,17 +164,49 @@ class SourceFile
 
 		if (this.language)
 			this.icon = this.language.icon;
+
+		if (this.language)
+			this.languageName = this.language.name;
+		else {
+			var l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
+			if (l)
+				this.languageName = l.id;
+		}
 	}
 
 	language?: SourceLanguage;
+	languageName: string = "";
 	extension: string;
-	content: string | null = null;
 
 	model?: monaco.editor.IModel;
 
+	async fetchModel(project: Project): Promise<monaco.editor.IModel> {
+
+		var model = this.model;
+		if (!model) {
+			var content = await this.fetch(_currentProject);
+			model = this.createModel(content);
+		}
+
+		return Promise.resolve(model);
+	}
+
 	fetch(project: Project): Promise<string> {
+		if (this.model)
+			return Promise.resolve(this.model.getValue());
+
 		return fetch("/default/" + this.path)
-			.then(response => response.text());
+			.then(response => response.text())
+			.then(content => {
+				var model = this.createModel(content);
+				return model.getValue();
+			})
+	}
+	
+	private createModel(content: string) {
+		if (!this.model)
+			this.model = monaco.editor.createModel(content, this.languageName, monaco.Uri.parse(this.path));
+		return this.model;
 	}
 
 	dispose(): void {
