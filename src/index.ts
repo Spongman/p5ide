@@ -228,6 +228,11 @@ loadCompletePromise.then(values => {
 		if (_currentFile!.model === model)
 			return;
 
+		if (!model) {
+			closeFile();
+			return;
+		}
+
 		var file = _currentProject.items.find((item: SourceFile) => item.model === model) as SourceFile;
 		if (file)
 			loadFile(file);
