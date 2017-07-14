@@ -248,7 +248,7 @@ body.theme-vs-dark select option {
 	background: #E5EBF1;
 }
 
-body.theme-vs .sourceNode > a.selected {
+body.theme-vs .sourceNode.selected > div > a {
 	background: #ADD6FF;
 }
 
@@ -294,7 +294,7 @@ body.theme-vs-dark select option {
 	background: #3A3D41;
 }
 
-body.theme-vs-dark .sourceNode > a.selected {
+body.theme-vs-dark .sourceNode.selected > div > a {
 	background: #264F78;
 }
 
@@ -341,7 +341,7 @@ body.theme-hc-black select option {
 }
 
 
-body.theme-hc-black .sourceNode > a.selected {
+body.theme-hc-black .sourceNode.selected > div > a {
 	background: white;
 	color: black;
 }

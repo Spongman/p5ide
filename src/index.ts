@@ -25,7 +25,7 @@ class extraLibs {
 	public static add(name: string, content: string) {
 		if (this.mapExtraLibs[name])
 			return;
-		//console.log("ADD EXTRA LIB", name);
+		console.log("ADD EXTRA LIB", name);
 		var disposable = monaco.languages.typescript.javascriptDefaults.addExtraLib(content, name);
 		this.mapExtraLibs[name] = disposable;
 	}
@@ -87,8 +87,6 @@ function closeFile() {
 	if (!_currentFile)
 		return;
 
-	_currentFile.selected = false;
-
 	const model = _editor.getModel();
 	if (model) {
 		if (model != _currentFile.model)
@@ -101,6 +99,7 @@ function closeFile() {
 		}
 	}
 
+	_currentFile.selected = false;
 	_currentFile = null;
 }
 

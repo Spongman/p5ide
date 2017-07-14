@@ -171,7 +171,7 @@ class SourceFile
 	model?: monaco.editor.IModel;
 
 	fetch(project: Project): Promise<string> {
-		return cachedFetch("/default/" + this.path)
+		return fetch("/default/" + this.path)
 			.then(response => response.text());
 	}
 
@@ -217,7 +217,7 @@ class GitHubSourceFile extends SourceFile {
 
 	async fetch(project: GitHubProject): Promise<string> {
 
-		const response = await cachedFetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.path}/${this.path}`);
+		const response = await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.path}/${this.path}`);
 		return response.text();
 	}
 }
