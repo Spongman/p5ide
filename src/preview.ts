@@ -57,7 +57,7 @@ class P5Preview {
 			if (previewFrame)
 				previewFrame.src = "/v/blank.html";
 			else
-				previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" style="overflow: hidden;" scrolling="no" src="/v/blank.html"></iframe>';
+				previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" src="/v/blank.html"></iframe>';
 		}
 		else {
 
