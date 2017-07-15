@@ -93,7 +93,7 @@ Watch typescript and less
 */
 gulp.task('watch', function () {
 	gulp.watch('src/styles/*.less', ['less']);
-	gulp.watch('src/**/*.ts', ['typescript'/*, 'browserify'*/]);
+	gulp.watch(['src/**/*.ts', 'src/**/*.tsx'], ['typescript'/*, 'browserify'*/]);
 	gulp.watch('src/**/*.html', ['copy']);
 });
 
