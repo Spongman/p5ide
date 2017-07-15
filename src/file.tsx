@@ -187,20 +187,17 @@ class SourceFile
 			var content = await this.fetch(_currentProject);
 			model = this.createModel(content);
 		}
-
-		return Promise.resolve(model);
+		return model;
 	}
 
-	fetch(project: Project): Promise<string> {
+	async fetch(project: Project): Promise<string> {
 		if (this.model)
-			return Promise.resolve(this.model.getValue());
+			return this.model.getValue();
 
-		return fetch("/default/" + this.path)
-			.then(response => response.text())
-			.then(content => {
-				var model = this.createModel(content);
-				return model.getValue();
-			})
+		var response = await fetch("/assets/default/" + this.path);
+		var content = await response.text();
+		var model = this.createModel(content);
+		return model.getValue();
 	}
 	
 	private createModel(content: string) {

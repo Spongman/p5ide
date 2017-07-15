@@ -1,0 +1,430 @@
+* {
+    box-sizing: border-box;
+}
+
+
+/* latin */
+
+@font-face {
+    font-family: 'Fira Code';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://cdn.rawgit.com/tonsky/FiraCode/bbd33d9e/distr/woff2/FiraCode-Medium.woff2) format('woff2');
+}
+
+html,
+body {
+    border: 0;
+    margin: 0;
+    height: 100%;
+    font-family: 'Segoe WPC', 'Segoe UI', 'SFUIText-Light', 'HelveticaNeue-Light', sans-serif;
+    font-size: 14px;
+}
+
+ul,
+li {
+    margin: 0;
+    padding: 0;
+}
+
+header h1 {
+    font-size: 10pt;
+    display: inline-block;
+    margin: 1px 20px 1px 1px;
+}
+
+a {
+    color: #d4d4d4;
+    text-decoration: none;
+    i.fa {
+        opacity: 0.6;
+        transition: opacity .2s;
+    }
+    i.fa:hover {
+        opacity: 1 !important;
+    }
+}
+
+header,
+footer {
+    display: block;
+    padding: 2px 4px;
+}
+
+.flex-horizontal,
+.flex-vertical {
+    display: flex;
+    &.dragging {
+        &> :not(span) {
+            pointer-events: none;
+        }
+        &>span {
+            background: #666;
+        }
+    }
+}
+
+.flex-horizontal {
+    flex-direction: row;
+    &>span {
+        display: block;
+        width: 5px;
+        cursor: col-resize;
+    }
+}
+
+.flex-vertical {
+    flex-direction: column;
+    &>span {
+        display: block;
+        height: 5px;
+        cursor: row-resize;
+    }
+}
+
+.flex-fill {
+    flex-grow: 1;
+}
+
+.panelHeader {
+    padding: 2px 4px;
+    white-space: nowrap;
+    span {
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, .3);
+    }
+    a {
+        float: right;
+        margin-left: 5px;
+    }
+}
+
+#previewContainer {
+    position: relative;
+    overflow: hidden;
+}
+
+#previewFrame {
+    position: absolute;
+    margin: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+    background: #eee;
+}
+
+#editorContainer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.sourceNode {
+    white-space: nowrap;
+    &>div {
+        padding: 1px 4px;
+        display: block;
+        transition: background-color .2s;
+        &:hover {
+            background: #333;
+            a.btnDelete {
+                display: block;
+            }
+        }
+        &>a i {
+            margin-right: 4px;
+        }
+        &>a:not(.btnDelete) {
+            display: block;
+        }
+    }
+    &.used>div>a:not(.btnDelete) i.icon {
+        opacity: 1 !important;
+    }
+    &>ul {
+        padding-left: 5px;
+    }
+    &:not(.open)>ul {
+        display: none;
+    }
+    &:not(.open)>div>a i.fa-folder-open-o,
+    &.open>div>a i.fa-folder-o {
+        display: none;
+    }
+    a.btnDelete {
+        display: none;
+        float: right;
+        i {
+            margin-right: 0;
+        }
+    }
+}
+
+#fileContainer {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+
+/*
+#fileContainer > a.used:afteaaar {
+	content:'\2713';
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 70%;
+	margin-top: 2px;
+	opacity: 0.75;
+	float: right;
+}
+*/
+
+footer {
+    &>div>div {
+        padding: 0 10px;
+        &:first-child {
+            padding-left: 0;
+        }
+        &:last-child {
+            padding-right: 0;
+        }
+    }
+}
+
+select {
+    background: inherit;
+    color: inherit;
+    option {
+        color: inherit;
+    }
+}
+
+input {
+    border: 1px solid #888;
+    border-radius: 3px;
+    padding: 5px 7px;
+}
+
+
+/*
+*/
+
+body.theme-vs {
+    &,
+    .dialog>* {
+        background: #fffffe;
+        color: #333;
+    }
+    a {
+        color: #2c2c2c;
+    }
+    a>i.fa,
+    button.link {
+        color: hsla(210, 52%, 55%, 1);
+    }
+    header,
+    footer,
+    .flex-horizontal>span,
+    .flex-vertical>span {
+        background: #ccc;
+    }
+    .sourceNode>div:hover,
+    &-dark select option {
+        background: #E5EBF1;
+    }
+    .sourceNode.selected>div>a {
+        background: #ADD6FF;
+    }
+    .panelHeader {
+        background: #eee;
+        border-bottom: 1px solid #ddd;
+    }
+    .console-info {
+        background: #FFFFC8;
+    }
+    .console-warn {
+        background: #EBF5FF;
+    }
+    .console-error {
+        background: #FFEBEB;
+    }
+}
+
+
+/*
+*/
+
+body.theme-vs-dark {
+    &,
+    select,
+    input,
+    .dialog>* {
+        background: #1e1e1e;
+        color: #d4d4d4;
+    }
+    a {
+        color: #d4d4d4;
+    }
+    a>i.fa,
+    button.link {
+        color: hsla(210, 52%, 70%, 1);
+    }
+    header,
+    footer,
+    .flex-horizontal>span,
+    .flex-vertical>span {
+        background: #333;
+    }
+    .sourceNode>div:hover,
+    select option {
+        background: #3A3D41;
+    }
+    .sourceNode.selected>div>a {
+        background: #264F78;
+    }
+    .panelHeader {
+        background: #444;
+        border-bottom: 1px solid #444;
+    }
+    .console-info {
+        background: #383800;
+    }
+    .console-warn {
+        background: #000a14;
+    }
+    .console-error {
+        background: #140000;
+    }
+}
+
+
+/*
+*/
+
+body.theme-hc-black {
+    &,
+    .dialog>* {
+        background: black;
+        color: white;
+    }
+    a {
+        color: #ccc;
+    }
+    a>i.fa,
+    button.link {
+        color: hsla(210, 100%, 90%, 1);
+    }
+    .flex-horizontal>span,
+    .flex-vertical>span {
+        background: #888;
+    }
+    .sourceNode>div:hover {
+        background: white;
+        color: black;
+    }
+    select option {
+        background: black;
+        color: white;
+    }
+    .sourceNode.selected>div>a {
+        background: white;
+        color: black;
+    }
+    .panelHeader {
+        background: #111;
+        border-bottom: 1px solid #111;
+    }
+}
+
+body:not(.preview-docked) .preview-docked-show,
+body:not(.console-visible) .console-visible-show,
+body.preview-paused #btnPause,
+body:not(.preview-paused) #btnRun {
+    display: none;
+}
+
+#consoleContainer {
+    font-family: 'Fira Code';
+    overflow-y: scroll;
+    div.error {
+        color: red !important;
+    }
+    div.error i {
+        float: right;
+    }
+}
+
+.console-error {
+    color: red;
+}
+
+.dialog {
+    position: absolute;
+    display: none;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .25);
+    padding-left: 100px;
+    padding-top: 100px;
+    &>* {
+        max-width: 90%;
+        border: 1px solid #888;
+        border-radius: 4px;
+        box-shadow: 1px 5px 30px rgba(0, 0, 0, .75)
+    }
+    fieldset {
+        display: inline-block;
+        padding: 10px;
+    }
+}
+
+fieldset {
+    &.vertical {
+        &>input,
+        &>label {
+            display: block;
+        }
+        &>input[type='submit'] {
+            float: right;
+        }
+    }
+    &.horizontal {
+        &>input,
+        &>label {
+            display: inline-block;
+        }
+    }
+    button.link {
+        display: block;
+    }
+}
+
+button.link,
+button.link:focus,
+button.link:active {
+    /* Remove all decorations to look like normal text */
+    background: none;
+    border: none;
+    display: inline;
+    font: inherit;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    outline-offset: 0;
+    /* Additional styles to look like a link */
+    color: inherit;
+    cursor: pointer;
+}
+
+button.link:hover {
+    text-decoration: underline;
+}
+
+
+/* Remove extra space inside buttons in Firefox */
+
+button.link::-moz-focus-inner {
+    border: none;
+    padding: 0;
+}

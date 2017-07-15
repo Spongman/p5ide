@@ -1,4 +1,6 @@
 
+const _previewPage = "/assets/v/blank.html";
+
 class P5Preview {
 
 	private _window: Window | null;
@@ -55,16 +57,16 @@ class P5Preview {
 			this._window = null;
 			const previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
 			if (previewFrame)
-				previewFrame.src = "/v/blank.html";
+				previewFrame.src = _previewPage;
 			else
-				previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" src="/v/blank.html"></iframe>';
+				previewContainer.innerHTML = '<iframe id="previewFrame" width="100%" height="100%" src="' + _previewPage + '"></iframe>';
 		}
 		else {
 
 			const rect = previewContainer.getBoundingClientRect();
 			if (this._isDocked) {
 				const pr = window.devicePixelRatio;
-				this._window = window.open("/v/blank.html", "previewFrame",
+				this._window = window.open(_previewPage, "previewFrame",
 					"toolbar=0,status=0,menubar=0,location=0,replace=1" +
 					",width=" + Math.floor(pr * previewContainer.clientWidth) +
 					",height=" + Math.floor(pr * previewContainer.clientHeight) +
@@ -79,7 +81,7 @@ class P5Preview {
 				}, 250);
 			}
 			else {
-				this._window!.location.href = "/v/blank.html";
+				this._window!.location.href = _previewPage;
 				window.focus();
 			}
 		}
@@ -155,7 +157,7 @@ class P5Preview {
 			event.ports[0].postMessage(blob);
 		});
 
-		sw.register('/sw.js', { scope: "/v/" })
+		sw.register('/sw.js', { scope: "/assets/v/" })
 			.then(() => {
 				//console.log('sw.ready');
 				return sw.ready;
