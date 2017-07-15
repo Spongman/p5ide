@@ -105,7 +105,9 @@ gulp.task('clean', () =>
 /*
 default task
 */
+
+gulp.task('build',
+	['less', 'typescript', 'javascript', 'copy']);
+
 gulp.task('default',
-	['less', 'typescript', 'javascript',//'browserify',
-		'copy', 'webserver', 'livereload',
-		'watch']);
+	['build', 'webserver', 'livereload', 'watch']);
