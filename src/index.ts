@@ -1,7 +1,6 @@
 /// <reference types="monaco-editor"/>
 /// <reference path="loop-protect.d.ts"/>
-/// <reference path="file.tsx"/>
-/// <reference path="utils.ts"/>
+
 
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
@@ -142,8 +141,8 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 }
 
 var libs = [
-	"p5.d.ts",
-	"p5.global-mode.d.ts",
+	"assets/p5.d.ts",
+	"assets/p5.global-mode.d.ts",
 	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
 ];
 
@@ -151,7 +150,18 @@ var loadCompletePromise = Promise.all([
 	Promise.all(libs.map(url => fetch(url).then(response => response.text()).then(text => { return { url: url, text: text }; }))),
 	promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
-	document.ready().then(() => { loadProject(defaultProject); }),
+	document.ready().then(async () => {
+
+		var project:Project = defaultProject;
+		try {
+			project = await GitHubProject.load(location.hash.substring(1));
+		}
+		catch (err)
+		{
+			console.log(err);
+		}
+		loadProject(project);
+	}),
 ]);
 
 

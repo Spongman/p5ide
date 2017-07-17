@@ -2,7 +2,7 @@ class PreviewError {
 	constructor(public event: ErrorEvent) {
 	}
 
-	element: HTMLElement;
+	private element: HTMLElement;
 
 	render() {
 
