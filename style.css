@@ -403,10 +403,25 @@ body:not(.preview-paused) #btnRun {
     padding: 10px;
 }
 
+fieldset.vertical input[type=checkbox] {
+	vertical-align: middle;
+	min-width: 20px;
+	margin-right: 43px;
+}
+
 fieldset.vertical > input,
 fieldset.vertical > label {
+	text-align: right;
     display: block;
 }
+
+fieldset.vertical > label > select,
+fieldset.vertical > label > input {
+	margin-left: 5px;
+	min-width: 60px;
+}
+
+
 
 fieldset.vertical > input[type='submit'] {
     float: right;
@@ -414,7 +429,12 @@ fieldset.vertical > input[type='submit'] {
 
 fieldset.horizontal > input,
 fieldset.horizontal > label {
-    display: inline-block;
+	display: inline-block;
+}
+
+fieldset.horizontal > label > select,
+fieldset.horizontal > label > input {
+	margin-left: 5px;
 }
 
 fieldset button.link {

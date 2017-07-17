@@ -71,7 +71,7 @@ class EditorService {
 		this._editor = editor;
 	}
 
-	openEditor(options:any, sideBySide:boolean) {
+	openEditor(options: any, sideBySide: boolean) {
 		var model = monaco.editor.getModel(options.resource.path);
 		if (!model)
 			return monaco.Promise.as(null);
@@ -98,6 +98,18 @@ class IPreloadLibrary {
 class P5Editor {
 
 	public _editor: monaco.editor.IStandaloneCodeEditor;
+	public options: monaco.editor.IEditorConstructionOptions = {
+		fixedOverflowWidgets: true,
+		fontFamily: 'Fira Code',
+		//fontLigatures: true,
+		//glyphMargin: false,
+		lineNumbersMinChars: 3,
+		mouseWheelZoom: true,
+		scrollBeyondLastLine: false,
+		//useTabStops: true,
+		//renderIndentGuides: true,
+		theme: 'vs-dark',
+	};
 
 	constructor(libs: IPreloadLibrary[]) {
 
@@ -120,18 +132,7 @@ class P5Editor {
 
 		const editorContainer = document.getElementById('editorContainer')!;
 		this._editor = monaco.editor.create(
-			editorContainer, {
-				fixedOverflowWidgets: true,
-				fontFamily: 'Fira Code',
-				//fontLigatures: true,
-				//glyphMargin: false,
-				lineNumbersMinChars: 3,
-				mouseWheelZoom: true,
-				scrollBeyondLastLine: false,
-				//useTabStops: true,
-				//renderIndentGuides: true,
-				theme: 'vs-dark',
-			}, {
+			editorContainer, this.options, {
 				editorService: editorService,
 				textModelResolverService: textModelResolverService,
 			});
@@ -172,5 +173,5 @@ class P5Editor {
 		return this._editor.onDidChangeModel(listener);
 	}
 
-	
+
 }

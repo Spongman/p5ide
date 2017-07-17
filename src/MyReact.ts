@@ -11,6 +11,11 @@ declare namespace JSX {
 		ul: any;
 		form: any;
 		fieldset: any;
+		legend: any;
+		select: any;
+		option: any;
+		label: any;
+		input: any;
 	}
 }
 
