@@ -150,7 +150,18 @@ var loadCompletePromise = Promise.all([
 	Promise.all(libs.map(url => fetch(url).then(response => response.text()).then(text => { return { url: url, text: text }; }))),
 	promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
-	document.ready().then(() => { loadProject(defaultProject); }),
+	document.ready().then(async () => {
+
+		var project:Project = defaultProject;
+		try {
+			project = await GitHubProject.load(location.hash.substring(1));
+		}
+		catch (err)
+		{
+			console.log(err);
+		}
+		loadProject(project);
+	}),
 ]);
 
 function openDialog(elt: string | HTMLElement, location: HTMLElement) {

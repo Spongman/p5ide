@@ -236,4 +236,4 @@ class P5Preview {
 	}
 }
 
-const preview = new P5Preview();
+var preview = new P5Preview();
