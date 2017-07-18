@@ -52,9 +52,7 @@ abstract class SourceNode implements monaco.IDisposable {
 		this.element.remove();
 	}
 
-	abstract onClick(event: Event):void;
-	
-	onDelete(event: Event) {
+	protected onDelete(event: Event) {
 		event.preventDefault();
 
 		var deleteNodeEvent = new Event("p5ide_deleteNode", {
@@ -64,7 +62,7 @@ abstract class SourceNode implements monaco.IDisposable {
 		deleteNodeEvent.sourceNode = this;
 		if (event.target.dispatchEvent(deleteNodeEvent)) {
 			this.delete();
-		}	
+		}
 	}
 }
 
@@ -90,24 +88,24 @@ class SourceFolder extends SourceNode {
 	find(path: string): SourceNode | undefined {
 
 		if (!path)
-			return void 0;	
+			return void 0;
 
 		path = path.trimStart('/');
 
 		var ich = path.indexOf('/');
 		if (ich < 0)
 			ich = path.length;
-		
+
 		var childName = path.substr(0, ich);
 		var child = (childName === "..") ? this.parent : this.children.find(i => i.name === childName) as SourceFolder;
 		if (!child)
 			return void 0;
-		
+
 		var rest = path.substr(ich + 1);
 		return rest ? child.find(rest) : child;
 	}
 
-	onClick(event: Event) {
+	private onClick(event: Event) {
 		event.preventDefault();
 		this.element.classList.toggle("open");
 	}
@@ -143,7 +141,7 @@ class SourceFolder extends SourceNode {
 	set open(value: boolean) {
 		this.element.classList.toggle("open", value);
 		if (value && this.parent)
-			this.parent.open = true;	
+			this.parent.open = true;
 	}
 }
 
@@ -165,18 +163,24 @@ class SourceFile
 		if (this.language)
 			this.icon = this.language.icon;
 
-		if (this.language)
-			this.languageName = this.language.name;
-		else {
-			var l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
-			if (l)
-				this.languageName = l.id;
-		}
 	}
 
 	language?: SourceLanguage;
-	languageName: string = "";
 	extension: string;
+
+	private _languageName: string;
+	get languageName() {
+		if (typeof this._languageName === 'undefined') {
+			if (this.language)
+				this._languageName = this.language.name;
+			else {
+				var l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
+				if (l)
+					this._languageName = l.id;
+			}
+		}
+		return this._languageName;
+	}
 
 	model?: monaco.editor.IModel;
 
@@ -199,7 +203,7 @@ class SourceFile
 		var model = this.createModel(content);
 		return model.getValue();
 	}
-	
+
 	private createModel(content: string) {
 		if (!this.model)
 			this.model = monaco.editor.createModel(content, this.languageName, monaco.Uri.parse(this.path));
@@ -213,7 +217,7 @@ class SourceFile
 		}
 	}
 
-	onClick(event: Event) {
+	private onClick(event: Event) {
 		event.preventDefault();
 
 		var openFileEvent = new Event("p5ide_openFile", {

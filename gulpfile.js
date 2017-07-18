@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var util = require('gulp-util');
 var ts = require('gulp-typescript');
 var watch = require('gulp-watch');
 //var browserify = require('browserify');
@@ -6,11 +7,19 @@ var watch = require('gulp-watch');
 var less = require('gulp-less');
 var tsProject = ts.createProject('./src/tsconfig.json');
 var connect = require('gulp-connect');
-var uglify = require('gulp-uglify');
+//var uglify = require('gulp-uglify');
+var uglifyes = require('uglify-es');
+var composer = require('gulp-uglify/composer');
+var uglify = composer(uglifyes, console);
+
 var sourcemaps = require('gulp-sourcemaps');
 var buffer = require('vinyl-buffer');
 var uglifycss = require('gulp-uglifycss');
 var clean = require('gulp-clean');
+
+var config = {
+	production: util.env.production,
+};
 
 /*
 compile typescript
@@ -23,7 +32,7 @@ gulp.task('typescript', function () {
 		.pipe(tsProject()).js
 		.pipe(gulp.dest("dist/js"))
 		.pipe(buffer())
-		.pipe(uglify())
+		.pipe(config.production ? uglify() : util.noop())
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest("dist"));;
 
@@ -70,10 +79,10 @@ gulp.task('less', function () {
 	gulp.src('src/styles/style.less')
 		.pipe(less())
 		.pipe(sourcemaps.init())
-		.pipe(uglifycss({
+		.pipe(config.production ? uglifycss({
 			"maxLineLen": 80,
 			"uglyComments": true
-		}))
+		}) : util.noop())
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('dist/styles'));
 });

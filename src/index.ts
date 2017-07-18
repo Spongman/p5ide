@@ -150,26 +150,19 @@ var loadCompletePromise = Promise.all([
 	Promise.all(libs.map(url => fetch(url).then(response => response.text()).then(text => { return { url: url, text: text }; }))),
 	promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
-	document.ready().then(() => { loadProject(defaultProject); }),
+	document.ready().then(async () => {
+
+		var project:Project = defaultProject;
+		try {
+			project = await GitHubProject.load(location.hash.substring(1));
+		}
+		catch (err)
+		{
+			console.log(err);
+		}
+		loadProject(project);
+	}),
 ]);
-
-function openDialog(elt: string | HTMLElement, location: HTMLElement) {
-	if (typeof elt === 'string')
-		elt = document.querySelector(elt) as HTMLElement;
-	var left = 100, top = 100;
-	if (location) {
-		var rect = location.getBoundingClientRect();
-		left = rect.right;
-		top = rect.bottom;
-	}
-	elt.style.paddingLeft = left + "px";
-	elt.style.paddingTop = top + "px";
-	elt.style.display = "block";
-
-	var focus = elt.querySelector("input[autofocus]") as HTMLElement;
-	if (focus)
-		focus.focus();
-}
 
 
 loadCompletePromise.then(values => {
@@ -178,6 +171,11 @@ loadCompletePromise.then(values => {
 
 	_editor = new P5Editor(values[0]);
 
+	/*
+	var optionsDialog = new EditorOptions();
+	var options = _editor.options;
+	openDialog(document.body.appendChild(optionsDialog.render(options)));
+	*/
 
 	window.addEventListener('resize', () => {
 		_editor.layout();
@@ -331,4 +329,23 @@ function handlePreviewError(event: ErrorEvent) {
 	const consoleContainer = document.getElementById("consoleContainer")!;
 	var control = new PreviewError(event);
 	consoleContainer.appendChild(control.render());
+}
+
+
+function openDialog(elt: string | HTMLElement, location?: HTMLElement) {
+	if (typeof elt === 'string')
+		elt = document.querySelector(elt) as HTMLElement;
+	var left = 100, top = 100;
+	if (location) {
+		var rect = location.getBoundingClientRect();
+		left = rect.right;
+		top = rect.bottom;
+	}
+	elt.style.paddingLeft = left + "px";
+	elt.style.paddingTop = top + "px";
+	elt.style.display = "block";
+
+	var focus = elt.querySelector("input[autofocus]") as HTMLElement;
+	if (focus)
+		focus.focus();
 }

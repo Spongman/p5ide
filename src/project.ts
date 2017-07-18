@@ -12,12 +12,15 @@ class GitHubProject extends Project {
 
 	public static async load(url: string): Promise<Project> {
 
-		let [match, user, repo, branch, path] = url.match(/https:\/\/github\.com\/([^\/]*)\/([^\/]*)(?:\/tree\/([^\/]*)\/(.*))?/i) || <string[]>[];
+		let [match, user, repo, branch, path] = url.match(/(?:https:\/\/)?github\.com\/([^\/]*)\/([^\/]*)(?:\/tree\/([^\/]*)\/(.*))?/i) || <string[]>[];
 		if (!match)
 			return Promise.reject("invalid GitHub url");
 
 		if (!branch)
 			branch = 'master';
+
+		if (!path)
+			path = "";
 
 		const branchResponse = await cachedFetch(`https://api.github.com/repos/${user}/${repo}/branches/${branch || 'master'}`);
 		const branchJson = await branchResponse.json();
