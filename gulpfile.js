@@ -33,17 +33,16 @@ gulp.task('typescript', function () {
 		.pipe(buffer())
 		.pipe(config.production ? uglify() : util.noop())
 		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest("dist"));;
-
+		.pipe(gulp.dest("dist"));
 });
 
 gulp.task('javascript', function () {
 
 	gulp.src('src/**/*.js')
-		//.pipe(uglify())
-	    //.on('error', function (err) { console.log(err.toString()); })
+		.pipe(sourcemaps.init())
+		.pipe(config.production ? uglify() : util.noop())
+		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('dist'));
-
 });
 /*
 Web server to test app
@@ -65,9 +64,12 @@ gulp.task('livereload', function () {
 /*
 copy all html files and assets
 */
-gulp.task('copy', function () {
+gulp.task('html', function () {
 	gulp.src('src/**/*.html')
 		.pipe(gulp.dest('dist'));
+});
+
+gulp.task('assets', function () {
 	gulp.src('assets/**/*.*')
 		.pipe(gulp.dest('dist/assets'));
 });
@@ -102,7 +104,9 @@ Watch typescript and less
 gulp.task('watch', function () {
 	gulp.watch('src/styles/*.less', ['less']);
 	gulp.watch(['src/**/*.ts', 'src/**/*.tsx'], ['typescript'/*, 'browserify'*/]);
-	gulp.watch('src/**/*.html', ['copy']);
+	gulp.watch('src/**/*.js', ['javascript']);
+	gulp.watch('src/**/*.html', ['html']);
+	gulp.watch('assets/**/*.*', ['assets']);
 });
 
 gulp.task('clean', () =>
@@ -119,7 +123,7 @@ default task
 */
 
 gulp.task('default',
-	['less', 'typescript', 'javascript', 'copy']);
+	['less', 'typescript', 'javascript', 'html', 'assets']);
 
 gulp.task('serve',
 	['default', 'webserver', 'livereload', 'watch']);
