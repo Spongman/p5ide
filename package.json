@@ -4,6 +4,9 @@
   "description": "",
   "main": "sw.js",
   "scripts": {
+    "dev": "gulp",
+    "watch": "gulp serve",
+    "build": "gulp --production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

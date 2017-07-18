@@ -17,10 +17,9 @@ var buffer = require('vinyl-buffer');
 var uglifycss = require('gulp-uglifycss');
 var clean = require('gulp-clean');
 
-var config = {
-	production: util.env.production,
+const config = {
+	production: !!util.env.production,
 };
-
 /*
 compile typescript
 use ES5 and commonJS module
@@ -111,12 +110,16 @@ gulp.task('clean', () =>
 		.pipe(clean())
 );
 
+gulp.on('err', function(e) {
+    console.log(e.err.stack);
+});
+
 /*
 default task
 */
 
-gulp.task('build',
+gulp.task('default',
 	['less', 'typescript', 'javascript', 'copy']);
 
-gulp.task('default',
-	['build', 'webserver', 'livereload', 'watch']);
+gulp.task('serve',
+	['default', 'webserver', 'livereload', 'watch']);
