@@ -22,7 +22,7 @@
     "gulp-uglify": "^3.0.0",
     "gulp-uglifycss": "^1.0.8",
     "gulp-watch": "^4.3.11",
-    "monaco-editor": "^0.8.3",
+    "monaco-editor": "^0.9.0",
     "typescript": "^2.3.4",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"

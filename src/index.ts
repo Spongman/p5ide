@@ -244,7 +244,7 @@ loadCompletePromise.then(values => {
 	setTheme(window.localStorage.theme || selectTheme.value);
 
 	function setTheme(theme: string) {
-		_editor.updateOptions({ theme: theme });
+		monaco.editor.setTheme(theme);
 		[].forEach.call(
 			document.querySelectorAll("#selectTheme > option"),
 			(opt: HTMLOptionElement) => { document.body.classList.remove("theme-" + opt.value); }

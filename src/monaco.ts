@@ -165,13 +165,10 @@ class P5Editor {
 	onDidChangeCursorPosition(listener: (e: monaco.editor.ICursorPositionChangedEvent) => void) {
 		return this._editor.onDidChangeCursorPosition(listener);
 	}
-	onDidChangeModelContent(listener: (e: monaco.editor.IModelContentChangedEvent2) => void) {
+	onDidChangeModelContent(listener: (e: monaco.editor.IModelContentChangedEvent) => void) {
 		return this._editor.onDidChangeModelContent(listener);
 	}
-
 	onDidChangeModel(listener: (e: monaco.editor.IModelChangedEvent) => void) {
 		return this._editor.onDidChangeModel(listener);
 	}
-
-
 }
