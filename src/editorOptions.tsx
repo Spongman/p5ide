@@ -72,17 +72,18 @@ class EditorOptions {
 			</form >
 		);
 
-		[].forEach.call(this.element.querySelectorAll("input,select"), (e:HTMLInputElement|HTMLSelectElement) => {
-			e.value = options[e.name];
+		[].forEach.call(this.element.querySelectorAll("input,select"), (e: HTMLInputElement | HTMLSelectElement) => {
+			var optionsDict = options as { [a: string]: string };
+			e.value = optionsDict[e.name];
 
 			e.addEventListener('change', () => {
 				switch (e.type)
 				{
 					case "checkbox":
-						options[e.name] = e.checked ? true : false;
-						break;	
+						optionsDict[e.name] = (e as HTMLInputElement).checked ? "checked" : "";
+						break;
 					default:
-						options[e.name] = e.value;
+						optionsDict[e.name] = e.value;
 						break;	
 				}
 
