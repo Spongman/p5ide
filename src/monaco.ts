@@ -134,7 +134,7 @@ class P5Editor {
 		this._editor = monaco.editor.create(
 			editorContainer, this.options, {
 				editorService: editorService,
-				textModelResolverService: textModelResolverService,
+				textModelService: textModelResolverService,
 			});
 
 		textModelResolverService.setEditor(this._editor);
