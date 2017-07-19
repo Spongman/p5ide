@@ -5,7 +5,6 @@ var watch = require('gulp-watch');
 //var browserify = require('browserify');
 //var source = require('vinyl-source-stream');
 var less = require('gulp-less');
-var tsProject = ts.createProject('./src/tsconfig.json');
 var connect = require('gulp-connect');
 //var uglify = require('gulp-uglify');
 var uglifyes = require('uglify-es');
@@ -20,6 +19,15 @@ var clean = require('gulp-clean');
 const config = {
 	production: !!util.env.production,
 };
+
+var tsProject = ts.createProject(
+	'./src/tsconfig.json', {
+		removeComments: config.production,
+		experimentalAsyncFunctions: !config.production,
+		target: config.production ? "es2015" : "es2017"
+	}
+);
+
 /*
 compile typescript
 use ES5 and commonJS module
@@ -29,8 +37,8 @@ gulp.task('typescript', function () {
 	return tsProject.src()
 		.pipe(sourcemaps.init())
 		.pipe(tsProject()).js
-		.pipe(gulp.dest("dist/js"))
-		.pipe(buffer())
+		//.pipe(gulp.dest("dist/js"))
+		//.pipe(buffer())
 		.pipe(config.production ? uglify() : util.noop())
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest("dist"));
@@ -57,8 +65,8 @@ gulp.task('webserver', function () {
 Automatic Live Reload
 */
 gulp.task('livereload', function () {
-	gulp.src(['dist/styles/*.css', 'dist/js/*.js'])
-		.pipe(watch(['dist/styles/*.css', 'dist/js/*.js']))
+
+	watch(['dist/styles/*.css', 'dist/*.js', 'dist/*.html'])
 		.pipe(connect.reload());
 });
 /*
