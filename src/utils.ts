@@ -117,3 +117,7 @@ class EventDelayer {
 interface SourceNodeEvent extends Event {
 	sourceNode: SourceNode;
 }
+
+function searchParams(params: Object) {
+	return Object.entries(params).reduce((a, [k, v]) => { return a.append(k, v), a; }, new URLSearchParams());
+}

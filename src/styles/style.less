@@ -23,6 +23,7 @@ body {
 
 ul,
 li {
+	display: block;
     margin: 0;
     padding: 0;
 }
@@ -37,7 +38,7 @@ a {
     color: #d4d4d4;
     text-decoration: none;
     i.fa {
-        opacity: 0.6;
+        opacity: 0.7;
         transition: opacity .2s;
     }
     i.fa:hover {
@@ -159,31 +160,47 @@ fieldset button.link {
     width: 100%;
     height: 100%;
 }
+.hover-show {
+	display: none;
+}
+
+.hover:hover {
+	.hover-show {
+		display: block;
+	}
+}
 
 .sourceNode {
     white-space: nowrap;
     &>div {
-        padding: 1px 4px;
         display: block;
-        transition: background-color .2s;
+		transition: background-color .2s;
+		padding-left: 5px;
         &:hover {
             background: #333;
-            a.btnDelete {
-                display: block;
-            }
-        }
-        &>a i {
-            margin-right: 4px;
-        }
-        &>a:not(.btnDelete) {
-            display: block;
-        }
+		}
+		
+		&>div {
+			display: none;
+			float: right;
+
+			i.fa {
+				margin: 0 2px;
+			}
+		}
+		&>a {
+			display: block;
+		}
+
+		i.icon {
+			margin-right: 4px;
+		}
     }
-    &.used>div>a:not(.btnDelete) i.icon {
-        opacity: 1 !important;
+    &.used>div i.icon {
+		opacity: 1 !important;
     }
     &>ul {
-        padding-left: 5px;
+		padding-left: 5px;
     }
     &:not(.open)>ul {
         display: none;
@@ -191,33 +208,29 @@ fieldset button.link {
     &:not(.open)>div>a i.fa-folder-open-o,
     &.open>div>a i.fa-folder-o {
         display: none;
-    }
-    a.btnDelete {
-        display: none;
-        float: right;
-        i {
-            margin-right: 0;
-        }
-    }
+	}
+	
+	&.new-file {
+
+		> div {
+			display: flex;
+
+			input {
+				box-sizing: border-box;
+
+				flex-grow: 1;
+				min-width: 0;
+				padding: 2px;
+				margin: -2px 0 -2px -2px;		
+			}
+		}
+	}
 }
 
 #fileContainer {
     overflow-x: hidden;
     overflow-y: auto;
 }
-
-
-/*
-#fileContainer > a.used:afteaaar {
-	content:'\2713';
-	display: inline-block;
-	vertical-align: middle;
-	font-size: 70%;
-	margin-top: 2px;
-	opacity: 0.75;
-	float: right;
-}
-*/
 
 footer {
     &>div>div {
@@ -243,6 +256,18 @@ input {
     border: 1px solid #888;
     border-radius: 3px;
     padding: 5px 7px;
+}
+
+.fa {
+	position: relative;
+}
+
+.fa .fa-overlay {
+	position: absolute;
+	font-size: 50%;
+	left: -.4em;
+	top: -.3em;
+	opacity: 1;
 }
 
 
@@ -272,7 +297,7 @@ body.theme-vs {
     &-dark select option {
         background: #E5EBF1;
     }
-    .sourceNode.selected>div>a {
+    .sourceNode.selected>div {
         background: #ADD6FF;
     }
     .panelHeader {
@@ -287,7 +312,17 @@ body.theme-vs {
     }
     .console-error {
         background: #FFEBEB;
-    }
+	}
+	
+	.fa .fa-overlay {
+		color: black;
+		text-shadow:
+			1px 0px 2px #ddd,
+			-1px 0px 2px #ddd,
+			0 1px 2px #ddd,
+			0 -1px 2px #ddd;
+	}
+
 }
 
 
@@ -319,7 +354,7 @@ body.theme-vs-dark {
     select option {
         background: #3A3D41;
     }
-    .sourceNode.selected>div>a {
+    .sourceNode.selected>div {
         background: #264F78;
     }
     .panelHeader {
@@ -334,7 +369,16 @@ body.theme-vs-dark {
     }
     .console-error {
         background: #140000;
-    }
+	}
+		
+	.fa .fa-overlay {
+		color: #ffc;
+		text-shadow:
+			1px 0px 2px #1e1e1e,
+			-1px 0px 2px #1e1e1e,
+			0 1px 2px #1e1e1e,
+			0 -1px 2px #1e1e1e;
+	}
 }
 
 
@@ -366,19 +410,30 @@ body.theme-hc-black {
         background: black;
         color: white;
     }
-    .sourceNode.selected>div>a {
+    .sourceNode.selected>div {
         background: white;
         color: black;
     }
     .panelHeader {
         background: #111;
         border-bottom: 1px solid #111;
-    }
+	}
+	
+		
+	.fa .fa-overlay {
+		color: yellow;
+		text-shadow:
+			1px 0px 2px black,
+			-1px 0px 2px black,
+			0 1px 2px black,
+			0 -1px 2px black;
+	}	
 }
 
 body:not(.preview-docked) .preview-docked-show,
 body:not(.console-visible) .console-visible-show,
 body.preview-paused #btnPause,
+body:not(.authenticated) .authenticated-show,
 body:not(.preview-paused) #btnRun {
     display: none;
 }

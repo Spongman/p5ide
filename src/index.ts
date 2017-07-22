@@ -1,5 +1,6 @@
 /// <reference types="monaco-editor"/>
 /// <reference path="loop-protect.d.ts"/>
+/// <reference path="auth.ts"/>
 
 
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
@@ -8,6 +9,8 @@ require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 var _editor: P5Editor;
 var _currentProject: Project;
 var _currentFile: SourceFile | null = null;
+
+var _auth = new Auth();
 
 class ExtraLibs {
 
@@ -152,12 +155,13 @@ var loadCompletePromise = Promise.all([
 	//promiseRequire(['loop-protect']),
 	document.ready().then(async () => {
 
-		var project:Project = defaultProject;
+		await _auth.initialize();
+
+		var project: Project = defaultProject;
 		try {
 			project = await GitHubProject.load(location.hash.substring(1));
 		}
-		catch (err)
-		{
+		catch (err) {
 			console.log(err);
 		}
 		loadProject(project);
@@ -237,6 +241,10 @@ loadCompletePromise.then(values => {
 	click("btnLoadProject", (event) => {
 		openDialog("#projectOpenDialog", event.target as HTMLElement);
 		//(document.querySelector("#openProjectDialgo") as HTMLElement).style.display = "block";
+	});
+
+	click("btnLogin", async () => {
+		await _auth.login();
 	});
 
 	const selectTheme = <HTMLSelectElement>document.getElementById("selectTheme");

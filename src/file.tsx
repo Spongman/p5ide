@@ -74,6 +74,7 @@ class SourceFolder extends SourceNode {
 	}
 
 	children: SourceNode[] = [];
+	childrenContainer: HTMLUListElement;
 
 	dispose(): void {
 		this.children.forEach(i => i.dispose());
@@ -110,22 +111,106 @@ class SourceFolder extends SourceNode {
 		this.element.classList.toggle("open");
 	}
 
+	private async onNewFile(event: Event) {
+
+		this.open = true;
+		var name = await this.newNode("file");
+		console.log(name);
+	}
+
+	private async onNewFolder(event: Event) {
+		this.open = true;
+		var name = await this.newNode("folder");
+		console.log(name);
+	}
+
+	private newNode(icon:string): Promise<string> {
+
+		return new Promise((resolve, reject) => {
+
+			function onInputBlur(event: Event) {
+				if (newNodeElement) {
+					newNodeElement.remove();
+					newNodeElement = null;
+					
+					if (reject)
+						reject("cancelled");
+				}
+			}
+
+			function onInputChange(event: Event) {
+				if (newNodeElement && isValid()) {
+					newNodeElement.remove();
+					resolve(input.value.trim());
+				}
+			}
+
+			function onInputInput(event: Event) {
+				input.style.borderColor = isValid() ? '' : 'red';
+			}
+
+			function isValid() {
+				var value = input.value.trim();
+				if (!/^[a-z0-9_.-]*$/.test(value))
+					return false;
+
+				return true;
+			}
+
+			var input:HTMLInputElement;
+			var newNodeElement = (
+				<li class="sourceNode new-file">
+					<div style="display: flex;">
+						<i class={'icon fa fa-'+icon+'-o'}>
+							<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
+						</i>
+						{input = (
+							<input type="text"
+								onBlur={onInputBlur.bind(this)}
+								onInput={onInputInput.bind(this)}
+								onChange={onInputChange.bind(this)}></input>
+						) as HTMLInputElement}
+					</div>
+				</li>
+			);
+
+			this.childrenContainer.insertBefore(newNodeElement, this.childrenContainer.firstChild);
+			input.focus();
+		});
+
+
+	}
+
 	render() {
 		return this.element = (
 			<li class="sourceNode">
-				<div>
-					<a href="#" class="btnDelete" onClick={this.onDelete.bind(this)}>
-						<i class="icon fa fa-trash-o"></i>
-					</a>
+				<div class="hover">
+					<div class="hover-show">
+						<a href="#" title="new file" onClick={this.onNewFile.bind(this)} >
+							<i class="fa fa-file-o" aria-hidden="true">
+								<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
+							</i>
+						</a>
+						<a href="#" title="new folder" onClick={this.onNewFolder.bind(this)} >
+							<i class="fa fa-folder-o" aria-hidden="true">
+								<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
+							</i>
+						</a>
+						<a href="#" title={"delete " + this.name} onClick={this.onDelete.bind(this)} >
+							<i class="fa fa-trash-o"></i>
+						</a>
+					</div>
 					<a href="#" onClick={this.onClick.bind(this)}>
 						<i class="icon fa fa-folder-o"></i>
 						<i class="icon fa fa-folder-open-o"></i>
 						<span>{this.name}</span>
 					</a>
 				</div>
-				<ul>
-					{this.children}
-				</ul>
+				{this.childrenContainer = (
+					<ul>
+						{this.children}
+					</ul>
+				) as HTMLUListElement}
 			</li>
 		);
 	}
@@ -144,6 +229,7 @@ class SourceFolder extends SourceNode {
 			this.parent.open = true;
 	}
 }
+
 
 class SourceFile
 	extends SourceNode {
@@ -230,10 +316,12 @@ class SourceFile
 	render() {
 		return this.element = (
 			<li class="sourceNode">
-				<div>
-					<a href="#" class="btnDelete" onClick={this.onDelete.bind(this)}>
-						<i class="icon fa fa-trash-o"></i>
-					</a>
+				<div class="hover">
+					<div class="hover-show">
+						<a href="#" onClick={this.onDelete.bind(this)} title={"delete " + this.name}>
+							<i class="fa fa-trash-o"></i>
+						</a>
+					</div>
 					<a href="#" onClick={this.onClick.bind(this)}>
 						<i class={`icon fa fa-${this.icon}`}></i>
 						<span>{this.name}</span>

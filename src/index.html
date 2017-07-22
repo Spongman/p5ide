@@ -36,6 +36,16 @@
 			<div class="panelHeader">
 				<span>files</span>
 				<a href="#" id="btnLoadProject" title="load project"><i class="fa fa-eject" aria-hidden="true"></i></a>
+				<a href="#" id="btnNewFolder" title="new folder">
+					<i class="fa fa-folder-o" aria-hidden="true">
+						<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
+					</i>
+				</a>
+				<a href="#" id="btnNewFile" title="new file">
+					<i class="fa fa-file-o" aria-hidden="true">
+						<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
+					</i>
+				</a>
 			</div>
 			<ul id="fileContainer" class="flex-fill"></ul>
 		</div>
@@ -83,6 +93,10 @@
 			<div id="footerFilename" class="flex-fill"></div>
 			<div id="footerPosition"></div>
 			<div id="footerType"></div>
+			<div id="footerGithub">
+				<span id="userName" class="authenticated-show"></span>
+				<a href="#" id="btnLogin"><i class="fa fa-github"></i></a>
+			</div>
 			&nbsp;
 		</div>
 	</footer>
