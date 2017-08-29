@@ -1,3 +1,3 @@
 # p5ide
 
-Demo:  https://p5ide.codewithoutborders.com/#github.com/Codingrainbow/Rainbow-Code/tree/master/challenges/CC_46_Asteroids
+Demo:  https://p5ide.azurewebsites.net/#github.com/Codingrainbow/Rainbow-Code/tree/master/challenges/CC_46_Asteroids
