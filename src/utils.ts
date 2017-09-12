@@ -17,6 +17,7 @@ function promiseRequire(paths: string[]): Promise<any[]> {
 
 declare interface String {
 	trimStart(str?: string):string;
+	trimEnd(str?: string):string;
 }
 
 String.prototype.trimStart = function (str?:string)
@@ -28,6 +29,14 @@ String.prototype.trimStart = function (str?:string)
 	return this as string;
 };
 
+String.prototype.trimEnd = function (str?:string)
+{
+	if (typeof str === 'undefined')
+		return this.replace(/\s+$/, '');
+	if (this.endsWith(str))
+		return this.substr(0, this.length - str.length);
+	return this as string;
+};
 /*
 function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
 	return new Promise(function (resolve) {
@@ -120,4 +129,18 @@ interface SourceNodeEvent extends Event {
 
 function searchParams(params: Object) {
 	return Object.entries(params).reduce((a, [k, v]) => { return a.append(k, v), a; }, new URLSearchParams());
+}
+
+function parseUrl(url:string) {
+	var l = document.createElement("a") as HTMLAnchorElement;
+	l.href = url;
+	return {
+		protocol: l.protocol.trimEnd(":"),
+		hostname: l.hostname,
+		host: l.host,
+		port: l.port,
+		pathname: l.pathname.trimStart("/"),
+		hash: l.hash,
+		search: l.search,
+	};
 }

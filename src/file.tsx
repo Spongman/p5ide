@@ -131,8 +131,8 @@ class SourceFolder extends SourceNode {
 			function onInputBlur(event: Event) {
 				if (newNodeElement) {
 					newNodeElement.remove();
-					newNodeElement = null;
-					
+					newNodeElement = undefined;
+
 					if (reject)
 						reject("cancelled");
 				}
@@ -158,7 +158,7 @@ class SourceFolder extends SourceNode {
 			}
 
 			var input:HTMLInputElement;
-			var newNodeElement = (
+			var newNodeElement:HTMLElement|undefined = (
 				<li class="sourceNode new-file">
 					<div style="display: flex;">
 						<i class={'icon fa fa-'+icon+'-o'}>
@@ -177,8 +177,6 @@ class SourceFolder extends SourceNode {
 			this.childrenContainer.insertBefore(newNodeElement, this.childrenContainer.firstChild);
 			input.focus();
 		});
-
-
 	}
 
 	render() {
@@ -227,6 +225,11 @@ class SourceFolder extends SourceNode {
 		this.element.classList.toggle("open", value);
 		if (value && this.parent)
 			this.parent.open = true;
+	}
+
+	addChild(child: SourceNode) {
+		this.children.push(child);
+		this.element.appendChild(child.render());
 	}
 }
 
@@ -280,17 +283,20 @@ class SourceFile
 		return model;
 	}
 
-	async fetch(project: Project): Promise<string> {
+	async getValue(project: Project): Promise<string> {
 		if (this.model)
 			return this.model.getValue();
-
+		return await this.fetch(project);
+	}
+		
+	protected async fetch(project: Project): Promise<string> {
 		var response = await fetch("/assets/default/" + this.path);
 		var content = await response.text();
 		var model = this.createModel(content);
 		return model.getValue();
 	}
 
-	private createModel(content: string) {
+	protected createModel(content: string) {
 		if (!this.model)
 			this.model = monaco.editor.createModel(content, this.languageName, monaco.Uri.parse(this.path));
 		return this.model;
@@ -379,6 +385,20 @@ abstract class Project extends SourceFolder implements monaco.IDisposable {
 		return this.element = (
 			<div>{this.children} </div>
 		);
+	}
+
+	async loadFile(url: string): Promise<SourceFile | undefined> { return; }
+	
+	static async load(url: string): Promise<Project>
+	{
+		try
+		{
+			return await GitHubProject.load(url);
+		}
+		catch (error)
+		{
+			return await WebProject.load(url);
+		}		
 	}
 
 	workingDirectory: SourceFolder;

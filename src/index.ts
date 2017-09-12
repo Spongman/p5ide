@@ -154,26 +154,27 @@ var loadCompletePromise = Promise.all([
 	promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
 	document.ready().then(async () => {
-
 		await _auth.initialize();
-
-		var project: Project = defaultProject;
-		try {
-			project = await GitHubProject.load(location.hash.substring(1));
-		}
-		catch (err) {
-			console.log(err);
-		}
-		loadProject(project);
 	}),
 ]);
 
 
-loadCompletePromise.then(values => {
+loadCompletePromise.then(async values => {
 
 	loopProtect.alias = "__protect";
 
 	_editor = new P5Editor(values[0]);
+
+
+	var project: Project = defaultProject;
+	try {
+		project = await Project.load(location.hash.substring(1));
+	}
+	catch (err) {
+		alert(err);
+		console.log(err);
+	}
+	loadProject(project);
 
 	/*
 	var optionsDialog = new EditorOptions();
@@ -301,22 +302,21 @@ loadCompletePromise.then(values => {
 		});
 	});
 
-	document.querySelector("#projectOpenDialog")!.addEventListener("submit", event => {
+	document.querySelector("#projectOpenDialog")!.addEventListener("submit", async event => {
 		event.preventDefault();
 
 		var form = event.target as HTMLFormElement;
 		var urlElement = (document.activeElement.tagName === "BUTTON" ? document.activeElement : form.elements.namedItem("url")) as HTMLInputElement;
-		var url = urlElement.value;
 
-		GitHubProject.load(url)
-			.then(project => {
-				loadProject(project);
-				form.style.display = "none";
-			})
-			.catch(error => {
-				urlElement.setCustomValidity(error);
-				form.reportValidity();
-			});
+		try {
+			var project = await Project.load(urlElement.value);
+			loadProject(project);
+			form.style.display = "none";
+		}
+		catch (error) {
+			urlElement.setCustomValidity("invalid project URL");
+			form.reportValidity();
+		}
 	});
 });
 

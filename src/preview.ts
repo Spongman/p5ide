@@ -26,6 +26,7 @@ class P5Preview {
 		loadCompletePromise.then(() => {
 			this._currentHtml = file as SourceFile;
 			if (file) {
+				console.log("previewFile", file.path);
 				this._currentHtml.used = true;
 				this.loadPreview();
 				this._isLoading = true;
@@ -130,7 +131,11 @@ class P5Preview {
 			if (url.substring(0, originLength) === event.origin) {
 				url = url.substring(originLength);
 
-				const file = this._currentProject.workingDirectory.find(url);
+				console.log("load: " + url);
+				let file = this._currentProject.workingDirectory.find(url);
+				if (!file) {
+					file = await this._currentProject.loadFile(url);
+				}
 				if (file instanceof SourceFile) {
 
 					file.used = true;
@@ -159,13 +164,13 @@ class P5Preview {
 
 		sw.register('/sw.js', { scope: "/assets/v/" })
 			.then(() => {
-				//console.log('sw.ready');
+				console.log('sw.ready');
 				return sw.ready;
 			})
 			.then(reg => {
-				//console.log("registered", reg);
+				console.log("registered", reg);
 				setTimeout(async () => {
-					var html = await this._currentHtml.fetch(this._currentProject);
+					var html = await this._currentHtml.getValue(this._currentProject);
 					this.writePreview("<script>(opener||parent).preview.onDidLoadPreview(window);</script>" + html);
 				}, 1);
 			}).catch(err => {
