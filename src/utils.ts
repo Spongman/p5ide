@@ -124,7 +124,7 @@ class EventDelayer {
 }
 
 interface SourceNodeEvent extends Event {
-	sourceNode: SourceNode;
+	sourceNode: ProjectNode;
 }
 
 function searchParams(params: Object) {
@@ -143,4 +143,15 @@ function parseUrl(url:string) {
 		hash: l.hash,
 		search: l.search,
 	};
+}
+
+
+function blobToString(blob: Blob): Promise<string> {
+	return new Promise<string>((resolve, reject) => {
+		const reader = new FileReader();
+		reader.addEventListener('loadend', e => resolve(reader.result));
+		reader.addEventListener('error', reject);
+		reader.addEventListener('abort', reject);
+		reader.readAsText(blob);
+	});
 }

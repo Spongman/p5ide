@@ -1,6 +1,5 @@
 function windowResized() {
 	createCanvas(windowWidth, windowHeight);
-	background(0, 32, 0);
 }
 
 function setup() {
@@ -8,5 +7,6 @@ function setup() {
 }
 
 function draw() {
+	background(0, 32, 0);
 	ellipse(mouseX, mouseY, 40, 40);
 }

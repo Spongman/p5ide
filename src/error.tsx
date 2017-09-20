@@ -15,7 +15,7 @@ class PreviewError {
 		const fileText = `${filename}(${event.lineno},${event.colno})`;
 
 		var onClick = () => {
-			loadFile(_currentProject.find(filename) as SourceFile, { lineNumber: event.lineno, column: event.colno });
+			loadFile(_currentProject.find(filename) as ProjectFile, { lineNumber: event.lineno, column: event.colno });
 			return false;
 		};
 

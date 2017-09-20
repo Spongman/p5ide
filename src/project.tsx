@@ -21,17 +21,14 @@ class SourceLanguage {
 	}
 }
 
-abstract class SourceNode implements monaco.IDisposable {
+abstract class ProjectNode implements monaco.IDisposable {
 
-	constructor(public path: string, public icon: string) {
-		const ich = path.lastIndexOf('/');
-		this.dir = path.substr(0, ich);
-		this.name = path.substr(ich + 1);
+	constructor(public name: string, public icon: string) {
 	}
-	dir: string;
-	name: string;
-	parent?: SourceFolder;
+	parent: ProjectFolder;
 	element: HTMLElement;
+
+	abstract get path(): string;
 
 	get used(): boolean { return this.element.classList.contains("used"); }
 	set used(value: boolean) { this.setUsed(value); }
@@ -64,17 +61,20 @@ abstract class SourceNode implements monaco.IDisposable {
 			this.delete();
 		}
 	}
+
+	get project(): Project | undefined { return this.parent && this.parent.project; }
 }
 
-class SourceFolder extends SourceNode {
+class ProjectFolder extends ProjectNode {
 
-	constructor(public path: string) {
-		super(path, "folder-o");
-
+	constructor(name: string) {
+		super(name, "folder-o");
 	}
 
-	children: SourceNode[] = [];
+	children: ProjectNode[] = [];
 	childrenContainer: HTMLUListElement;
+
+	get path(): string { return this.parent.path + this.name + "/"; }
 
 	dispose(): void {
 		this.children.forEach(i => i.dispose());
@@ -86,7 +86,7 @@ class SourceFolder extends SourceNode {
 		this.children = [];
 	}
 
-	find(path: string): SourceNode | undefined {
+	find(path: string): ProjectNode | undefined {
 
 		if (!path)
 			return void 0;
@@ -98,7 +98,7 @@ class SourceFolder extends SourceNode {
 			ich = path.length;
 
 		var childName = path.substr(0, ich);
-		var child = (childName === "..") ? this.parent : this.children.find(i => i.name === childName) as SourceFolder;
+		var child = (childName === "..") ? this.parent : this.children.find(i => i.name === childName) as ProjectFolder;
 		if (!child)
 			return void 0;
 
@@ -124,7 +124,7 @@ class SourceFolder extends SourceNode {
 		console.log(name);
 	}
 
-	private newNode(icon:string): Promise<string> {
+	private newNode(icon: string): Promise<string> {
 
 		return new Promise((resolve, reject) => {
 
@@ -157,11 +157,11 @@ class SourceFolder extends SourceNode {
 				return true;
 			}
 
-			var input:HTMLInputElement;
-			var newNodeElement:HTMLElement|undefined = (
+			var input: HTMLInputElement;
+			var newNodeElement: HTMLElement | undefined = (
 				<li class="sourceNode new-file">
 					<div style="display: flex;">
-						<i class={'icon fa fa-'+icon+'-o'}>
+						<i class={'icon fa fa-' + icon + '-o'}>
 							<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
 						</i>
 						{input = (
@@ -227,19 +227,113 @@ class SourceFolder extends SourceNode {
 			this.parent.open = true;
 	}
 
-	addChild(child: SourceNode) {
+	addChild(child: ProjectNode) {
+		child.parent = this;
 		this.children.push(child);
-		this.element.appendChild(child.render());
+		if (this.childrenContainer)
+			this.childrenContainer.appendChild(child.render());
 	}
 }
 
 
-class SourceFile
-	extends SourceNode {
+abstract class Project extends ProjectFolder implements monaco.IDisposable {
 
-	constructor(public path: string) {
+	items: ProjectNode[] = [];
 
-		super(path, "file-text-o");
+	constructor(cwd: string = "") {
+		super("");
+
+		/*
+		const map: { [name: string]: ProjectNode } = {
+			"": this,
+		};
+		items.forEach(item => {
+			map[item.path] = item;
+		});
+	
+		items.forEach(item => {
+			var dir = item.parent.path;
+			let parent = map[dir] as ProjectFolder;
+			if (!parent) {
+				parent = map[dir] = new ProjectFolder(dir);
+				items.push(parent);
+			}
+		});
+	
+		items.forEach(item => {
+			var dir = item.parent.path;
+			let parent = map[dir] as ProjectFolder;
+			parent.children.push(item);
+			item.parent = parent;
+		});
+		*/
+
+		this.workingDirectory = this.find(cwd) as ProjectFolder || this;
+	}
+
+	render() {
+		return this.element = this.childrenContainer = (
+			<ul>{this.children}</ul>
+		) as HTMLUListElement;
+	}
+
+	get project() { return this; }
+	get path() { return "/"; }
+
+	async loadFile(url: string): Promise<ProjectFile | undefined> { return; }
+
+	static async load(url: string): Promise<Project> {
+		try {
+			return await GitHubProject.load(url);
+		}
+		catch (error) {
+			return await WebProject.load(url);
+		}
+	}
+
+	workingDirectory: ProjectFolder;
+
+	protected addParents(path: string) {
+
+		if (path.startsWith("/")) {
+			path = path.trimStart("/");
+		}
+		else if (path.startsWith("./")) {
+			path = this.workingDirectory.path + path.substr(1);
+		}
+		else if (!path.startsWith(this.path))
+			return;
+
+		var parent = this as ProjectFolder;
+		var parts = path.split('/');
+		var name = parts.pop();
+		if (!name)
+			return;
+
+		for (var part of parts) {
+			var childFolder = parent.find(part) as ProjectFolder;
+			if (!childFolder) {
+				childFolder = new ProjectFolder(part);
+				parent.addChild(childFolder);
+			}
+
+			parent = childFolder;
+		}
+
+		return {
+			name: name,
+			parent: parent,
+		}
+	}
+}
+
+
+class ProjectFile
+	extends ProjectNode {
+
+	constructor(name: string) {
+
+		super(name, "file-text-o");
 
 		const ich = this.name.lastIndexOf('.');
 		if (ich >= 0)
@@ -253,6 +347,8 @@ class SourceFile
 			this.icon = this.language.icon;
 
 	}
+
+	get path() { return this.parent.path + this.name; }
 
 	language?: SourceLanguage;
 	extension: string;
@@ -271,30 +367,54 @@ class SourceFile
 		return this._languageName;
 	}
 
+	protected async fetch(): Promise<Response> {
+		return await fetch("/assets/default/" + this.path);
+	}
+
 	model?: monaco.editor.IModel;
+	blob?: Blob;
 
-	async fetchModel(project: Project): Promise<monaco.editor.IModel> {
-
-		var model = this.model;
-		if (!model) {
-			var content = await this.fetch(_currentProject);
-			model = this.createModel(content);
-		}
-		return model;
-	}
-
-	async getValue(project: Project): Promise<string> {
+	async fetchBlob(): Promise<Blob> {
 		if (this.model)
-			return this.model.getValue();
-		return await this.fetch(project);
+			return new Blob([this.model.getValue()], { type: this.language && this.language.mimeType });
+
+		if (!this.blob) {
+			var response = await this.fetch();
+			this.blob = await response.blob();
+		}
+		return this.blob;
 	}
-		
-	protected async fetch(project: Project): Promise<string> {
+
+	async fetchModel(): Promise<monaco.editor.IModel> {
+
+		if (!this.model) {
+			var content: string;
+			if (this.blob) {
+				content = await blobToString(this.blob);
+				delete this.blob;
+			}
+			else {
+				var response = await this.fetch();
+				content = await response.text();
+			}
+			this.model = this.createModel(content);
+		}
+		return this.model;
+	}
+
+	async fetchValue(): Promise<string> {
+		var model = await this.fetchModel();
+		return model.getValue();
+	}
+
+	/*
+	protected async fetch(): Promise<string> {
 		var response = await fetch("/assets/default/" + this.path);
 		var content = await response.text();
 		var model = this.createModel(content);
 		return model.getValue();
 	}
+	*/
 
 	protected createModel(content: string) {
 		if (!this.model)
@@ -336,70 +456,4 @@ class SourceFile
 			</li>
 		);
 	}
-}
-
-class GitHubSourceFile extends SourceFile {
-
-	constructor(path: string, protected sha: string) {
-		super(path);
-	}
-
-	async fetch(project: GitHubProject): Promise<string> {
-
-		const response = await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.path}/${this.path}`);
-		return response.text();
-	}
-}
-
-
-abstract class Project extends SourceFolder implements monaco.IDisposable {
-
-	constructor(public items: SourceNode[], cwd: string = "") {
-		super("");
-
-		const map: { [name: string]: SourceNode } = {
-			"": this,
-		};
-		items.forEach(item => {
-			map[item.path] = item;
-		});
-
-		items.forEach(item => {
-			let parent = map[item.dir] as SourceFolder;
-			if (!parent) {
-				parent = map[item.dir] = new SourceFolder(item.dir);
-				items.push(parent);
-			}
-		});
-
-		items.forEach(item => {
-			let parent = map[item.dir] as SourceFolder;
-			parent.children.push(item);
-			item.parent = parent;
-		});
-
-		this.workingDirectory = this.find(cwd) as SourceFolder || this;
-	}
-
-	render() {
-		return this.element = (
-			<div>{this.children} </div>
-		);
-	}
-
-	async loadFile(url: string): Promise<SourceFile | undefined> { return; }
-	
-	static async load(url: string): Promise<Project>
-	{
-		try
-		{
-			return await GitHubProject.load(url);
-		}
-		catch (error)
-		{
-			return await WebProject.load(url);
-		}		
-	}
-
-	workingDirectory: SourceFolder;
 }

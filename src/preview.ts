@@ -8,7 +8,7 @@ class P5Preview {
 	private _isPaused = false;
 	private _isLoading = false;
 
-	private _previousScript: SourceFile | null;
+	private _previousScript: ProjectFile | null;
 
 	private _currentProject: Project;
 	get project() { return this._currentProject; }
@@ -17,14 +17,14 @@ class P5Preview {
 		preview.previewFile();
 	}
 
-	private _currentHtml: SourceFile;
+	private _currentHtml: ProjectFile;
 	get currentHtml() { return this._currentHtml; }
 
-	previewFile(file?: SourceFile) {
+	previewFile(file?: ProjectFile) {
 		ExtraLibs.dispose();
 
 		loadCompletePromise.then(() => {
-			this._currentHtml = file as SourceFile;
+			this._currentHtml = file as ProjectFile;
 			if (file) {
 				console.log("previewFile", file.path);
 				this._currentHtml.used = true;
@@ -136,27 +136,37 @@ class P5Preview {
 				if (!file) {
 					file = await this._currentProject.loadFile(url);
 				}
-				if (file instanceof SourceFile) {
+				if (file instanceof ProjectFile) {
 
 					file.used = true;
 					console.log("message: " + file.path);
-					var model = await file.fetchModel(this._currentProject);
-					var content = model.getValue();
+
 					var language = file.language;
+					
+					/*
+					var model = await file.fetchModel();
+					var content = model.getValue();
+					*/
 
 					switch (language) {
 						case SourceLanguage.Javascript:
 							if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0) {
 								if (this._isLoading)
 									this._previousScript = file;
+								
+								let content = await file.fetchValue();
+
 								if (file !== _currentFile)
 									ExtraLibs.add(file.name, content);
-								content = loopProtect(content);
+								blob = new Blob([loopProtect(content)], { type: language && language.mimeType });
 							}
 							break;
 					}
 
-					blob = new Blob([content], { type: language && language.mimeType });
+					if (!blob)
+						blob = await file.fetchBlob();	
+
+					//blob = new Blob([content], { type: language && language.mimeType });
 				}
 			}
 			event.ports[0].postMessage(blob);
@@ -170,7 +180,7 @@ class P5Preview {
 			.then(reg => {
 				console.log("registered", reg);
 				setTimeout(async () => {
-					var html = await this._currentHtml.getValue(this._currentProject);
+					var html = await this._currentHtml.fetchValue();
 					this.writePreview("<script>(opener||parent).preview.onDidLoadPreview(window);</script>" + html);
 				}, 1);
 			}).catch(err => {
@@ -206,7 +216,7 @@ class P5Preview {
 		});
 	}
 
-	updateFile(file: SourceFile) {
+	updateFile(file: ProjectFile) {
 
 		if (!this._window)
 			return;

@@ -8,7 +8,7 @@ require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
 var _editor: P5Editor;
 var _currentProject: Project;
-var _currentFile: SourceFile | null = null;
+var _currentFile: ProjectFile | null = null;
 
 var _auth = new Auth();
 
@@ -59,7 +59,7 @@ function loadProject(project: Project) {
 	var li = fileContainer.appendChild(project.render());
 
 	li.addEventListener("p5ide_openFile", (event: SourceNodeEvent) => {
-		loadFile(event.sourceNode as SourceFile);
+		loadFile(event.sourceNode as ProjectFile);
 	});
 
 	li.addEventListener("p5ide_deleteNode", event => {
@@ -70,11 +70,11 @@ function loadProject(project: Project) {
 
 	var defaultFile = workingDirectory.find("index.html");
 	if (defaultFile) {
-		preview.previewFile(defaultFile as SourceFile);
+		preview.previewFile(defaultFile as ProjectFile);
 	} else {
 		defaultFile = workingDirectory.find("README.md");
 		if (defaultFile) {
-			loadFile(defaultFile as SourceFile);
+			loadFile(defaultFile as ProjectFile);
 		}
 	}
 }
@@ -101,7 +101,7 @@ function closeFile() {
 	preview.currentHtml
 }
 
-async function loadFile(file: SourceFile, position?: monaco.IPosition) {
+async function loadFile(file: ProjectFile, position?: monaco.IPosition) {
 	if (!file)
 		return;
 
@@ -125,7 +125,7 @@ async function loadFile(file: SourceFile, position?: monaco.IPosition) {
 		_currentFile = file;
 		_currentFile.selected = true;
 
-		var model = await file.fetchModel(_currentProject);
+		var model = await file.fetchModel();
 		_editor.setModel(model);
 
 		ExtraLibs.remove(file.name);
@@ -166,13 +166,13 @@ loadCompletePromise.then(async values => {
 	_editor = new P5Editor(values[0]);
 
 
-	var project: Project = defaultProject;
+	var project: Project;
 	try {
 		project = await Project.load(location.hash.substring(1));
 	}
 	catch (err) {
-		alert(err);
 		console.log(err);
+		project = await WebProject.load("/assets/default/");
 	}
 	loadProject(project);
 
@@ -200,7 +200,7 @@ loadCompletePromise.then(async values => {
 			return;
 		}
 
-		var file = _currentProject.items.find((item: SourceFile) => item.model === model) as SourceFile;
+		var file = _currentProject.items.find((item: ProjectFile) => item.model === model) as ProjectFile;
 		if (file)
 			loadFile(file);
 		else {
