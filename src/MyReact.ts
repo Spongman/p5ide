@@ -46,7 +46,7 @@ namespace MyReact {
 	function appendChild(parent: Node, child: any) {
 		if (typeof child === "string")
 			parent.appendChild(document.createTextNode(child));
-		else if (typeof child['render'] === 'function')
+		else if (child && typeof child['render'] === 'function')
 			parent.appendChild(child.render());
 		else if (child instanceof Node)
 			parent.appendChild(child);
@@ -55,6 +55,6 @@ namespace MyReact {
 				appendChild(parent, grandChild);
 		}
 		else if (child !== null && child !== void 0 && typeof child !== 'boolean')
-			throw "Unsupported child";
+			throw "Unsupported child: " + child;
 	}
 }
