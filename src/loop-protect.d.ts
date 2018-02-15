@@ -1,7 +1,7 @@
 declare function loopProtect(content:string): string;
 declare namespace loopProtect
 {
-    export var alias: string;
+    export let alias: string;
     export function debug(enable:boolean): void;
     export function protect(line:number, reset?: boolean): any;
     export function reset(): void;

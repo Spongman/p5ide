@@ -6,7 +6,7 @@ class Auth {
 	authenticated: boolean = false;
 
 	async initialize() {
-		var token = window.localStorage.access_token;
+		const token = window.localStorage.access_token;
 		if (token) {
 			if (!await this.authenticate(token))
 				window.localStorage.access_token = null;
@@ -16,14 +16,14 @@ class Auth {
 	async login() {
 		if (this.authenticated)
 			return;
-		var token = window.localStorage.access_token = await this.fetchToken();
+		const token = window.localStorage.access_token = await this.fetchToken();
 		if (token)
 			await this.authenticate(token);
 	}
 
 	async authenticate(token: string) {
 
-		var userResponse = await fetch("https://api.github.com/user", {
+		const userResponse = await fetch("https://api.github.com/user", {
 			method: "GET",
 			headers: {
 				Authorization: "token " + token,
@@ -31,7 +31,7 @@ class Auth {
 			cache: "no-cache"
 		});
 
-		var userJson = await userResponse.json();
+		const userJson = await userResponse.json();
 		this.userName = userJson.login;
 		this.authenticated = !!this.userName;
 
@@ -53,7 +53,7 @@ class Auth {
 
 		return new Promise<string>((resolve, reject) => {
 
-			var params: { [name: string]: any } = {
+			const params: { [name: string]: any } = {
 				width: 450,
 				height: 600,
 				menubar: 0,
@@ -63,7 +63,7 @@ class Auth {
 				left: window.screenLeft + window.innerWidth - 450,
 				top: window.screenTop + window.innerHeight - 600,
 			};
-			var loginWindow = window.open("https://github.com/login/oauth/authorize?scope=public_repo&client_id=2cb7dbbede12e09b2112", "_login", Object.keys(params).map(k => k + '=' + params[k]).join(','))!;
+			const loginWindow = window.open("https://github.com/login/oauth/authorize?scope=public_repo&client_id=2cb7dbbede12e09b2112", "_login", Object.keys(params).map(k => k + '=' + params[k]).join(','))!;
 
 			window.addEventListener("message", onMessage);
 			const interval = setInterval(() => {
@@ -80,15 +80,15 @@ class Auth {
 			}
 
 			async function onMessage(event: MessageEvent) {
-				var data = event.data;
-				var code: string = data && data.code;
+				const data = event.data;
+				const code: string = data && data.code;
 				if (code) {
 
-					var loginResponse = await fetch("https://p5ide.codewithoutborders.com/login?code=" + code, {
+					const loginResponse = await fetch("https://p5ide.codewithoutborders.com/login?code=" + code, {
 						cache: "no-cache",
 					});
-					var loginJson = await loginResponse.text();
-					var access_token = new URLSearchParams(loginJson).get("access_token");
+					const loginJson = await loginResponse.text();
+					const access_token = new URLSearchParams(loginJson).get("access_token");
 					close();
 					if (access_token)
 						resolve(access_token);

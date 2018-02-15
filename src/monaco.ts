@@ -46,14 +46,14 @@ class SimpleEditorModelResolverService {
 		if (!this.editor)
 			throw new Error("not editor set yet");
 
-		var model: monaco.editor.IModel | null;
+		let model: monaco.editor.IModel | null;
 		if (this.editor.getEditorType() === monaco.editor.EditorType.ICodeEditor)
 			model = this.findModel(this.editor, resource);
 		else {
-			var diffEditor = <monaco.editor.ICommonDiffEditor>this.editor;
+			const diffEditor = <monaco.editor.ICommonDiffEditor>this.editor;
 			model = this.findModel(diffEditor.getOriginalEditor(), resource) || this.findModel(diffEditor.getModifiedEditor(), resource);
 		}
-		var simpleModel = model ? new SimpleModel(model) : null;
+		const simpleModel = model ? new SimpleModel(model) : null;
 		return monaco.Promise.as(new ImmortalReference(simpleModel));
 	}
 
@@ -75,7 +75,7 @@ class EditorService {
 	}
 
 	openEditor(options: any, sideBySide: boolean) {
-		var model = monaco.editor.getModel(options.resource.path);
+		const model = monaco.editor.getModel(options.resource.path);
 		if (!model)
 			return monaco.Promise.as(null);
 		if (!this._editor)
@@ -83,7 +83,7 @@ class EditorService {
 		this._editor.setModel(model);
 		if (options.options.selection) {
 			this._editor.setSelection(options.options.selection);
-			var top = this._editor.getTopForLineNumber(options.options.selection.startLineNumber);
+			const top = this._editor.getTopForLineNumber(options.options.selection.startLineNumber);
 			this._editor.setScrollTop(top - this._editor.getDomNode().clientHeight * 2 / 5);//.setScrollPosition(200);
 		}
 		this._editor.focus();
@@ -131,8 +131,8 @@ class P5Editor {
 			allowNonTsExtensions: true
 		});
 
-		var textModelResolverService = new SimpleEditorModelResolverService();
-		var editorService = new EditorService();
+		const textModelResolverService = new SimpleEditorModelResolverService();
+		const editorService = new EditorService();
 
 
 		const editorContainer = document.getElementById('editorContainer')!;
