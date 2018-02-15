@@ -1,7 +1,7 @@
 /// <reference types="monaco-editor"/>
 /// <reference path="loop-protect.d.ts"/>
 /// <reference path="auth.ts"/>
-
+/// <reference path="preview.ts"/>
 
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
@@ -9,6 +9,8 @@ require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 let _editor: P5Editor;
 let _currentProject: Project;
 let _currentFile: ProjectFile | null = null;
+
+var preview = new P5Preview();
 
 const _auth = new Auth();
 

@@ -1,5 +1,5 @@
 
-const _previewPage = "/assets/v/blank.html";
+const  _previewPage = "/assets/v/blank.html";
 
 class P5Preview {
 
@@ -14,7 +14,7 @@ class P5Preview {
 	get project() { return this._currentProject; }
 	set project(value: Project|null) {
 		this._currentProject = value;
-		preview.previewFile();
+		this.previewFile();
 	}
 
 	private _currentHtml: ProjectFile|null = null;
@@ -46,8 +46,8 @@ class P5Preview {
 		this._previousScript = null;
 		console.log("loadPreview");
 
-		const previewContainer = document.getElementById('previewContainer')!;
-		const consoleContainer = document.getElementById("consoleContainer")!;
+		const  previewContainer = document.getElementById('previewContainer')!;
+		const  consoleContainer = document.getElementById("consoleContainer")!;
 		consoleContainer.innerHTML = "";
 
 		if (docked === void 0)
@@ -56,7 +56,7 @@ class P5Preview {
 		//console.log("LOAD PREVIEW");
 		if (docked) {
 			this._window = null;
-			const previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
+			const  previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
 			if (previewFrame)
 				previewFrame.src = _previewPage;
 			else
@@ -64,9 +64,9 @@ class P5Preview {
 		}
 		else {
 
-			const rect = previewContainer.getBoundingClientRect();
+			const  rect = previewContainer.getBoundingClientRect();
 			if (this._isDocked) {
-				const pr = window.devicePixelRatio;
+				const  pr = window.devicePixelRatio;
 				this._window = window.open(_previewPage, "previewFrame",
 					"toolbar=0,status=0,menubar=0,location=0,replace=1" +
 					",width=" + Math.floor(pr * previewContainer.clientWidth) +
@@ -74,7 +74,7 @@ class P5Preview {
 					",left=" + (window.screenX + Math.floor(pr * rect.left)) +
 					",top=" + (window.screenY + Math.floor(pr * rect.top) + 26)
 				);
-				const interval = setInterval(() => {
+				const  interval = setInterval(() => {
 					if (!this._window || this._window.closed) {
 						clearInterval(interval);
 						this.loadPreview(true);
@@ -252,5 +252,3 @@ class P5Preview {
 		}
 	}
 }
-
-const preview = new P5Preview();
