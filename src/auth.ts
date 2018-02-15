@@ -3,7 +3,7 @@ class Auth {
 	}
 
 	userName?: string;
-	authenticated: boolean;
+	authenticated: boolean = false;
 
 	async initialize() {
 		var token = window.localStorage.access_token;
@@ -63,7 +63,7 @@ class Auth {
 				left: window.screenLeft + window.innerWidth - 450,
 				top: window.screenTop + window.innerHeight - 600,
 			};
-			var loginWindow = window.open("https://github.com/login/oauth/authorize?scope=public_repo&client_id=2cb7dbbede12e09b2112", "_login", Object.keys(params).map(k => k + '=' + params[k]).join(','));
+			var loginWindow = window.open("https://github.com/login/oauth/authorize?scope=public_repo&client_id=2cb7dbbede12e09b2112", "_login", Object.keys(params).map(k => k + '=' + params[k]).join(','))!;
 
 			window.addEventListener("message", onMessage);
 			const interval = setInterval(() => {

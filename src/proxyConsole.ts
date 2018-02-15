@@ -15,7 +15,7 @@ class ProxyConsole {
 	private addSimpleRow(className: string, args: IArguments) {
 		var row = document.createElement("div");
 		row.className = className;
-		row.textContent = Array.prototype.slice.call(args).map(a => a.toString()).join(" ");
+		row.textContent = Array.prototype.slice.call(args).map((a:any) => a.toString()).join(" ");
 		this.addRow(row);
 	}
 

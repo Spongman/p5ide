@@ -2,7 +2,7 @@ class PreviewError {
 	constructor(public event: ErrorEvent) {
 	}
 
-	private element: HTMLElement;
+	//private element: HTMLElement;
 
 	render() {
 
@@ -19,7 +19,7 @@ class PreviewError {
 			return false;
 		};
 
-		return this.element = (
+		return (
 			<div class="error">
 				{
 					event.error && event.error.stack &&

@@ -99,7 +99,7 @@ class EventDelayer {
 	constructor(private callback: () => void, private delay: number) {
 	}
 
-	private timeUpdate: number;
+	private timeUpdate: number = 0;
 
 	private startTimer(delay: number) {
 		setTimeout(() => {

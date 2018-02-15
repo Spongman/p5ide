@@ -35,13 +35,16 @@ class SimpleModel {
 
 class SimpleEditorModelResolverService {
 
-	private editor: monaco.editor.IEditor;
+	private editor: monaco.editor.IEditor | undefined;
 
 	public setEditor(editor: monaco.editor.IEditor): void {
 		this.editor = editor;
 	}
 
 	public createModelReference(resource: monaco.Uri): monaco.Promise<ImmortalReference<SimpleModel | null>> {
+
+		if (!this.editor)
+			throw new Error("not editor set yet");
 
 		var model: monaco.editor.IModel | null;
 		if (this.editor.getEditorType() === monaco.editor.EditorType.ICodeEditor)
@@ -65,7 +68,7 @@ class SimpleEditorModelResolverService {
 
 class EditorService {
 
-	private _editor: monaco.editor.IStandaloneCodeEditor;
+	private _editor: monaco.editor.IStandaloneCodeEditor | undefined;
 
 	setEditor(editor: monaco.editor.IStandaloneCodeEditor) {
 		this._editor = editor;
@@ -75,6 +78,8 @@ class EditorService {
 		var model = monaco.editor.getModel(options.resource.path);
 		if (!model)
 			return monaco.Promise.as(null);
+		if (!this._editor)
+			throw new Error("no editor set yet");
 		this._editor.setModel(model);
 		if (options.options.selection) {
 			this._editor.setSelection(options.options.selection);
@@ -90,7 +95,7 @@ class EditorService {
 	}
 }
 
-class IPreloadLibrary {
+declare interface IPreloadLibrary {
 	text: string;
 	url: string;
 }

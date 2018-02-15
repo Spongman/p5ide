@@ -3,21 +3,21 @@ const _previewPage = "/assets/v/blank.html";
 
 class P5Preview {
 
-	private _window: Window | null;
+	private _window: Window | null = null;
 	private _isDocked = true;
 	private _isPaused = false;
 	private _isLoading = false;
 
-	private _previousScript: ProjectFile | null;
+	private _previousScript: ProjectFile | null = null;
 
-	private _currentProject: Project;
+	private _currentProject: Project | null = null;
 	get project() { return this._currentProject; }
-	set project(value: Project) {
+	set project(value: Project|null) {
 		this._currentProject = value;
 		preview.previewFile();
 	}
 
-	private _currentHtml: ProjectFile;
+	private _currentHtml: ProjectFile|null = null;
 	get currentHtml() { return this._currentHtml; }
 
 	previewFile(file?: ProjectFile) {
@@ -121,7 +121,7 @@ class P5Preview {
 
 		sw.addEventListener('message', async event => {
 
-			if (!event.ports)
+			if (!event.ports || !this._currentProject)
 				return;
 
 			let url = event.data as string;
@@ -142,7 +142,7 @@ class P5Preview {
 					console.log("message: " + file.path);
 
 					var language = file.language;
-					
+
 					/*
 					var model = await file.fetchModel();
 					var content = model.getValue();
@@ -153,7 +153,7 @@ class P5Preview {
 							if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0) {
 								if (this._isLoading)
 									this._previousScript = file;
-								
+
 								let content = await file.fetchValue();
 
 								if (file !== _currentFile)
@@ -164,7 +164,7 @@ class P5Preview {
 					}
 
 					if (!blob)
-						blob = await file.fetchBlob();	
+						blob = await file.fetchBlob();
 
 					//blob = new Blob([content], { type: language && language.mimeType });
 				}
@@ -180,6 +180,8 @@ class P5Preview {
 			.then(reg => {
 				console.log("registered", reg);
 				setTimeout(async () => {
+					if (!this._currentHtml)
+						return;
 					var html = await this._currentHtml.fetchValue();
 					this.writePreview("<script>(opener||parent).preview.onDidLoadPreview(window);</script>" + html);
 				}, 1);
@@ -227,8 +229,8 @@ class P5Preview {
 
 				let found = false;
 				(<StyleSheet[]>[]).slice.call(this._window.document.styleSheets)
-					.filter(ss => ss.href === url)
-					.forEach(ss => {
+					.filter((ss:StyleSheet) => ss.href === url)
+					.forEach((ss:StyleSheet) => {
 						const linkNode = <HTMLLinkElement>ss.ownerNode;
 						linkNode.href = linkNode.href;
 						found = true;
