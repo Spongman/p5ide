@@ -1,10 +1,10 @@
 class EditorOptions {
 
-	element: HTMLElement;
+	//element: HTMLElement;
 
 	render(options:monaco.editor.IEditorConstructionOptions) {
 		console.log('foo');
-		this.element = (
+		let element = (
 			<form id="editorOptionsDialog" class="dialog">
 				<fieldset class="vertical">
 					<legend>brackets</legend>
@@ -72,7 +72,7 @@ class EditorOptions {
 			</form >
 		);
 
-		[].forEach.call(this.element.querySelectorAll("input,select"), (e: HTMLInputElement | HTMLSelectElement) => {
+		[].forEach.call(element.querySelectorAll("input,select"), (e: HTMLInputElement | HTMLSelectElement) => {
 			var optionsDict = options as { [a: string]: string };
 			e.value = optionsDict[e.name];
 
@@ -91,6 +91,6 @@ class EditorOptions {
 			});
 		});
 
-		return this.element;
+		return element;
 	}
 }

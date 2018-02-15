@@ -18,8 +18,10 @@ self.addEventListener('fetch', event => {
     var url = event.request.url;
 
     var origin = self.location.origin;
-    if (!url.startsWith(origin))
-        return;
+    if (!url.startsWith(origin)) {
+		console.log("REJECT: " + url);
+		return;
+	}
 
     //console.log("FETCH", url);
 

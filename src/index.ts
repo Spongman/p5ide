@@ -58,8 +58,9 @@ function loadProject(project: Project) {
 
 	var li = fileContainer.appendChild(project.render());
 
-	li.addEventListener("p5ide_openFile", (event: SourceNodeEvent) => {
-		loadFile(event.sourceNode as ProjectFile);
+	li.addEventListener("p5ide_openFile", event => {
+		let sourceEvent = event as SourceNodeEvent;
+		loadFile(sourceEvent.sourceNode as ProjectFile);
 	});
 
 	li.addEventListener("p5ide_deleteNode", event => {
@@ -101,7 +102,7 @@ function closeFile() {
 	preview.currentHtml
 }
 
-async function loadFile(file: ProjectFile, position?: monaco.IPosition) {
+async function loadFile(file: ProjectFile|null, position?: monaco.IPosition) {
 	if (!file)
 		return;
 
@@ -200,7 +201,7 @@ loadCompletePromise.then(async values => {
 			return;
 		}
 
-		var file = _currentProject.items.find((item: ProjectFile) => item.model === model) as ProjectFile;
+		var file = (_currentProject.items as ProjectFile[]).find(item => item.model === model);
 		if (file)
 			loadFile(file);
 		else {

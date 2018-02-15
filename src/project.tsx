@@ -25,28 +25,35 @@ abstract class ProjectNode implements monaco.IDisposable {
 
 	constructor(public name: string, public icon: string) {
 	}
-	parent: ProjectFolder;
-	element: HTMLElement;
+	parent: ProjectFolder|undefined;
+	element: HTMLElement|undefined;
 
 	abstract get path(): string;
 
-	get used(): boolean { return this.element.classList.contains("used"); }
+	get used(): boolean { return !!this.element && this.element.classList.contains("used"); }
 	set used(value: boolean) { this.setUsed(value); }
 
 	protected setUsed(value: boolean) {
 		if (value && this.parent)
 			this.parent.used = true;
-		this.element.classList.toggle("used", value);
+		if (this.element)
+			this.element.classList.toggle("used", value);
 	}
 
-	get selected(): boolean { return this.element.classList.contains("selected"); }
-	set selected(value: boolean) { this.element.classList.toggle("selected", value); }
+	get selected(): boolean {
+		return !!this.element && this.element.classList.contains("selected");
+	}
+	set selected(value: boolean) {
+		if (this.element)
+			this.element.classList.toggle("selected", value);
+	}
 
 	abstract render(): HTMLElement;
 	abstract dispose(): void;
 	delete() {
 		this.dispose();
-		this.element.remove();
+		if (this.element)
+			this.element.remove();
 	}
 
 	protected onDelete(event: Event) {
@@ -72,9 +79,12 @@ class ProjectFolder extends ProjectNode {
 	}
 
 	children: ProjectNode[] = [];
-	childrenContainer: HTMLUListElement;
+	childrenContainer: HTMLUListElement|undefined;
 
-	get path(): string { return this.parent.path + this.name + "/"; }
+	get path(): string {
+		let parentPath = this.parent ? this.parent.path : "/";
+		return parentPath + this.name + "/";
+	}
 
 	dispose(): void {
 		this.children.forEach(i => i.dispose());
@@ -108,7 +118,8 @@ class ProjectFolder extends ProjectNode {
 
 	private onClick(event: Event) {
 		event.preventDefault();
-		this.element.classList.toggle("open");
+		if (this.element)
+			this.element.classList.toggle("open");
 	}
 
 	private async onNewFile(event: Event) {
@@ -174,6 +185,9 @@ class ProjectFolder extends ProjectNode {
 				</li>
 			);
 
+			if (!this.childrenContainer)
+				throw new Error("no childrenContainer");
+
 			this.childrenContainer.insertBefore(newNodeElement, this.childrenContainer.firstChild);
 			input.focus();
 		});
@@ -220,9 +234,12 @@ class ProjectFolder extends ProjectNode {
 		}
 	}
 
-	get open(): boolean { return this.element.classList.contains("open"); }
+	get open(): boolean {
+		return !!this.element && this.element.classList.contains("open");
+	}
 	set open(value: boolean) {
-		this.element.classList.toggle("open", value);
+		if (this.element)
+			this.element.classList.toggle("open", value);
 		if (value && this.parent)
 			this.parent.open = true;
 	}
@@ -348,12 +365,15 @@ class ProjectFile
 
 	}
 
-	get path() { return this.parent.path + this.name; }
+	get path() {
+		let parentPath = this.parent ? this.parent.path : "/";
+		return parentPath + this.name;
+	}
 
 	language?: SourceLanguage;
 	extension: string;
 
-	private _languageName: string;
+	private _languageName: string|undefined;
 	get languageName() {
 		if (typeof this._languageName === 'undefined') {
 			if (this.language)
