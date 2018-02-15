@@ -6,11 +6,11 @@
 require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
 
 
-var _editor: P5Editor;
-var _currentProject: Project;
-var _currentFile: ProjectFile | null = null;
+let _editor: P5Editor;
+let _currentProject: Project;
+let _currentFile: ProjectFile | null = null;
 
-var _auth = new Auth();
+const _auth = new Auth();
 
 class ExtraLibs {
 
@@ -18,7 +18,7 @@ class ExtraLibs {
 
 	public static dispose() {
 		//console.log("DISPOSE LIBS", name);
-		for (var libName in this.mapExtraLibs)
+		for (const libName in this.mapExtraLibs)
 			this.mapExtraLibs[libName].dispose();
 		this.mapExtraLibs = {};
 	}
@@ -27,12 +27,12 @@ class ExtraLibs {
 		if (this.mapExtraLibs[name])
 			return;
 		console.log("ADD EXTRA LIB", name);
-		var disposable = monaco.languages.typescript.javascriptDefaults.addExtraLib(content, name);
+		const disposable = monaco.languages.typescript.javascriptDefaults.addExtraLib(content, name);
 		this.mapExtraLibs[name] = disposable;
 	}
 
 	public static remove(name: string) {
-		var lib = this.mapExtraLibs[name];
+		const lib = this.mapExtraLibs[name];
 		if (lib) {
 			lib.dispose();
 			delete this.mapExtraLibs[name];
@@ -56,10 +56,10 @@ function loadProject(project: Project) {
 	_currentProject = project;
 	preview.project = project;
 
-	var li = fileContainer.appendChild(project.render());
+	const li = fileContainer.appendChild(project.render());
 
 	li.addEventListener("p5ide_openFile", event => {
-		let sourceEvent = event as SourceNodeEvent;
+		const sourceEvent = event as SourceNodeEvent;
 		loadFile(sourceEvent.sourceNode as ProjectFile);
 	});
 
@@ -67,9 +67,9 @@ function loadProject(project: Project) {
 		console.log(event);
 	});
 
-	var workingDirectory = project.workingDirectory;
+	const workingDirectory = project.workingDirectory;
 
-	var defaultFile = workingDirectory.find("index.html");
+	let defaultFile = workingDirectory.find("index.html");
 	if (defaultFile) {
 		preview.previewFile(defaultFile as ProjectFile);
 	} else {
@@ -102,7 +102,7 @@ function closeFile() {
 	preview.currentHtml
 }
 
-async function loadFile(file: ProjectFile|null, position?: monaco.IPosition) {
+async function loadFile(file: ProjectFile | null, position?: monaco.IPosition) {
 	if (!file)
 		return;
 
@@ -126,7 +126,7 @@ async function loadFile(file: ProjectFile|null, position?: monaco.IPosition) {
 		_currentFile = file;
 		_currentFile.selected = true;
 
-		var model = await file.fetchModel();
+		const model = await file.fetchModel();
 		_editor.setModel(model);
 
 		ExtraLibs.remove(file.name);
@@ -144,13 +144,13 @@ async function loadFile(file: ProjectFile|null, position?: monaco.IPosition) {
 	}
 }
 
-var libs = [
+const libs = [
 	"assets/p5.d.ts",
 	"assets/p5.global-mode.d.ts",
 	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
 ];
 
-var loadCompletePromise = Promise.all([
+const loadCompletePromise = Promise.all([
 	Promise.all(libs.map(url => fetch(url).then(response => response.text()).then(text => { return { url: url, text: text }; }))),
 	promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
@@ -167,7 +167,7 @@ loadCompletePromise.then(async values => {
 	_editor = new P5Editor(values[0]);
 
 
-	var project: Project;
+	let project: Project;
 	try {
 		project = await Project.load(location.hash.substring(1));
 	}
@@ -178,8 +178,8 @@ loadCompletePromise.then(async values => {
 	loadProject(project);
 
 	/*
-	var optionsDialog = new EditorOptions();
-	var options = _editor.options;
+	const optionsDialog = new EditorOptions();
+	const options = _editor.options;
 	openDialog(document.body.appendChild(optionsDialog.render(options)));
 	*/
 
@@ -192,7 +192,7 @@ loadCompletePromise.then(async values => {
 	});
 
 	_editor.onDidChangeModel(event => {
-		var model = _editor.getModel();
+		const model = _editor.getModel();
 		if (_currentFile!.model === model)
 			return;
 
@@ -201,13 +201,13 @@ loadCompletePromise.then(async values => {
 			return;
 		}
 
-		var file = (_currentProject.items as ProjectFile[]).find(item => item.model === model);
+		const file = (_currentProject.items as ProjectFile[]).find(item => item.model === model);
 		if (file)
 			loadFile(file);
 		else {
 			closeFile();
 
-			var path = model.uri.toString();
+			const path = model.uri.toString();
 			// TODO: factor
 			document.getElementById("footerFilename")!.textContent = path;
 			document.getElementById("footerType")!.textContent = "";
@@ -216,7 +216,7 @@ loadCompletePromise.then(async values => {
 		}
 	});
 
-	var _delayer = new EventDelayer(() => {
+	const _delayer = new EventDelayer(() => {
 
 		if (_currentFile)
 			preview.loadPreview();
@@ -306,11 +306,11 @@ loadCompletePromise.then(async values => {
 	document.querySelector("#projectOpenDialog")!.addEventListener("submit", async event => {
 		event.preventDefault();
 
-		var form = event.target as HTMLFormElement;
-		var urlElement = (document.activeElement.tagName === "BUTTON" ? document.activeElement : form.elements.namedItem("url")) as HTMLInputElement;
+		const form = event.target as HTMLFormElement;
+		const urlElement = (document.activeElement.tagName === "BUTTON" ? document.activeElement : form.elements.namedItem("url")) as HTMLInputElement;
 
 		try {
-			var project = await Project.load(urlElement.value);
+			const project = await Project.load(urlElement.value);
 			loadProject(project);
 			form.style.display = "none";
 		}
@@ -336,7 +336,7 @@ function handlePreviewError(event: ErrorEvent) {
 	setConsoleVisibility();
 
 	const consoleContainer = document.getElementById("consoleContainer")!;
-	var control = new PreviewError(event);
+	const control = new PreviewError(event);
 	consoleContainer.appendChild(control.render());
 }
 
@@ -344,9 +344,9 @@ function handlePreviewError(event: ErrorEvent) {
 function openDialog(elt: string | HTMLElement, location?: HTMLElement) {
 	if (typeof elt === 'string')
 		elt = document.querySelector(elt) as HTMLElement;
-	var left = 100, top = 100;
+	let left = 100, top = 100;
 	if (location) {
-		var rect = location.getBoundingClientRect();
+		const rect = location.getBoundingClientRect();
 		left = rect.right;
 		top = rect.bottom;
 	}
@@ -354,7 +354,7 @@ function openDialog(elt: string | HTMLElement, location?: HTMLElement) {
 	elt.style.paddingTop = top + "px";
 	elt.style.display = "block";
 
-	var focus = elt.querySelector("input[autofocus]") as HTMLElement;
+	const focus = elt.querySelector("input[autofocus]") as HTMLElement;
 	if (focus)
 		focus.focus();
 }

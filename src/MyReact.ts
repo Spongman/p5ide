@@ -28,8 +28,8 @@ namespace MyReact {
 		const element = document.createElement(tagName);
 
 		if (attributes) {
-			for (let key of Object.keys(attributes)) {
-				var value = attributes[key];
+			for (const key of Object.keys(attributes)) {
+				const value = attributes[key];
 				if (key.startsWith("on") && typeof value === 'function')
 					element.addEventListener(key.substr(2).toLowerCase(), value);
 				else
@@ -37,7 +37,7 @@ namespace MyReact {
 			}
 		}
 
-		for (let child of children)
+		for (const child of children)
 			appendChild(element, child);
 
 		return element;
@@ -51,7 +51,7 @@ namespace MyReact {
 		else if (child instanceof Node)
 			parent.appendChild(child);
 		else if (child instanceof Array) {
-			for (var grandChild of child)
+			for (const grandChild of child)
 				appendChild(parent, grandChild);
 		}
 		else if (child !== null && child !== void 0 && typeof child !== 'boolean')

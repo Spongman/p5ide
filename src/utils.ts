@@ -77,11 +77,10 @@ async function cachedFetch(url: string): Promise<Response> {
 	}
 	else if (window.localStorage) {
 
-		let response: Response;
 		if (!window.localStorage.fetch)
 			window.localStorage.fetch = {};
 
-		response = JSON.parse(window.localStorage.fetch[url]);
+		let response: Response = JSON.parse(window.localStorage.fetch[url]);
 		if (!response) {
 			response = await fetch(url);
 			window.localStorage.fetch[url] = JSON.stringify(response);
@@ -132,7 +131,7 @@ function searchParams(params: Object) {
 }
 
 function parseUrl(url:string) {
-	var l = document.createElement("a") as HTMLAnchorElement;
+	const l = document.createElement("a") as HTMLAnchorElement;
 	l.href = url;
 	return {
 		protocol: l.protocol.trimEnd(":"),

@@ -141,11 +141,11 @@ class P5Preview {
 					file.used = true;
 					console.log("message: " + file.path);
 
-					var language = file.language;
+					const language = file.language;
 
 					/*
-					var model = await file.fetchModel();
-					var content = model.getValue();
+					const model = await file.fetchModel();
+					const content = model.getValue();
 					*/
 
 					switch (language) {
@@ -154,7 +154,7 @@ class P5Preview {
 								if (this._isLoading)
 									this._previousScript = file;
 
-								let content = await file.fetchValue();
+								const content = await file.fetchValue();
 
 								if (file !== _currentFile)
 									ExtraLibs.add(file.name, content);
@@ -182,7 +182,7 @@ class P5Preview {
 				setTimeout(async () => {
 					if (!this._currentHtml)
 						return;
-					var html = await this._currentHtml.fetchValue();
+					const html = await this._currentHtml.fetchValue();
 					this.writePreview("<script>(opener||parent).preview.onDidLoadPreview(window);</script>" + html);
 				}, 1);
 			}).catch(err => {
@@ -210,7 +210,7 @@ class P5Preview {
 		previewWindow.addEventListener('error', handlePreviewError);
 		const consoleContainer = document.getElementById("consoleContainer")!;
 		new ProxyConsole(previewWindow.console, row => {
-			var scroll = consoleContainer.scrollTop >= consoleContainer.scrollHeight - consoleContainer.clientHeight - 5;
+			const scroll = consoleContainer.scrollTop >= consoleContainer.scrollHeight - consoleContainer.clientHeight - 5;
 			consoleContainer.appendChild(row);
 			if (scroll)
 				consoleContainer.scrollTop = consoleContainer.scrollHeight - consoleContainer.clientHeight;
@@ -253,4 +253,4 @@ class P5Preview {
 	}
 }
 
-var preview = new P5Preview();
+const preview = new P5Preview();

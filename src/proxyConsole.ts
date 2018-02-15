@@ -1,10 +1,10 @@
 class ProxyConsole {
 
 	constructor(console: any, protected addRow: (elt: HTMLElement) => void) {
-		let _this: any = this;
-		for (let prop in ProxyConsole.prototype) {
-			let orig: Function = console[prop];
-			let override: Function = _this[prop];
+		const _this: any = this;
+		for (const prop in ProxyConsole.prototype) {
+			const orig: Function = console[prop];
+			const override: Function = _this[prop];
 			console[prop] = function () {
 				override.apply(_this, arguments);
 				orig.apply(this, arguments);
@@ -13,7 +13,7 @@ class ProxyConsole {
 	}
 
 	private addSimpleRow(className: string, args: IArguments) {
-		var row = document.createElement("div");
+		const row = document.createElement("div");
 		row.className = className;
 		row.textContent = Array.prototype.slice.call(args).map((a:any) => a.toString()).join(" ");
 		this.addRow(row);
