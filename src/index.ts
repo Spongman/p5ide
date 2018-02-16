@@ -3,7 +3,7 @@
 /// <reference path="auth.ts"/>
 /// <reference path="preview.ts"/>
 
-require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
+require.config({ paths: { 'vs': 'vs' } });
 
 
 let _editor: P5Editor;
