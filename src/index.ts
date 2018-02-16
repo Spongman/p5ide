@@ -247,6 +247,10 @@ loadCompletePromise.then(async values => {
 		//(document.querySelector("#openProjectDialgo") as HTMLElement).style.display = "block";
 	});
 
+	click("btnNewFile", event => _currentProject.onNewFile(event));
+	click("btnNewFolder", event => _currentProject.onNewFolder(event));
+
+
 	click("btnLogin", async () => {
 		await _auth.login();
 	});

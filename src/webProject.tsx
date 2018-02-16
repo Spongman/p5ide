@@ -10,7 +10,7 @@ class WebProject extends Project {
 		if (!url)
 			throw new Error("invalid Url");
 
-		var urlParts = parseUrl(url);
+		let urlParts = parseUrl(url);
 		if (urlParts.search)
 			throw new Error("querystrings not supported");
 
@@ -22,7 +22,7 @@ class WebProject extends Project {
 			});
 
 			if (branchResponse.type === "opaqueredirect") {
-				var urlParts2 = parseUrl(branchResponse.url);
+				let urlParts2 = parseUrl(branchResponse.url);
 				if (urlParts2.host !== urlParts.host)
 					throw new Error("insecure host change during redirect");
 
@@ -33,26 +33,26 @@ class WebProject extends Project {
 			break;
 		}
 
-		var blob = await branchResponse.blob();
+		let blob = await branchResponse.blob();
 
 		urlParts = parseUrl(branchResponse.url);
 
-		var path = urlParts.pathname;
+		let path = urlParts.pathname;
 		path.trimStart("/");
 
-		var project = new WebProject(`${urlParts.protocol}://${urlParts.host}/${path}`);
+		let project = new WebProject(`${urlParts.protocol}://${urlParts.host}/${path}`);
 
 		if (!path || path.endsWith("/")) {
 			path = path.trimEnd("/");
 
-			var item = new WebFile("index.html", blob);
+			let item = new WebFile("index.html", blob);
 			project.addChild(item);
 		}
 		else {
-			var parts = path.split('/');
-			var filename = parts.pop();
+			let parts = path.split('/');
+			let filename = parts.pop();
 			path = parts.join("/");
-			var item = new WebFile(filename!, blob);
+			let item = new WebFile(filename!, blob);
 			project.addChild(item);
 		}
 		return project;

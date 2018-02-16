@@ -170,14 +170,16 @@ fieldset button.link {
 	}
 }
 
+
 .sourceNode {
-    white-space: nowrap;
-    &>div {
-        display: block;
+	white-space: nowrap;
+	&>div {
+		display: block;
 		transition: background-color .2s;
 		padding-left: 5px;
-        &:hover {
-            background: #333;
+		
+		&:hover {
+			background: #333;
 		}
 		
 		&>div {
@@ -195,19 +197,39 @@ fieldset button.link {
 		i.icon {
 			margin-right: 4px;
 		}
-    }
-    &.used>div i.icon {
+	}
+	&.used>div i.icon {
 		opacity: 1 !important;
-    }
-    &>ul {
+	}
+	&>ul {
 		padding-left: 5px;
-    }
-    &:not(.open)>ul {
-        display: none;
-    }
-    &:not(.open)>div>a i.fa-folder-open-o,
-    &.open>div>a i.fa-folder-o {
-        display: none;
+	}
+	&:not(.open)>ul {
+		display: none;
+	}
+
+	&:not(.open)>div>a i.fa-folder-open-o,
+	&.open>div>a i.fa-folder-o {
+			display: none;
+	}
+
+	.inputWrapper {
+
+		position: relative;
+    padding-right: 33px;
+    padding-left: 0px;
+    display: inline-block;
+		width: 100%;
+		
+		input {
+			border: none;
+			margin: 0;
+			padding: 0;
+			cursor: default;
+			position: relative;
+			width: 100%;
+			background: none !important;
+		}			
 	}
 	
 	&.new-file {
@@ -227,35 +249,50 @@ fieldset button.link {
 	}
 }
 
+ul.shaded {
+	.hover-show {
+		display: none !important;
+	}
+
+	.sourceNode {
+		&>div {
+			background: none !important;
+		}
+		&:not(.unshaded)>div {
+			opacity: 0.25
+		}
+	}
+}
+
 #fileContainer {
     overflow-x: hidden;
     overflow-y: auto;
 }
 
 footer {
-    &>div>div {
-        padding: 0 10px;
-        &:first-child {
-            padding-left: 0;
-        }
-        &:last-child {
-            padding-right: 0;
-        }
-    }
+	&>div>div {
+		padding: 0 10px;
+		&:first-child {
+			padding-left: 0;
+		}
+		&:last-child {
+			padding-right: 0;
+		}
+	}
 }
 
 select {
-    background: inherit;
-    color: inherit;
-    option {
-        color: inherit;
-    }
+	background: inherit;
+	color: inherit;
+	option {
+		color: inherit;
+	}
 }
 
 input {
-    border: 1px solid #888;
-    border-radius: 3px;
-    padding: 5px 7px;
+	border: 1px solid #888;
+	border-radius: 3px;
+	padding: 5px 7px;
 }
 
 .fa {

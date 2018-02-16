@@ -2,7 +2,7 @@ class EditorOptions {
 
 	//element: HTMLElement;
 
-	render(options:monaco.editor.IEditorConstructionOptions) {
+	render(options: monaco.editor.IEditorConstructionOptions) {
 		console.log('foo');
 		let element = (
 			<form id="editorOptionsDialog" class="dialog">
@@ -73,18 +73,17 @@ class EditorOptions {
 		);
 
 		[].forEach.call(element.querySelectorAll("input,select"), (e: HTMLInputElement | HTMLSelectElement) => {
-			var optionsDict = options as { [a: string]: string };
+			let optionsDict = options as { [a: string]: string };
 			e.value = optionsDict[e.name];
 
 			e.addEventListener('change', () => {
-				switch (e.type)
-				{
+				switch (e.type) {
 					case "checkbox":
 						optionsDict[e.name] = (e as HTMLInputElement).checked ? "checked" : "";
 						break;
 					default:
 						optionsDict[e.name] = e.value;
-						break;	
+						break;
 				}
 
 				_editor.updateOptions(options);

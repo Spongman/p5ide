@@ -28,7 +28,7 @@ class GitHubProject extends Project {
 		const treeResponse = await cachedFetch(branchJson.commit.commit.tree.url + "?recursive=1");
 		const treeJson = await treeResponse.json() as { tree: [{ path: string, type: string, sha: string }] };
 
-		var project = new GitHubProject(user, repo, branch, "/" + (path || ""), sha);
+		let project = new GitHubProject(user, repo, branch, "/" + (path || ""), sha);
 
 		for (const item of treeJson.tree.filter(e => e.path.startsWith(path) && e.path.length > path.length && e.type === "blob")) {
 			project.addFile(item.path.substr(path.length), item.sha, item.type);
@@ -45,7 +45,7 @@ class GitHubProject extends Project {
 	}
 
 	addFile(path: string, sha: string, type: string) {
-		var info = this.addParents(path);
+		let info = this.addParents(path);
 		if (info) {
 			const child = new GitHubFile(info.name, sha);
 			info.parent.addChild(child);
@@ -63,7 +63,7 @@ class GitHubFile extends ProjectFile {
 
 	protected async fetch(): Promise<Response> {
 
-		var project = this.project as GitHubProject;
+		let project = this.project as GitHubProject;
 		return await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.root}${this.path}`);
 	}
 }
