@@ -6,15 +6,15 @@ class PreviewError {
 
 	render() {
 
-		var event = this.event;
-		var previewWindow = event.currentTarget as Window;
+		let event = this.event;
+		let previewWindow = event.currentTarget as Window;
 		const origin = previewWindow.location.origin;
 		const local = event.filename.startsWith(origin);
 		let filename = local ? event.filename.substr(origin.length) : event.filename;
 		filename = filename.trimStart('/');
 		const fileText = `${filename}(${event.lineno},${event.colno})`;
 
-		var onClick = () => {
+		let onClick = () => {
 			loadFile(_currentProject.find(filename) as ProjectFile, { lineNumber: event.lineno, column: event.colno });
 			return false;
 		};

@@ -25,8 +25,8 @@ abstract class ProjectNode implements monaco.IDisposable {
 
 	constructor(public name: string, public icon: string) {
 	}
-	parent: ProjectFolder|undefined;
-	element: HTMLElement|undefined;
+	parent: ProjectFolder | null = null;
+	element: HTMLElement | undefined;
 
 	abstract get path(): string;
 
@@ -49,6 +49,7 @@ abstract class ProjectNode implements monaco.IDisposable {
 	}
 
 	abstract render(): HTMLElement;
+
 	abstract dispose(): void;
 	delete() {
 		this.dispose();
@@ -56,10 +57,18 @@ abstract class ProjectNode implements monaco.IDisposable {
 			this.element.remove();
 	}
 
+	protected _allowClick = true;
+
+	protected onClick(event: Event) {
+		event.preventDefault();
+		if (this._allowClick)
+			this.activate();
+	}
+
 	protected onDelete(event: Event) {
 		event.preventDefault();
 
-		var deleteNodeEvent = new Event("p5ide_deleteNode", {
+		let deleteNodeEvent = new Event("p5ide_deleteNode", {
 			bubbles: true,
 			cancelable: true,
 		}) as SourceNodeEvent;
@@ -69,7 +78,67 @@ abstract class ProjectNode implements monaco.IDisposable {
 		}
 	}
 
-	get project(): Project | undefined { return this.parent && this.parent.project; }
+	get project(): Project | null { return this.parent && this.parent.project; }
+
+	abstract activate(): void;
+
+	async startRename(): Promise<boolean> {
+		if (!this.element || !this.project)
+			throw new Error("uninitialized");
+
+		var input = this.element.querySelector(".inputWrapper input") as HTMLInputElement;
+		if (!input)
+			throw new Error("input not found");
+
+		this._allowClick = false;
+		this.project.shaded = true;
+		input.focus();
+		input.readOnly = false;
+		input.select();
+		this.element!.classList.add('unshaded');
+
+		var $this = this;
+
+		var result = await new Promise<boolean>((resolve, reject) => {
+
+			function done(value: boolean) {
+				input.removeEventListener('blur', onBlur);
+				input.removeEventListener('input', onInput);
+				input.removeEventListener('change', onChange);
+				input.readOnly = true;
+				$this._allowClick = true;
+				$this.project!.shaded = false;
+				$this.element!.classList.remove('unshaded');
+				input.style.outlineColor = '';
+				resolve(value);
+			}
+
+			function onBlur(event: Event) {
+				//done(false);
+			}
+
+			function onChange(event: Event) {
+				if (isValid()) {
+					$this.name = input.value;
+					done(true);
+				}
+			}
+
+			function onInput(event: Event) {
+				input.style.outlineColor = isValid() ? '' : 'red';
+			}
+
+			function isValid() {
+				return /^[a-z0-9_.-]*$/.test(input.value);
+			}
+
+			input.addEventListener('blur', onBlur);
+			input.addEventListener('input', onInput);
+			input.addEventListener('change', onChange);
+		});
+
+		return result;
+	}
 }
 
 class ProjectFolder extends ProjectNode {
@@ -79,7 +148,7 @@ class ProjectFolder extends ProjectNode {
 	}
 
 	children: ProjectNode[] = [];
-	childrenContainer: HTMLUListElement|undefined;
+	childrenContainer: HTMLUListElement | undefined;
 
 	get path(): string {
 		let parentPath = this.parent ? this.parent.path : "/";
@@ -103,94 +172,44 @@ class ProjectFolder extends ProjectNode {
 
 		path = path.trimStart('/');
 
-		var ich = path.indexOf('/');
+		let ich = path.indexOf('/');
 		if (ich < 0)
 			ich = path.length;
 
-		var childName = path.substr(0, ich);
-		var child = (childName === "..") ? this.parent : this.children.find(i => i.name === childName) as ProjectFolder;
+		let childName = path.substr(0, ich);
+		let child = (childName === "..") ? this.parent : this.children.find(i => i.name === childName) as ProjectFolder;
 		if (!child)
 			return void 0;
 
-		var rest = path.substr(ich + 1);
+		let rest = path.substr(ich + 1);
 		return rest ? child.find(rest) : child;
 	}
 
-	private onClick(event: Event) {
-		event.preventDefault();
+	activate() {
 		if (this.element)
 			this.element.classList.toggle("open");
 	}
 
-	private async onNewFile(event: Event) {
-
+	async onNewFile(event: Event) {
 		this.open = true;
-		var name = await this.newNode("file");
-		console.log(name);
+		var newNode = new ProjectFile('');
+		this.addChild(newNode);
+		if (await newNode.startRename()) {
+			newNode.activate();
+		} else {
+			this.removeChild(newNode);
+		}
 	}
 
-	private async onNewFolder(event: Event) {
+	async onNewFolder(event: Event) {
 		this.open = true;
-		var name = await this.newNode("folder");
-		console.log(name);
-	}
-
-	private newNode(icon: string): Promise<string> {
-
-		return new Promise((resolve, reject) => {
-
-			function onInputBlur(event: Event) {
-				if (newNodeElement) {
-					newNodeElement.remove();
-					newNodeElement = undefined;
-
-					if (reject)
-						reject("cancelled");
-				}
-			}
-
-			function onInputChange(event: Event) {
-				if (newNodeElement && isValid()) {
-					newNodeElement.remove();
-					resolve(input.value.trim());
-				}
-			}
-
-			function onInputInput(event: Event) {
-				input.style.borderColor = isValid() ? '' : 'red';
-			}
-
-			function isValid() {
-				var value = input.value.trim();
-				if (!/^[a-z0-9_.-]*$/.test(value))
-					return false;
-
-				return true;
-			}
-
-			var input: HTMLInputElement;
-			var newNodeElement: HTMLElement | undefined = (
-				<li class="sourceNode new-file">
-					<div style="display: flex;">
-						<i class={'icon fa fa-' + icon + '-o'}>
-							<i class="fa fa-plus fa-overlay" aria-hidden="true"></i>
-						</i>
-						{input = (
-							<input type="text"
-								onBlur={onInputBlur.bind(this)}
-								onInput={onInputInput.bind(this)}
-								onChange={onInputChange.bind(this)}></input>
-						) as HTMLInputElement}
-					</div>
-				</li>
-			);
-
-			if (!this.childrenContainer)
-				throw new Error("no childrenContainer");
-
-			this.childrenContainer.insertBefore(newNodeElement, this.childrenContainer.firstChild);
-			input.focus();
-		});
+		var newNode = new ProjectFolder('');
+		this.addChild(newNode);
+		if (await newNode.startRename()) {
+			newNode.activate();
+		} else {
+			this.removeChild(newNode);
+		}
 	}
 
 	render() {
@@ -215,7 +234,9 @@ class ProjectFolder extends ProjectNode {
 					<a href="#" onClick={this.onClick.bind(this)}>
 						<i class="icon fa fa-folder-o"></i>
 						<i class="icon fa fa-folder-open-o"></i>
-						<span>{this.name}</span>
+						<div class="inputWrapper">
+							<input readonly="readonly" value={this.name}></input>
+						</div>
 					</a>
 				</div>
 				{this.childrenContainer = (
@@ -250,6 +271,15 @@ class ProjectFolder extends ProjectNode {
 		if (this.childrenContainer)
 			this.childrenContainer.appendChild(child.render());
 	}
+	removeChild(child: ProjectNode) {
+		var index = this.children.indexOf(child);
+		if (index < 0)
+			throw new Error("not a child of this node");
+		child.parent = null;
+		this.children.splice(index, 1);
+		if (this.childrenContainer && child.element)
+			this.childrenContainer.removeChild(child.element);
+	}
 }
 
 
@@ -269,7 +299,7 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 		});
 	
 		items.forEach(item => {
-			var dir = item.parent.path;
+			let dir = item.parent.path;
 			let parent = map[dir] as ProjectFolder;
 			if (!parent) {
 				parent = map[dir] = new ProjectFolder(dir);
@@ -278,7 +308,7 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 		});
 	
 		items.forEach(item => {
-			var dir = item.parent.path;
+			let dir = item.parent.path;
 			let parent = map[dir] as ProjectFolder;
 			parent.children.push(item);
 			item.parent = parent;
@@ -321,14 +351,14 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 		else if (!path.startsWith(this.path))
 			return;
 
-		var parent = this as ProjectFolder;
-		var parts = path.split('/');
-		var name = parts.pop();
+		let parent = this as ProjectFolder;
+		let parts = path.split('/');
+		let name = parts.pop();
 		if (!name)
 			return;
 
-		for (var part of parts) {
-			var childFolder = parent.find(part) as ProjectFolder;
+		for (let part of parts) {
+			let childFolder = parent.find(part) as ProjectFolder;
 			if (!childFolder) {
 				childFolder = new ProjectFolder(part);
 				parent.addChild(childFolder);
@@ -342,6 +372,12 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 			parent: parent,
 		}
 	}
+
+	get shaded(): boolean { return !!this.element && this.element.classList.contains("shaded"); }
+	set shaded(value: boolean) {
+		this.element!.classList.toggle("shaded", value);
+	}
+
 }
 
 
@@ -373,13 +409,13 @@ class ProjectFile
 	language?: SourceLanguage;
 	extension: string;
 
-	private _languageName: string|undefined;
+	private _languageName: string | undefined;
 	get languageName() {
 		if (typeof this._languageName === 'undefined') {
 			if (this.language)
 				this._languageName = this.language.name;
 			else {
-				var l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
+				let l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
 				if (l)
 					this._languageName = l.id;
 			}
@@ -399,7 +435,7 @@ class ProjectFile
 			return new Blob([this.model.getValue()], { type: this.language && this.language.mimeType });
 
 		if (!this.blob) {
-			var response = await this.fetch();
+			let response = await this.fetch();
 			this.blob = await response.blob();
 		}
 		return this.blob;
@@ -408,13 +444,13 @@ class ProjectFile
 	async fetchModel(): Promise<monaco.editor.IModel> {
 
 		if (!this.model) {
-			var content: string;
+			let content: string;
 			if (this.blob) {
 				content = await blobToString(this.blob);
 				delete this.blob;
 			}
 			else {
-				var response = await this.fetch();
+				let response = await this.fetch();
 				content = await response.text();
 			}
 			this.model = this.createModel(content);
@@ -423,15 +459,15 @@ class ProjectFile
 	}
 
 	async fetchValue(): Promise<string> {
-		var model = await this.fetchModel();
+		let model = await this.fetchModel();
 		return model.getValue();
 	}
 
 	/*
 	protected async fetch(): Promise<string> {
-		var response = await fetch("/assets/default/" + this.path);
-		var content = await response.text();
-		var model = this.createModel(content);
+		let response = await fetch("/assets/default/" + this.path);
+		let content = await response.text();
+		let model = this.createModel(content);
 		return model.getValue();
 	}
 	*/
@@ -449,14 +485,12 @@ class ProjectFile
 		}
 	}
 
-	private onClick(event: Event) {
-		event.preventDefault();
-
-		var openFileEvent = new Event("p5ide_openFile", {
+	activate() {
+		let openFileEvent = new Event("p5ide_openFile", {
 			bubbles: true,
 		}) as SourceNodeEvent;
 		openFileEvent.sourceNode = this;
-		event.target.dispatchEvent(openFileEvent);
+		this.element!.dispatchEvent(openFileEvent);
 	}
 
 	render() {
@@ -470,7 +504,9 @@ class ProjectFile
 					</div>
 					<a href="#" onClick={this.onClick.bind(this)}>
 						<i class={`icon fa fa-${this.icon}`}></i>
-						<span>{this.name}</span>
+						<div class="inputWrapper">
+							<input readonly="readonly" value={this.name}></input>
+						</div>
 					</a>
 				</div>
 			</li>

@@ -16,12 +16,11 @@ function promiseRequire(paths: string[]): Promise<any[]> {
 }
 
 declare interface String {
-	trimStart(str?: string):string;
-	trimEnd(str?: string):string;
+	trimStart(str?: string): string;
+	trimEnd(str?: string): string;
 }
 
-String.prototype.trimStart = function (str?:string)
-{
+String.prototype.trimStart = function (str?: string) {
 	if (typeof str === 'undefined')
 		return this.replace(/^\s+/, '');
 	if (this.startsWith(str))
@@ -29,8 +28,7 @@ String.prototype.trimStart = function (str?:string)
 	return this as string;
 };
 
-String.prototype.trimEnd = function (str?:string)
-{
+String.prototype.trimEnd = function (str?: string) {
 	if (typeof str === 'undefined')
 		return this.replace(/\s+$/, '');
 	if (this.endsWith(str))
@@ -130,7 +128,7 @@ function searchParams(params: Object) {
 	return Object.entries(params).reduce((a, [k, v]) => { return a.append(k, v), a; }, new URLSearchParams());
 }
 
-function parseUrl(url:string) {
+function parseUrl(url: string) {
 	const l = document.createElement("a") as HTMLAnchorElement;
 	l.href = url;
 	return {

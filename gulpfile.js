@@ -122,8 +122,8 @@ gulp.task('clean', () =>
 		.pipe(clean())
 );
 
-gulp.on('err', function(e) {
-    console.log(e.err.stack);
+gulp.on('err', function (e) {
+	console.log(e.err.stack);
 });
 
 /*

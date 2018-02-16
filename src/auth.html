@@ -3,10 +3,10 @@
 
 <head>
 	<script>
-		var match = /code=([^&]*)/.exec(window.location.search.substring(1));
+		let match = /code=([^&]*)/.exec(window.location.search.substring(1));
 		if (match) {
-			var code = decodeURIComponent(match[1]);
-			(opener||parent).postMessage({code: code}, "*");
+			let code = decodeURIComponent(match[1]);
+			(opener || parent).postMessage({ code: code }, "*");
 		}
 	</script>
 </head>
