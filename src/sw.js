@@ -36,17 +36,18 @@ self.addEventListener('fetch', event => {
 
 				//console.log("ONMESSAGE", event);
 
-				if (event.data) {
-					if (event.data.error) {
-						reject(event.data.error);
-					} else {
-						let blob = event.data;
-						let response = new Response(blob);
-						response.type = blob.type;
-						response.headers["Content-Type"] = blob.type;
+				let data = event.data;
+				if (data) {
+					if (data.status) {
+						let response = new Response();
+						response.status = data.status;
+						response.statusText = data.statusText || "error";
+						resolve(response);
+					} else if (data.type) {
+						let response = new Response(data);
+						response.type = data.type;
+						response.headers["Content-Type"] = data.type;
 						response.headers["Cache-Control"] = "no-store";
-						//console.log(url, blob.type);
-						//console.log(response);
 						resolve(response);
 					}
 				} else {

@@ -33,6 +33,8 @@ abstract class ProjectNode implements monaco.IDisposable {
 	get used(): boolean { return !!this.element && this.element.classList.contains("used"); }
 	set used(value: boolean) { this.setUsed(value); }
 
+	clearUsed() { this.used = false }
+
 	protected setUsed(value: boolean) {
 		if (value && this.parent)
 			this.parent.used = true;
@@ -255,6 +257,12 @@ class ProjectFolder extends ProjectNode {
 		}
 	}
 
+	clearUsed() {
+		super.clearUsed();
+		for (var child of this.children)
+			child.clearUsed();
+	}
+
 	get open(): boolean {
 		return !!this.element && this.element.classList.contains("open");
 	}
@@ -329,6 +337,15 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 
 	async loadFile(url: string): Promise<ProjectFile | undefined> { return; }
 
+	find(path: string): ProjectNode | undefined {
+		if (this.workingDirectory &&
+			this.workingDirectory !== this &&
+			!path.startsWith("/")) {
+				return this.workingDirectory.find(path);
+			}
+		return super.find(path);
+	}
+
 	static async load(url: string): Promise<Project> {
 		try {
 			return await GitHubProject.load(url);
@@ -377,7 +394,6 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 	set shaded(value: boolean) {
 		this.element!.classList.toggle("shaded", value);
 	}
-
 }
 
 

@@ -64,6 +64,6 @@ class GitHubFile extends ProjectFile {
 	protected async fetch(): Promise<Response> {
 
 		let project = this.project as GitHubProject;
-		return await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.root}${this.path}`);
+		return await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.root}/${this.path}`);
 	}
 }

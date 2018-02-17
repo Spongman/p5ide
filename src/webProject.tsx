@@ -39,6 +39,7 @@ class WebProject extends Project {
 
 		let path = urlParts.pathname;
 		path.trimStart("/");
+		path.trimEnd("/");
 
 		let project = new WebProject(`${urlParts.protocol}://${urlParts.host}/${path}`);
 
@@ -64,16 +65,30 @@ class WebProject extends Project {
 		//if (url.startsWith(this.path))
 		//	return;
 
+		const response = await fetch(this.root + url);
+		if (!response.ok) 
+			throw response;
+		const blob = await response.blob();
+
+		const info = this.addParents(url);
+		if (!info)
+			return;
+
+		const child = new WebFile(info.name, blob);
+		info.parent.addChild(child);
+
+		/*
 		const info = this.addParents(url);
 		if (!info)
 			return;
 
 		const response = await fetch(this.root + info.parent.path + info.name);
 		const blob = await response.blob();
+		console.log(info.name, blob);
 
 		const child = new WebFile(info.name, blob);
 		info.parent.addChild(child);
-
+*/
 		return child;
 	}
 }
