@@ -46,6 +46,8 @@ namespace MyReact {
 	function appendChild(parent: Node, child: any) {
 		if (typeof child === "string")
 			parent.appendChild(document.createTextNode(child));
+		else if (child instanceof ProjectNode)
+			parent.appendChild(child.element);
 		else if (child && typeof child['render'] === 'function')
 			parent.appendChild(child.render());
 		else if (child instanceof Node)

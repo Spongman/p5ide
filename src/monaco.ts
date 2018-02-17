@@ -1,18 +1,16 @@
 
 
 class ImmortalReference<T> {
-	constructor(public object: T) { }
+	constructor(public readonly object: T) { }
 	dispose(): void { }
 }
 
 
 class SimpleModel {
 
-	private model: monaco.editor.IModel;
-	private _onDispose: monaco.Emitter<void>;
+	private readonly _onDispose: monaco.Emitter<void>;
 
-	constructor(model: monaco.editor.IModel) {
-		this.model = model;
+	constructor(private readonly model: monaco.editor.IModel) {
 		this._onDispose = new monaco.Emitter<void>();
 	}
 

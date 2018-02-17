@@ -58,7 +58,7 @@ function loadProject(project: Project) {
 	_currentProject = project;
 	preview.project = project;
 
-	const li = fileContainer.appendChild(project.render());
+	const li = fileContainer.appendChild(project.element);
 
 	li.addEventListener("p5ide_openFile", event => {
 		const sourceEvent = event as SourceNodeEvent;
@@ -115,7 +115,7 @@ async function loadFile(file: ProjectFile | null, position?: monaco.IPosition) {
 		if (file !== preview.currentHtml && file.language === SourceLanguage.Html) {
 
 			_currentProject.workingDirectory = file.parent!;
-			_currentProject.items.forEach(f => {
+			_currentProject.walk(f => {
 				if (f.parent)
 					f.parent.open = (f.parent === file.parent);
 				f.used = (f === file);
@@ -203,7 +203,7 @@ loadCompletePromise.then(async values => {
 			return;
 		}
 
-		const file = (_currentProject.items as ProjectFile[]).find(item => item.model === model);
+		const file = _currentProject.walk(item => (item as ProjectFile).model === model ? item : null);
 		if (file)
 			loadFile(file);
 		else {
