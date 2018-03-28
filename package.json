@@ -13,21 +13,19 @@
   "license": "ISC",
   "devDependencies": {
     "@types/requirejs": "^2.1.29",
-    "browserify": "^14.4.0",
+    "browser-sync": "^2.23.6",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
-    "gulp-connect": "^5.0.0",
     "gulp-less": "^3.3.2",
+    "gulp-noop": "^1.0.0",
     "gulp-typescript": "^3.2.0",
     "gulp-uglify": "^3.0.0",
     "gulp-uglifycss": "^1.0.8",
-    "gulp-util": "^3.0.8",
     "gulp-watch": "^4.3.11",
+    "minimist": "^1.2.0",
     "monaco-editor": "^0.9.0",
     "typescript": "^2.3.4",
-    "uglify-es": "^3.0.25",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "uglify-es": "^3.0.25"
   },
   "dependencies": {
     "document-ready-promise": "^3.0.1",

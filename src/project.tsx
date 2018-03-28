@@ -24,14 +24,17 @@ class SourceLanguage {
 abstract class ProjectNode implements monaco.IDisposable {
 
 	constructor(public name: string, public icon: string) {
+		this.element = this.renderElement();
 	}
 	parent: ProjectFolder | null = null;
-	element: HTMLElement | undefined;
+	readonly element: HTMLElement;
 
 	abstract get path(): string;
 
 	get used(): boolean { return !!this.element && this.element.classList.contains("used"); }
 	set used(value: boolean) { this.setUsed(value); }
+
+	clearUsed() { this.used = false }
 
 	protected setUsed(value: boolean) {
 		if (value && this.parent)
@@ -41,20 +44,27 @@ abstract class ProjectNode implements monaco.IDisposable {
 	}
 
 	get selected(): boolean {
-		return !!this.element && this.element.classList.contains("selected");
+		return this.element.classList.contains("selected");
 	}
 	set selected(value: boolean) {
-		if (this.element)
-			this.element.classList.toggle("selected", value);
+		this.element.classList.toggle("selected", value);
 	}
 
-	abstract render(): HTMLElement;
+	protected abstract renderElement(): HTMLElement;
 
 	abstract dispose(): void;
 	delete() {
 		this.dispose();
 		if (this.element)
 			this.element.remove();
+	}
+
+	protected _allowClick = true;
+
+	protected onClick(event: Event) {
+		event.preventDefault();
+		if (this._allowClick)
+			this.activate();
 	}
 
 	protected _allowClick = true;
@@ -83,7 +93,7 @@ abstract class ProjectNode implements monaco.IDisposable {
 	abstract activate(): void;
 
 	async startRename(): Promise<boolean> {
-		if (!this.element || !this.project)
+		if (!this.project)
 			throw new Error("uninitialized");
 
 		var input = this.element.querySelector(".inputWrapper input") as HTMLInputElement;
@@ -95,7 +105,7 @@ abstract class ProjectNode implements monaco.IDisposable {
 		input.focus();
 		input.readOnly = false;
 		input.select();
-		this.element!.classList.add('unshaded');
+		this.element.classList.add('unshaded');
 
 		var $this = this;
 
@@ -108,7 +118,7 @@ abstract class ProjectNode implements monaco.IDisposable {
 				input.readOnly = true;
 				$this._allowClick = true;
 				$this.project!.shaded = false;
-				$this.element!.classList.remove('unshaded');
+				$this.element.classList.remove('unshaded');
 				input.style.outlineColor = '';
 				resolve(value);
 			}
@@ -145,10 +155,20 @@ class ProjectFolder extends ProjectNode {
 
 	constructor(name: string) {
 		super(name, "folder-o");
+
+		var childContainer;
+		if (this.element.classList.contains("childContainer"))
+			childContainer = this.element;
+		else {
+			childContainer= this.element.querySelector(".childContainer") as HTMLElement;
+			if (!childContainer)
+				throw new Error("childContainer not found");
+		}
+		this.childContainer = childContainer;
 	}
 
-	children: ProjectNode[] = [];
-	childrenContainer: HTMLUListElement | undefined;
+	readonly children: ProjectNode[] = [];
+	protected childContainer: HTMLElement;
 
 	get path(): string {
 		let parentPath = this.parent ? this.parent.path : "/";
@@ -162,7 +182,20 @@ class ProjectFolder extends ProjectNode {
 	delete() {
 		this.children.forEach(i => i.delete());
 		super.delete();
-		this.children = [];
+		this.children.length = 0;
+	}
+
+	walk(callback:(node:ProjectNode) => any):any {
+		for (var child of this.children) {
+			var result = callback(child);
+			if (result != null)
+				return result;
+			if (child instanceof ProjectFolder) {
+				result = child.walk(callback);
+				if (result != null)
+					return result;
+			}
+		}
 	}
 
 	find(path: string): ProjectNode | undefined {
@@ -186,8 +219,7 @@ class ProjectFolder extends ProjectNode {
 	}
 
 	activate() {
-		if (this.element)
-			this.element.classList.toggle("open");
+		this.element.classList.toggle("open");
 	}
 
 	async onNewFile(event: Event) {
@@ -212,8 +244,8 @@ class ProjectFolder extends ProjectNode {
 		}
 	}
 
-	render() {
-		return this.element = (
+	renderElement() {
+		return (
 			<li class="sourceNode">
 				<div class="hover">
 					<div class="hover-show">
@@ -239,11 +271,9 @@ class ProjectFolder extends ProjectNode {
 						</div>
 					</a>
 				</div>
-				{this.childrenContainer = (
-					<ul>
-						{this.children}
-					</ul>
-				) as HTMLUListElement}
+				<ul class="childContainer">
+					{this.children}
+				</ul>
 			</li>
 		);
 	}
@@ -255,8 +285,15 @@ class ProjectFolder extends ProjectNode {
 		}
 	}
 
+	clearUsed() {
+		super.clearUsed();
+		this.open = false;
+		for (var child of this.children)
+			child.clearUsed();
+	}
+
 	get open(): boolean {
-		return !!this.element && this.element.classList.contains("open");
+		return this.element.classList.contains("open");
 	}
 	set open(value: boolean) {
 		if (this.element)
@@ -268,8 +305,15 @@ class ProjectFolder extends ProjectNode {
 	addChild(child: ProjectNode) {
 		child.parent = this;
 		this.children.push(child);
-		if (this.childrenContainer)
-			this.childrenContainer.appendChild(child.render());
+		this.childContainer.appendChild(child.element);
+	}
+	removeChild(child: ProjectNode) {
+		var index = this.children.indexOf(child);
+		if (index < 0)
+			throw new Error("not a child of this node");
+		child.parent = null;
+		this.children.splice(index, 1);
+		this.childContainer.removeChild(child.element);
 	}
 	removeChild(child: ProjectNode) {
 		var index = this.children.indexOf(child);
@@ -285,49 +329,31 @@ class ProjectFolder extends ProjectNode {
 
 abstract class Project extends ProjectFolder implements monaco.IDisposable {
 
-	items: ProjectNode[] = [];
-
 	constructor(cwd: string = "") {
 		super("");
-
-		/*
-		const map: { [name: string]: ProjectNode } = {
-			"": this,
-		};
-		items.forEach(item => {
-			map[item.path] = item;
-		});
-	
-		items.forEach(item => {
-			let dir = item.parent.path;
-			let parent = map[dir] as ProjectFolder;
-			if (!parent) {
-				parent = map[dir] = new ProjectFolder(dir);
-				items.push(parent);
-			}
-		});
-	
-		items.forEach(item => {
-			let dir = item.parent.path;
-			let parent = map[dir] as ProjectFolder;
-			parent.children.push(item);
-			item.parent = parent;
-		});
-		*/
 
 		this.workingDirectory = this.find(cwd) as ProjectFolder || this;
 	}
 
-	render() {
-		return this.element = this.childrenContainer = (
-			<ul>{this.children}</ul>
-		) as HTMLUListElement;
+	renderElement() {
+		return (
+			<ul class="childContainer">{this.children}</ul>
+		);
 	}
 
 	get project() { return this; }
 	get path() { return "/"; }
 
 	async loadFile(url: string): Promise<ProjectFile | undefined> { return; }
+
+	find(path: string): ProjectNode | undefined {
+		if (this.workingDirectory &&
+			this.workingDirectory !== this &&
+			!path.startsWith("/")) {
+			return this.workingDirectory.find(path);
+		}
+		return super.find(path);
+	}
 
 	static async load(url: string): Promise<Project> {
 		try {
@@ -373,11 +399,10 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 		}
 	}
 
-	get shaded(): boolean { return !!this.element && this.element.classList.contains("shaded"); }
+	get shaded(): boolean { return this.element.classList.contains("shaded"); }
 	set shaded(value: boolean) {
-		this.element!.classList.toggle("shaded", value);
+		this.element.classList.toggle("shaded", value);
 	}
-
 }
 
 
@@ -398,7 +423,6 @@ class ProjectFile
 
 		if (this.language)
 			this.icon = this.language.icon;
-
 	}
 
 	get path() {
@@ -490,11 +514,11 @@ class ProjectFile
 			bubbles: true,
 		}) as SourceNodeEvent;
 		openFileEvent.sourceNode = this;
-		this.element!.dispatchEvent(openFileEvent);
+		this.element.dispatchEvent(openFileEvent);
 	}
 
-	render() {
-		return this.element = (
+	renderElement() {
+		return (
 			<li class="sourceNode">
 				<div class="hover">
 					<div class="hover-show">

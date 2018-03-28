@@ -5,7 +5,12 @@
 
 class GitHubProject extends Project {
 
-	constructor(public user: string, public repo: string, public branch: string, public root: string, public sha: string) {
+	constructor(
+		public readonly user: string,
+		public readonly repo: string,
+		public readonly branch: string,
+		public readonly root: string,
+		public readonly sha: string) {
 		super();
 	}
 
@@ -57,13 +62,13 @@ class GitHubProject extends Project {
 
 class GitHubFile extends ProjectFile {
 
-	constructor(name: string, protected sha: string) {
+	constructor(name: string, protected readonly sha: string) {
 		super(name);
 	}
 
 	protected async fetch(): Promise<Response> {
 
 		let project = this.project as GitHubProject;
-		return await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.root}${this.path}`);
+		return await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.root}/${this.path}`);
 	}
 }

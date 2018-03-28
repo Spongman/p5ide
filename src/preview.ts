@@ -26,6 +26,9 @@ class P5Preview {
 		loadCompletePromise.then(() => {
 			this._currentHtml = file as ProjectFile;
 			if (file) {
+				if (this._currentProject)
+					this._currentProject.clearUsed();
+					
 				console.log("previewFile", file.path);
 				this._currentHtml.used = true;
 				this.loadPreview();
@@ -35,7 +38,6 @@ class P5Preview {
 			} else {
 				this.writePreview();
 			}
-
 		});
 	}
 
@@ -97,7 +99,7 @@ class P5Preview {
 		}
 	}
 
-	frameLoaded(event: any) {
+	async frameLoaded(event: any) {
 
 		if (this._isDocked) {
 			const frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
@@ -119,75 +121,101 @@ class P5Preview {
 		});
 		*/
 
-		sw.addEventListener('message', async event => {
+		sw.addEventListener('message', this.handleRequest.bind(this));
 
-			if (!event.ports || !this._currentProject)
+		sw.register('/sw.js', { scope: "/assets/v/" });
+		console.log('sw.ready');
+
+		let reg = sw.ready;
+		console.log("registered", reg);
+
+		setTimeout(async () => {
+			var currentHtml = this._currentHtml;
+			if (!currentHtml)
 				return;
+			const html = await currentHtml.fetchValue();
+			var base = /*window.location.origin + */ currentHtml.parent!.path;
+			console.log('BASE', base);
+			this.writePreview(
+				"<base href='" + base + "'>"
+				+ "<script>(opener||parent).preview.onDidLoadPreview(window);</script>"
+				+ html);
+		}, 1);
 
-			let url = event.data as string;
-			//console.log("MESSAGE", url);
-			const originLength = event.origin.length;
-			let blob: Blob | null = null;
-			if (url.substring(0, originLength) === event.origin) {
-				url = url.substring(originLength);
+		//console.log('registration failed', err);
+	}
 
-				console.log("load: " + url);
-				let file = this._currentProject.workingDirectory.find(url);
-				if (!file) {
-					file = await this._currentProject.loadFile(url);
-				}
-				if (file instanceof ProjectFile) {
+	async handleRequest(event:ServiceWorkerMessageEvent) {
 
-					file.used = true;
-					console.log("message: " + file.path);
+		if (!event.ports || !this._currentProject)
+			return;
 
-					const language = file.language;
+		let blob: Blob | null = null;
 
-					/*
-					const model = await file.fetchModel();
-					const content = model.getValue();
-					*/
+		const originalUrl = event.data as string;
+		console.log("request: " + originalUrl);
+		const originLength = event.origin.length;
 
-					switch (language) {
-						case SourceLanguage.Javascript:
-							if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0) {
-								if (this._isLoading)
-									this._previousScript = file;
+		if (originalUrl.substring(0, originLength) === event.origin) {
+			let url = originalUrl.substring(originLength);
 
-								const content = await file.fetchValue();
+			let file = this._currentProject.find(url);
 
-								if (file !== _currentFile)
-									ExtraLibs.add(file.name, content);
-								blob = new Blob([loopProtect(content)], { type: language && language.mimeType });
-							}
-							break;
-					}
-
-					if (!blob)
-						blob = await file.fetchBlob();
-
-					//blob = new Blob([content], { type: language && language.mimeType });
+			if (file instanceof ProjectFolder) {
+				if (!url.endsWith("/")) {
+					return event.ports[0].postMessage({ redirect: originalUrl + "/" });
+				} else {
+					throw new Error("TODO: default document");
 				}
 			}
-			event.ports[0].postMessage(blob);
-		});
 
-		sw.register('/sw.js', { scope: "/assets/v/" })
-			.then(() => {
-				console.log('sw.ready');
-				return sw.ready;
-			})
-			.then(reg => {
-				console.log("registered", reg);
-				setTimeout(async () => {
-					if (!this._currentHtml)
-						return;
-					const html = await this._currentHtml.fetchValue();
-					this.writePreview("<script>(opener||parent).preview.onDidLoadPreview(window);</script>" + html);
-				}, 1);
-			}).catch(err => {
-				console.log('registration failed', err);
-			});
+			if (!file) {
+				try {
+					file = await this._currentProject.loadFile(url);
+				}
+				catch (err) {
+					if (err.status) {
+						return event.ports[0].postMessage({ statusText: err.statusText, status: err.status });
+					}
+				}
+				if (!file) {
+					return event.ports[0].postMessage({ statusText: "not found", status: 404 });
+				}
+			}
+
+			/*
+			let file = this._currentProject.workingDirectory.find(url);
+			if (!file) {
+				file = await this._currentProject.find(url);
+			}
+			if (!file) {
+			}
+			*/
+			if (file instanceof ProjectFile) {
+
+				file.used = true;
+
+				const language = file.language;
+				switch (language) {
+					case SourceLanguage.Javascript:
+						if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0) {
+							if (this._isLoading)
+								this._previousScript = file;
+
+							const content = await file.fetchValue();
+
+							if (file !== _currentFile)
+								ExtraLibs.add(file.name, content);
+							blob = new Blob([loopProtect(content)], { type: language && language.mimeType });
+						}
+						break;
+				}
+
+				if (!blob)
+					blob = await file.fetchBlob();
+			}
+		}
+		event.ports[0].postMessage(blob);
 	}
 
 
