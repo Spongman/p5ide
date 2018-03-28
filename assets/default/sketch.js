@@ -1,9 +1,9 @@
-function windowResized() {
+function setup() {
 	createCanvas(windowWidth, windowHeight);
 }
 
-function setup() {
-	windowResized();
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
