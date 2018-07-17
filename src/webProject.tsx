@@ -1,6 +1,7 @@
+import { Project, ProjectFile } from "./project";
+import { parseUrl } from "./utils";
 
-
-class WebProject extends Project {
+export class WebProject extends Project {
 
 	constructor(public root: string) {
 		super();

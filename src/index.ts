@@ -2,46 +2,36 @@
 /// <reference path="loop-protect.d.ts"/>
 /// <reference path="auth.ts"/>
 /// <reference path="preview.ts"/>
+/// <reference path="project.tsx"/>
+/// <reference path="utils.ts"/>
 
-require.config({ paths: { 'vs': 'vs' } });
+import { IDisposable, languages, editor, IPosition } from "monaco-editor";
+import { Project, ProjectFile, SourceLanguage } from "./project";
+import { P5Editor } from "./monaco";
+import { P5Preview } from "./preview";
+import { PreviewError } from "./error";
+import { click, EventDelayer, promiseRequire, SourceNodeEvent, ExtraLibs } from "./utils";
+import { WebProject } from "./webProject";
+import { GitHubProject } from "./githubProject";
 
 
-let _editor: P5Editor;
-let _currentProject: Project;
-let _currentFile: ProjectFile | null = null;
+declare let _currentProject: Project;
+declare let _currentFile: ProjectFile | null;
+declare let _editor: P5Editor;
 
 var preview = new P5Preview();
 
 const _auth = new Auth();
 
-class ExtraLibs {
 
-	private static mapExtraLibs: { [name: string]: monaco.IDisposable } = {};
-
-	public static dispose() {
-		//console.log("DISPOSE LIBS", name);
-		for (const libName in this.mapExtraLibs)
-			this.mapExtraLibs[libName].dispose();
-		this.mapExtraLibs = {};
+async function loadProjectFromUrl(url: string): Promise<Project> {
+	try {
+		return await GitHubProject.load(url);
 	}
-
-	public static add(name: string, content: string) {
-		if (this.mapExtraLibs[name])
-			return;
-		console.log("ADD EXTRA LIB", name);
-		const disposable = monaco.languages.typescript.javascriptDefaults.addExtraLib(content, name);
-		this.mapExtraLibs[name] = disposable;
-	}
-
-	public static remove(name: string) {
-		const lib = this.mapExtraLibs[name];
-		if (lib) {
-			lib.dispose();
-			delete this.mapExtraLibs[name];
-		}
+	catch (error) {
+		return await WebProject.load(url);
 	}
 }
-
 
 
 function loadProject(project: Project) {
@@ -104,7 +94,7 @@ function closeFile() {
 	preview.currentHtml
 }
 
-async function loadFile(file: ProjectFile | null, position?: monaco.IPosition) {
+async function loadFile(file: ProjectFile | null, position?: IPosition) {
 	if (!file)
 		return;
 
@@ -152,9 +142,15 @@ const libs = [
 	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
 ];
 
+declare global {
+	interface Document {
+		ready(): Promise<any>;
+	}
+}
+
 const loadCompletePromise = Promise.all([
 	Promise.all(libs.map(url => fetch(url).then(response => response.text()).then(text => { return { url: url, text: text }; }))),
-	promiseRequire(['vs/editor/editor.main']),
+	//promiseRequire(['vs/editor/editor.main']),
 	//promiseRequire(['loop-protect']),
 	document.ready().then(async () => {
 		await _auth.initialize();
@@ -171,11 +167,11 @@ loadCompletePromise.then(async values => {
 
 	let project: Project;
 	try {
-		project = await Project.load(location.hash.substring(1));
+		project = await loadProjectFromUrl(location.hash.substring(1));
 	}
 	catch (err) {
 		console.log(err);
-		project = await WebProject.load("/assets/default/");
+		project = await loadProjectFromUrl("/assets/default/");
 	}
 	loadProject(project);
 
@@ -260,7 +256,7 @@ loadCompletePromise.then(async values => {
 	setTheme(window.localStorage.theme || selectTheme.value);
 
 	function setTheme(theme: string) {
-		monaco.editor.setTheme(theme);
+		editor.setTheme(theme);
 		[].forEach.call(
 			document.querySelectorAll("#selectTheme > option"),
 			(opt: HTMLOptionElement) => { document.body.classList.remove("theme-" + opt.value); }
@@ -316,7 +312,7 @@ loadCompletePromise.then(async values => {
 		const urlElement = (document.activeElement.tagName === "BUTTON" ? document.activeElement : form.elements.namedItem("url")) as HTMLInputElement;
 
 		try {
-			const project = await Project.load(urlElement.value);
+			const project = await loadProjectFromUrl(urlElement.value);
 			loadProject(project);
 			form.style.display = "none";
 		}

@@ -1,3 +1,4 @@
+import { Emitter, editor, IEvent, Promise, Uri, IDisposable, languages, IPosition } from "monaco-editor";
 
 
 class ImmortalReference<T> {
@@ -8,21 +9,21 @@ class ImmortalReference<T> {
 
 class SimpleModel {
 
-	private readonly _onDispose: monaco.Emitter<void>;
+	private readonly _onDispose: Emitter<void>;
 
-	constructor(private readonly model: monaco.editor.IModel) {
-		this._onDispose = new monaco.Emitter<void>();
+	constructor(private readonly model: editor.IModel) {
+		this._onDispose = new Emitter<void>();
 	}
 
-	public get onDispose(): monaco.IEvent<void> {
+	public get onDispose(): IEvent<void> {
 		return this._onDispose.event;
 	}
 
-	public load(): monaco.Promise<SimpleModel> {
-		return monaco.Promise.as(this);
+	public load(): Promise<SimpleModel> {
+		return Promise.as(this);
 	}
 
-	public get textEditorModel(): monaco.editor.IModel {
+	public get textEditorModel(): editor.IModel {
 		return this.model;
 	}
 
@@ -33,49 +34,50 @@ class SimpleModel {
 
 class SimpleEditorModelResolverService {
 
-	private editor: monaco.editor.IEditor | undefined;
+	private editor: editor.IEditor | undefined;
 
-	public setEditor(editor: monaco.editor.IEditor): void {
+	public setEditor(editor: editor.IEditor): void {
 		this.editor = editor;
 	}
 
-	public createModelReference(resource: monaco.Uri): monaco.Promise<ImmortalReference<SimpleModel | null>> {
+	public createModelReference(resource: Uri): Promise<ImmortalReference<SimpleModel | null>> {
 
 		if (!this.editor)
 			throw new Error("not editor set yet");
 
-		let model: monaco.editor.IModel | null;
-		if (this.editor.getEditorType() === monaco.editor.EditorType.ICodeEditor)
+		let model: editor.IModel | null;
+		if (this.editor.getEditorType() === editor.EditorType.ICodeEditor)
 			model = this.findModel(this.editor, resource);
 		else {
-			const diffEditor = <monaco.editor.ICommonDiffEditor>this.editor;
+			const diffEditor = this.editor as editor.IDiffEditor;
 			model = this.findModel(diffEditor.getOriginalEditor(), resource) || this.findModel(diffEditor.getModifiedEditor(), resource);
 		}
 		const simpleModel = model ? new SimpleModel(model) : null;
-		return monaco.Promise.as(new ImmortalReference(simpleModel));
+		return Promise.as(new ImmortalReference(simpleModel));
 	}
 
-	public registerTextModelContentProvider(scheme: string, provider: any): monaco.IDisposable {
+	public registerTextModelContentProvider(scheme: string, provider: any): IDisposable {
 		return new ImmortalReference(null);
 	}
 
-	private findModel(editor: monaco.editor.IEditor, resource: monaco.Uri): monaco.editor.IModel | null {
-		return monaco.editor.getModel(resource);
+	private findModel(editor: editor.IEditor, resource: Uri): editor.IModel {
+		//return editor.getModel(resource);
+		return editor.getModel() as editor.IModel;
 	}
 }
 
 class EditorService {
 
-	private _editor: monaco.editor.IStandaloneCodeEditor | undefined;
+	private _editor: editor.IStandaloneCodeEditor | undefined;
 
-	setEditor(editor: monaco.editor.IStandaloneCodeEditor) {
+	setEditor(editor: editor.IStandaloneCodeEditor) {
 		this._editor = editor;
 	}
 
 	openEditor(options: any, sideBySide: boolean) {
-		const model = monaco.editor.getModel(options.resource.path);
+		const model = editor.getModel(options.resource.path);
 		if (!model)
-			return monaco.Promise.as(null);
+			return Promise.as(null);
 		if (!this._editor)
 			throw new Error("no editor set yet");
 		this._editor.setModel(model);
@@ -85,7 +87,7 @@ class EditorService {
 			this._editor.setScrollTop(top - this._editor.getDomNode().clientHeight * 2 / 5);//.setScrollPosition(200);
 		}
 		this._editor.focus();
-		return monaco.Promise.as(null);
+		return Promise.as(null);
 	};
 
 	resolveEditor() {
@@ -98,10 +100,10 @@ declare interface IPreloadLibrary {
 	url: string;
 }
 
-class P5Editor {
+export class P5Editor {
 
-	public _editor: monaco.editor.IStandaloneCodeEditor;
-	public options: monaco.editor.IEditorConstructionOptions = {
+	public _editor: editor.IStandaloneCodeEditor;
+	public options: editor.IEditorConstructionOptions = {
 		fixedOverflowWidgets: true,
 		fontFamily: 'Fira Code',
 		//fontLigatures: true,
@@ -117,15 +119,15 @@ class P5Editor {
 	constructor(libs: IPreloadLibrary[]) {
 
 		// validation settings
-		monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+		languages.typescript.javascriptDefaults.setDiagnosticsOptions({
 			noSemanticValidation: false,
 			noSyntaxValidation: false
 		});
 
 		// compiler options
-		monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+		languages.typescript.javascriptDefaults.setCompilerOptions({
 			noLib: true,
-			target: monaco.languages.typescript.ScriptTarget.ES2016,
+			target: languages.typescript.ScriptTarget.ES2016,
 			allowNonTsExtensions: true
 		});
 
@@ -134,7 +136,7 @@ class P5Editor {
 
 
 		const editorContainer = document.getElementById('editorContainer')!;
-		this._editor = monaco.editor.create(
+		this._editor = editor.create(
 			editorContainer, this.options, {
 				editorService: editorService,
 				textModelService: textModelResolverService,
@@ -146,10 +148,10 @@ class P5Editor {
 
 		libs.forEach((lib, i: number) => {
 			console.log("addExtraLib: " + lib.url);
-			monaco.languages.typescript.javascriptDefaults.addExtraLib(lib.text, lib.url);
+			languages.typescript.javascriptDefaults.addExtraLib(lib.text, lib.url);
 		});
 		libs.forEach((lib, i: number) => {
-			monaco.editor.createModel(lib.text, "typescript", monaco.Uri.parse(lib.url));
+			editor.createModel(lib.text, "typescript", Uri.parse(lib.url));
 		});
 
 	}
@@ -157,21 +159,21 @@ class P5Editor {
 	layout() { this._editor.layout(); }
 	getValue() { return this._editor.getValue(); }
 	getModel() { return this._editor.getModel(); }
-	setModel(model: monaco.editor.IModel) { this._editor.setModel(model); }
+	setModel(model: editor.IModel) { this._editor.setModel(model); }
 
-	setPosition(pos: monaco.IPosition) {
+	setPosition(pos: IPosition) {
 		this._editor.setPosition(pos);
 		this._editor.focus();
 	}
-	updateOptions(newOptions: monaco.editor.IEditorOptions) { this._editor.updateOptions(newOptions); }
+	updateOptions(newOptions: editor.IEditorOptions) { this._editor.updateOptions(newOptions); }
 
-	onDidChangeCursorPosition(listener: (e: monaco.editor.ICursorPositionChangedEvent) => void) {
+	onDidChangeCursorPosition(listener: (e: editor.ICursorPositionChangedEvent) => void) {
 		return this._editor.onDidChangeCursorPosition(listener);
 	}
-	onDidChangeModelContent(listener: (e: monaco.editor.IModelContentChangedEvent) => void) {
+	onDidChangeModelContent(listener: (e: editor.IModelContentChangedEvent) => void) {
 		return this._editor.onDidChangeModelContent(listener);
 	}
-	onDidChangeModel(listener: (e: monaco.editor.IModelChangedEvent) => void) {
+	onDidChangeModel(listener: (e: editor.IModelChangedEvent) => void) {
 		return this._editor.onDidChangeModel(listener);
 	}
 }

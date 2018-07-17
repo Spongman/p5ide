@@ -1,5 +1,7 @@
+import { IDisposable, languages, editor, Uri } from "monaco-editor";
+import { SourceNodeEvent, blobToString } from "./utils";
 
-class SourceLanguage {
+export class SourceLanguage {
 	constructor(public name: string, public extensions: string[], public icon: string = "file-o", public mimeType: string = "text/" + name) { }
 
 	static Javascript = new SourceLanguage("javascript", [".js"], "file-text-o");
@@ -21,7 +23,7 @@ class SourceLanguage {
 	}
 }
 
-abstract class ProjectNode implements monaco.IDisposable {
+export abstract class ProjectNode implements IDisposable {
 
 	constructor(public name: string, public icon: string) {
 		this.element = this.renderElement();
@@ -67,14 +69,6 @@ abstract class ProjectNode implements monaco.IDisposable {
 			this.activate();
 	}
 
-	protected _allowClick = true;
-
-	protected onClick(event: Event) {
-		event.preventDefault();
-		if (this._allowClick)
-			this.activate();
-	}
-
 	protected onDelete(event: Event) {
 		event.preventDefault();
 
@@ -83,7 +77,7 @@ abstract class ProjectNode implements monaco.IDisposable {
 			cancelable: true,
 		}) as SourceNodeEvent;
 		deleteNodeEvent.sourceNode = this;
-		if (event.target.dispatchEvent(deleteNodeEvent)) {
+		if (event.target && event.target.dispatchEvent(deleteNodeEvent)) {
 			this.delete();
 		}
 	}
@@ -151,7 +145,7 @@ abstract class ProjectNode implements monaco.IDisposable {
 	}
 }
 
-class ProjectFolder extends ProjectNode {
+export class ProjectFolder extends ProjectNode {
 
 	constructor(name: string) {
 		super(name, "folder-o");
@@ -313,21 +307,13 @@ class ProjectFolder extends ProjectNode {
 			throw new Error("not a child of this node");
 		child.parent = null;
 		this.children.splice(index, 1);
-		this.childContainer.removeChild(child.element);
-	}
-	removeChild(child: ProjectNode) {
-		var index = this.children.indexOf(child);
-		if (index < 0)
-			throw new Error("not a child of this node");
-		child.parent = null;
-		this.children.splice(index, 1);
-		if (this.childrenContainer && child.element)
-			this.childrenContainer.removeChild(child.element);
+		if (child.element)
+			this.childContainer.removeChild(child.element);
 	}
 }
 
 
-abstract class Project extends ProjectFolder implements monaco.IDisposable {
+export abstract class Project extends ProjectFolder implements IDisposable {
 
 	constructor(cwd: string = "") {
 		super("");
@@ -353,15 +339,6 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 			return this.workingDirectory.find(path);
 		}
 		return super.find(path);
-	}
-
-	static async load(url: string): Promise<Project> {
-		try {
-			return await GitHubProject.load(url);
-		}
-		catch (error) {
-			return await WebProject.load(url);
-		}
 	}
 
 	workingDirectory: ProjectFolder;
@@ -406,7 +383,7 @@ abstract class Project extends ProjectFolder implements monaco.IDisposable {
 }
 
 
-class ProjectFile
+export class ProjectFile
 	extends ProjectNode {
 
 	constructor(name: string) {
@@ -439,7 +416,7 @@ class ProjectFile
 			if (this.language)
 				this._languageName = this.language.name;
 			else {
-				let l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
+				let l = languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
 				if (l)
 					this._languageName = l.id;
 			}
@@ -451,7 +428,7 @@ class ProjectFile
 		return await fetch("/assets/default/" + this.path);
 	}
 
-	model?: monaco.editor.IModel;
+	model?: editor.IModel;
 	blob?: Blob;
 
 	async fetchBlob(): Promise<Blob> {
@@ -465,7 +442,7 @@ class ProjectFile
 		return this.blob;
 	}
 
-	async fetchModel(): Promise<monaco.editor.IModel> {
+	async fetchModel(): Promise<editor.IModel> {
 
 		if (!this.model) {
 			let content: string;
@@ -498,7 +475,7 @@ class ProjectFile
 
 	protected createModel(content: string) {
 		if (!this.model)
-			this.model = monaco.editor.createModel(content, this.languageName, monaco.Uri.parse(this.path));
+			this.model = editor.createModel(content, this.languageName, Uri.parse(this.path));
 		return this.model;
 	}
 

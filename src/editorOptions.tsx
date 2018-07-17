@@ -1,8 +1,9 @@
+import { editor } from "monaco-editor";
+
 class EditorOptions {
 
 	//element: HTMLElement;
-
-	render(options: monaco.editor.IEditorConstructionOptions) {
+	render(options: editor.IEditorConstructionOptions) {
 		console.log('foo');
 		let element = (
 			<form id="editorOptionsDialog" class="dialog">
@@ -86,7 +87,9 @@ class EditorOptions {
 						break;
 				}
 
+				/* TODO
 				_editor.updateOptions(options);
+				*/
 			});
 		});
 

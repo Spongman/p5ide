@@ -1,7 +1,16 @@
+import { Project, ProjectFile, ProjectFolder, SourceLanguage } from './project';
+import { IPosition } from 'monaco-editor';
+import { ExtraLibs } from './utils';
 
 const _previewPage = "/assets/v/blank.html";
 
-class P5Preview {
+declare function loadFile(file: ProjectFile | null, position?: IPosition): void;
+declare var loadCompletePromise: Promise<[{ url: string; text: string; }[], any[], void]>;
+declare var _currentFile: ProjectFile;
+declare function handlePreviewError(event: ErrorEvent):void;
+declare function setConsoleVisibility(show?: boolean): void;
+
+export class P5Preview {
 
 	private _window: Window | null = null;
 	private _isDocked = true;

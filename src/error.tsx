@@ -1,4 +1,12 @@
-class PreviewError {
+/// <reference path="utils.ts"/>
+
+import { ProjectFile, Project } from "./project";
+import { IPosition } from "monaco-editor";
+
+declare function loadFile(file: ProjectFile | null, position?: IPosition):void;
+declare let _currentProject: Project;
+
+export class PreviewError {
 	constructor(public event: ErrorEvent) {
 	}
 

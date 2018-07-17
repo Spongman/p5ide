@@ -1,9 +1,12 @@
 /// <reference path="project.tsx"/>
 
+import { Project, ProjectFile } from "./project";
+import { cachedFetch } from "./utils";
+
 
 //https://github.com/processing/p5.js-website/tree/master/src/data/examples
 
-class GitHubProject extends Project {
+export class GitHubProject extends Project {
 
 	constructor(
 		public readonly user: string,

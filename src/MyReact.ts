@@ -19,6 +19,10 @@ declare namespace JSX {
 	}
 }
 
+declare class ProjectNode { element: HTMLElement };
+
+//import { ProjectNode } from "./project";
+
 namespace MyReact {
 	interface AttributeCollection {
 		[name: string]: string;

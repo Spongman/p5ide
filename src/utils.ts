@@ -1,6 +1,9 @@
+import { IDisposable, languages } from "monaco-editor";
+
+//import { ProjectNode } from "./project";
 
 
-interface Document {
+export interface Document {
 	ready(): Promise<any>;
 }
 
@@ -9,7 +12,7 @@ interface Function {
 }
 
 
-function promiseRequire(paths: string[]): Promise<any[]> {
+export function promiseRequire(paths: string[]): Promise<any[]> {
 	return new Promise((resolve, reject) => {
 		require(paths, (...modules: any[]) => resolve(modules), (err: RequireError) => reject(err));
 	});
@@ -18,6 +21,13 @@ function promiseRequire(paths: string[]): Promise<any[]> {
 declare interface String {
 	trimStart(str?: string): string;
 	trimEnd(str?: string): string;
+}
+
+declare global {
+	interface String {
+		trimStart(str?: string):string;
+		trimEnd(str?: string):string;
+	}
 }
 
 String.prototype.trimStart = function (str?: string) {
@@ -48,7 +58,7 @@ function promiseEvent(elt: HTMLElement, type: string): Promise<Event> {
 }
 */
 
-function click(element: HTMLElement | string, fn: (event: MouseEvent) => any) {
+export function click(element: HTMLElement | string, fn: (event: MouseEvent) => any) {
 	if (typeof element === 'string')
 		element = document.getElementById(element)!;
 	element.addEventListener("click", event => {
@@ -57,7 +67,7 @@ function click(element: HTMLElement | string, fn: (event: MouseEvent) => any) {
 	});
 }
 
-async function cachedFetch(url: string): Promise<Response> {
+export async function cachedFetch(url: string): Promise<Response> {
 
 	if (window.caches) {
 		const cache = await window.caches.open("fetch");
@@ -91,7 +101,7 @@ async function cachedFetch(url: string): Promise<Response> {
 }
 
 
-class EventDelayer {
+export class EventDelayer {
 
 	constructor(private callback: () => void, private delay: number) {
 	}
@@ -120,15 +130,15 @@ class EventDelayer {
 	}
 }
 
-interface SourceNodeEvent extends Event {
+export interface SourceNodeEvent extends Event {
 	sourceNode: ProjectNode;
 }
 
-function searchParams(params: Object) {
+export function searchParams(params: Object) {
 	return Object.entries(params).reduce((a, [k, v]) => { return a.append(k, v), a; }, new URLSearchParams());
 }
 
-function parseUrl(url: string) {
+export function parseUrl(url: string) {
 	const l = document.createElement("a") as HTMLAnchorElement;
 	l.href = url;
 	return {
@@ -143,7 +153,7 @@ function parseUrl(url: string) {
 }
 
 
-function blobToString(blob: Blob): Promise<string> {
+export function blobToString(blob: Blob): Promise<string> {
 	return new Promise<string>((resolve, reject) => {
 		const reader = new FileReader();
 		reader.addEventListener('loadend', e => resolve(reader.result));
@@ -151,4 +161,34 @@ function blobToString(blob: Blob): Promise<string> {
 		reader.addEventListener('abort', reject);
 		reader.readAsText(blob);
 	});
+}
+
+
+
+export class ExtraLibs {
+
+	private static mapExtraLibs: { [name: string]: IDisposable } = {};
+
+	public static dispose() {
+		//console.log("DISPOSE LIBS", name);
+		for (const libName in this.mapExtraLibs)
+			this.mapExtraLibs[libName].dispose();
+		this.mapExtraLibs = {};
+	}
+
+	public static add(name: string, content: string) {
+		if (this.mapExtraLibs[name])
+			return;
+		console.log("ADD EXTRA LIB", name);
+		const disposable = languages.typescript.javascriptDefaults.addExtraLib(content, name);
+		this.mapExtraLibs[name] = disposable;
+	}
+
+	public static remove(name: string) {
+		const lib = this.mapExtraLibs[name];
+		if (lib) {
+			lib.dispose();
+			delete this.mapExtraLibs[name];
+		}
+	}
 }

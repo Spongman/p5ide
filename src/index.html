@@ -7,9 +7,26 @@
 	 crossorigin="anonymous">
 
 	<script type="text/javascript" src="loop-protect.js"></script>
+	<!--
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.js"></script>
+	-->
 	<script type="text/javascript" src="vs/loader.js"></script>
+	<script>
+		require.onError = function (err) {
+			console.log(err.requireType);
+			if (err.requireType === 'timeout') {
+				console.log('modules: ' + err.requireModules);
+			}
+
+			throw err;
+		};
+
+		require.config({ paths: { 'monaco-editor': 'vs/editor/editor.main', 'vs': 'vs' } });
+		let _currentProject;
+		let _currentFile = null;
+		let _editor;
+	</script>
 	<script type="text/javascript" src="document-ready-promise/document-ready-promise.js"></script>
-	<script type="text/javascript" src="index.js"></script>
 </head>
 
 <body class="flex-vertical preview-docked">
@@ -152,6 +169,14 @@
 		gtag('config', 'UA-106815406-1');
 	</script>
 
+	<!--
+	<script type="text/javascript" src="index.js"></script>
+	-->
+	<script>
+		require(["index"], function () {
+			console.log(arguments);
+		});
+	</script>
 </body>
 
 </html>
