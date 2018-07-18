@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+
+<head>
+	<script>
+		let match = /code=([^&]*)/.exec(window.location.search.substring(1));
+		if (match) {
+			let code = decodeURIComponent(match[1]);
+			(opener || parent).postMessage({ code: code }, "*");
+		}
+	</script>
+</head>
+
+<body>
+	Authenticating...
+</body>
+
+</html>
