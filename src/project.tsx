@@ -407,7 +407,7 @@ export class ProjectFile
 	}
 
 	protected async fetch(): Promise<Response> {
-		return await fetch("/assets/default/" + this.path);
+		return await fetch("assets/default/" + this.path);
 	}
 
 	model?: monaco.editor.IModel;

@@ -1,13 +1,15 @@
+const verbose = true;
+
 self.addEventListener('install', function (event) {
-	//console.log('install');
+	verbose && console.log('install');
 	event.waitUntil(self.skipWaiting());
-	//console.log('install complete');
+	verbose && console.log('install complete');
 });
 
 self.addEventListener('activate', function (event) {
-	//console.log('activate');
+	verbose && console.log('activate');
 	event.waitUntil(self.clients.claim());
-	//console.log('activate complete');
+	verbose && console.log('activate complete');
 });
 
 self.addEventListener('fetch', event => {
@@ -23,18 +25,18 @@ self.addEventListener('fetch', event => {
 		return;
 	}
 
-	//console.log("FETCH", url);
+	verbose && console.log("FETCH", url);
 
 	event.respondWith(new Promise((resolve, reject) => {
 
 		self.clients.get(event.clientId).then(client => {
 
-			//console.log("CLIENT", client);
+			verbose && console.log("CLIENT", client);
 
 			let messageChannel = new MessageChannel();
 			messageChannel.port1.onmessage = function (event) {
 
-				//console.log("ONMESSAGE", event);
+				verbose && console.log("ONMESSAGE", event);
 
 				let data = event.data;
 				if (data) {

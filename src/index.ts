@@ -173,7 +173,7 @@ export class Application implements IApplication {
 		}
 		catch (err) {
 			console.log(err);
-			project = await this.loadProjectFromUrl("/assets/default/");
+			project = await this.loadProjectFromUrl("assets/default/");
 		}
 		this.loadProject(project);
 

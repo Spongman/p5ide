@@ -6,7 +6,7 @@ import { PreviewError } from './error';
 import { P5Editor } from './monaco';
 import { ProjectFolder, ProjectFile } from './project';
 
-const _previewPage = "/assets/v/blank.html";
+const _previewPage = "assets/v/blank.html";
 
 export class P5Preview {
 
@@ -134,19 +134,22 @@ export class P5Preview {
 
 		sw.addEventListener('message', this.handleRequest.bind(this));
 
-		sw.register('/sw.js', { scope: "/assets/v/" });
+		var root = window.location.pathname.substr(0, window.location.pathname.length - 1);
+
+		await sw.register(root + '/sw.js', { scope: root + "/assets/v/" });
 		console.log('sw.ready');
 
 		let reg = sw.ready;
 		console.log("registered", reg);
 
+		var currentHtml = this._currentHtml;
+		if (!currentHtml)
+			return;
+		const html = await currentHtml.fetchValue();
+		var base = currentHtml.parent!.path;
+		console.log('BASE', base);
+
 		setTimeout(async () => {
-			var currentHtml = this._currentHtml;
-			if (!currentHtml)
-				return;
-			const html = await currentHtml.fetchValue();
-			var base = /*window.location.origin + */ currentHtml.parent!.path;
-			console.log('BASE', base);
 			this.writePreview(
 				"<base href='" + base + "'>"
 				+ "<script>(opener||parent).app.preview.onDidLoadPreview(window);</script>"
