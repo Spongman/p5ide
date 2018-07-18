@@ -175,7 +175,6 @@ export class Application implements IApplication {
 			console.log(err);
 			project = await this.loadProjectFromUrl("assets/default/");
 		}
-		this.loadProject(project);
 
 		/*
 		const optionsDialog = new EditorOptions();
@@ -215,21 +214,24 @@ export class Application implements IApplication {
 
 			}
 
-			const _delayer = new EventDelayer(() => {
-
-				if (this.currentFile)
-				this.preview.loadPreview();
-	
-			}, 1000);
-	
-			// TODO: fix race condition where file changes before delay triggers
-			// leaving stale changes uncommitted.
-			this.editor.onDidChangeModelContent(() => {
-				if (this.currentFile && this.currentFile.used && !this.preview.paused)
-					_delayer.trigger();
-			});
 	
 		});
+
+		
+		const _delayer = new EventDelayer(() => {
+			if (this.currentFile)
+				this.preview.loadPreview();
+		}, 1000);
+
+		// TODO: fix race condition where file changes before delay triggers
+		// leaving stale changes uncommitted.
+		this.editor.onDidChangeModelContent(() => {
+			if (this.currentFile && this.currentFile.used && !this.preview.paused)
+				_delayer.trigger();
+		});		
+
+		this.loadProject(project);
+
 
 		let pause = (paused: boolean) => {
 			document.body.classList.toggle("preview-paused", paused);
