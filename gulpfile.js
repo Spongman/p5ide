@@ -58,7 +58,7 @@ gulp.task('javascript', () =>
 gulp.task('node_modules', () => {
 
 	//gulp.src('node_modules/monaco-editor/min/vs/**/*').pipe(gulp.dest('dist/vs'));
-	gulp.src('node_modules/monaco-editor/dev/vs/**/*').pipe(gulp.dest('dist/vs'));
+	gulp.src(['!**/*.map', 'node_modules/monaco-editor/dev/vs/**/*']).pipe(gulp.dest('dist/vs'));
 	gulp.src('node_modules/document-ready-promise/**/*.js').pipe(gulp.dest('dist/document-ready-promise'));
 
 });
@@ -98,7 +98,7 @@ Watch typescript and less
 */
 gulp.task('watch', ['browser-sync'], function () {
 	gulp.watch('src/styles/*.less', ['less']);
-	gulp.watch(['src/**/*.ts', 'src/**/*.tsx'], ['typescript']);
+	gulp.watch(['src/**/*.ts', 'src/**/*.tsx', 'src/tsconfig.json'], ['typescript']);
 	gulp.watch('src/**/*.js', ['javascript']);
 	gulp.watch('src/**/*.html', ['html']);
 	gulp.watch('assets/**/*.*', ['assets']);

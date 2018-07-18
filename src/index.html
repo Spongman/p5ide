@@ -7,10 +7,13 @@
 	 crossorigin="anonymous">
 
 	<script type="text/javascript" src="loop-protect.js"></script>
+	<script src="vs/loader.js"></script>
+	<script src="vs/editor/editor.main.nls.js"></script>
+	<script src="vs/editor/editor.main.js"></script>
+	
 	<!--
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.js"></script>
 	-->
-	<script type="text/javascript" src="vs/loader.js"></script>
 	<script>
 		require.onError = function (err) {
 			console.log(err.requireType);
@@ -21,10 +24,7 @@
 			throw err;
 		};
 
-		require.config({ paths: { 'monaco-editor': 'vs/editor/editor.main', 'vs': 'vs' } });
-		let _currentProject;
-		let _currentFile = null;
-		let _editor;
+		require.config({ paths: { 'vs': 'vs' } });
 	</script>
 	<script type="text/javascript" src="document-ready-promise/document-ready-promise.js"></script>
 </head>
@@ -161,6 +161,7 @@
 		document.body.classList.add("theme-" + window.localStorage.theme);
 	</script>
 
+<!--
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106815406-1"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
@@ -168,13 +169,18 @@
 		gtag('js', new Date());
 		gtag('config', 'UA-106815406-1');
 	</script>
+	-->
 
 	<!--
 	<script type="text/javascript" src="index.js"></script>
 	-->
 	<script>
-		require(["index"], function () {
-			console.log(arguments);
+		var app;
+		var appendReactChild;
+		require(['vs/language/typescript/monaco.contribution', "index"], function (_, index) {
+			appendReactChild = index.Application.appendReactChild;
+			app = new index.Application();
+			app.start();
 		});
 	</script>
 </body>

@@ -1,29 +1,8 @@
-import { IDisposable, languages, editor, Uri } from "monaco-editor";
+import { SourceLanguage } from "./SourceLanguage";
+import { MyReact } from "./MyReact";
 import { SourceNodeEvent, blobToString } from "./utils";
 
-export class SourceLanguage {
-	constructor(public name: string, public extensions: string[], public icon: string = "file-o", public mimeType: string = "text/" + name) { }
-
-	static Javascript = new SourceLanguage("javascript", [".js"], "file-text-o");
-	static Typescript = new SourceLanguage("typescript", [".ts"], "file-text-o");
-	static Html = new SourceLanguage("html", [".html"], "file-code-o");
-	static Css = new SourceLanguage("css", [".css"], "file-text-o");
-
-	private static _languages = [
-		SourceLanguage.Javascript,
-		SourceLanguage.Typescript,
-		SourceLanguage.Html,
-		SourceLanguage.Css,
-	];
-
-	static fromExtension(extension: string): SourceLanguage | undefined {
-		if (extension.charAt(0) !== '.')
-			extension = '.' + extension;
-		return SourceLanguage._languages.find(l => l.extensions.indexOf(extension) >= 0);
-	}
-}
-
-export abstract class ProjectNode implements IDisposable {
+export abstract class ProjectNode implements monaco.IDisposable, IProjectNode {
 
 	constructor(public name: string, public icon: string) {
 		this.element = this.renderElement();
@@ -145,7 +124,7 @@ export abstract class ProjectNode implements IDisposable {
 	}
 }
 
-export class ProjectFolder extends ProjectNode {
+export class ProjectFolder extends ProjectNode implements IProjectFolder {
 
 	constructor(name: string) {
 		super(name, "folder-o");
@@ -313,7 +292,9 @@ export class ProjectFolder extends ProjectNode {
 }
 
 
-export abstract class Project extends ProjectFolder implements IDisposable {
+export abstract class Project
+	extends ProjectFolder
+	implements monaco.IDisposable, IProject {
 
 	constructor(cwd: string = "") {
 		super("");
@@ -384,7 +365,8 @@ export abstract class Project extends ProjectFolder implements IDisposable {
 
 
 export class ProjectFile
-	extends ProjectNode {
+	extends ProjectNode
+	implements IProjectFile {
 
 	constructor(name: string) {
 
@@ -416,7 +398,7 @@ export class ProjectFile
 			if (this.language)
 				this._languageName = this.language.name;
 			else {
-				let l = languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
+				let l = monaco.languages.getLanguages().find(l => l.extensions ? l.extensions.indexOf(this.extension) >= 0 : false);
 				if (l)
 					this._languageName = l.id;
 			}
@@ -428,7 +410,7 @@ export class ProjectFile
 		return await fetch("/assets/default/" + this.path);
 	}
 
-	model?: editor.IModel;
+	model?: monaco.editor.IModel;
 	blob?: Blob;
 
 	async fetchBlob(): Promise<Blob> {
@@ -442,7 +424,7 @@ export class ProjectFile
 		return this.blob;
 	}
 
-	async fetchModel(): Promise<editor.IModel> {
+	async fetchModel(): Promise<monaco.editor.IModel> {
 
 		if (!this.model) {
 			let content: string;
@@ -475,7 +457,7 @@ export class ProjectFile
 
 	protected createModel(content: string) {
 		if (!this.model)
-			this.model = editor.createModel(content, this.languageName, Uri.parse(this.path));
+			this.model = monaco.editor.createModel(content, this.languageName, monaco.Uri.parse(this.path));
 		return this.model;
 	}
 

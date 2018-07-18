@@ -1,9 +1,9 @@
-import { editor } from "monaco-editor";
+import { MyReact } from './MyReact';
 
 class EditorOptions {
 
 	//element: HTMLElement;
-	render(options: editor.IEditorConstructionOptions) {
+	render(options: monaco.editor.IEditorConstructionOptions) {
 		console.log('foo');
 		let element = (
 			<form id="editorOptionsDialog" class="dialog">

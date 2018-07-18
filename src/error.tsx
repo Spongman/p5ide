@@ -1,13 +1,9 @@
-/// <reference path="utils.ts"/>
-
-import { ProjectFile, Project } from "./project";
-import { IPosition } from "monaco-editor";
-
-declare function loadFile(file: ProjectFile | null, position?: IPosition):void;
-declare let _currentProject: Project;
+import { MyReact } from "./MyReact";
 
 export class PreviewError {
-	constructor(public event: ErrorEvent) {
+	project: IProject;
+	constructor(public app:IApplication, public event: ErrorEvent) {
+		this.project = app.currentProject;
 	}
 
 	//private element: HTMLElement;
@@ -23,7 +19,10 @@ export class PreviewError {
 		const fileText = `${filename}(${event.lineno},${event.colno})`;
 
 		let onClick = () => {
-			loadFile(_currentProject.find(filename) as ProjectFile, { lineNumber: event.lineno, column: event.colno });
+			this.app.loadFile(
+				this.project.find(filename) as IProjectFile,
+				{ lineNumber: event.lineno, column: event.colno }
+			);
 			return false;
 		};
 

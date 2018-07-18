@@ -1,4 +1,13 @@
 {
+	"files": [
+		"index.ts",
+		"../node_modules/monaco-editor/monaco.d.ts",
+		"MyReact.ts",
+		"interfaces.d.ts",
+		"loop-project.d.ts",
+		"*.d.ts",
+		"./SourceLanguage.tsx"
+	],
 	"compilerOptions": {
 		/* Basic Options */
 		"target": "ES5", /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
@@ -52,5 +61,7 @@
 		/* Experimental Options */
 		// "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
 		// "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
+
+
 	}
 }

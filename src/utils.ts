@@ -1,6 +1,4 @@
-import { IDisposable, languages } from "monaco-editor";
-
-//import { ProjectNode } from "./project";
+import { ProjectNode } from "./project";
 
 
 export interface Document {
@@ -167,7 +165,7 @@ export function blobToString(blob: Blob): Promise<string> {
 
 export class ExtraLibs {
 
-	private static mapExtraLibs: { [name: string]: IDisposable } = {};
+	private static mapExtraLibs: { [name: string]: monaco.IDisposable } = {};
 
 	public static dispose() {
 		//console.log("DISPOSE LIBS", name);
@@ -180,7 +178,7 @@ export class ExtraLibs {
 		if (this.mapExtraLibs[name])
 			return;
 		console.log("ADD EXTRA LIB", name);
-		const disposable = languages.typescript.javascriptDefaults.addExtraLib(content, name);
+		const disposable = monaco.languages.typescript.javascriptDefaults.addExtraLib(content, name);
 		this.mapExtraLibs[name] = disposable;
 	}
 

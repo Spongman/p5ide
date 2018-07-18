@@ -1,4 +1,4 @@
-class ProxyConsole {
+export class ProxyConsole {
 
 	constructor(console: any, protected addRow: (elt: HTMLElement) => void) {
 		const _this: any = this;

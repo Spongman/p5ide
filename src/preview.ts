@@ -1,60 +1,61 @@
-import { Project, ProjectFile, ProjectFolder, SourceLanguage } from './project';
-import { IPosition } from 'monaco-editor';
+///<reference path="loop-protect.d.ts"/>
 import { ExtraLibs } from './utils';
+import { ProxyConsole } from './proxyConsole';
+import { SourceLanguage } from "./SourceLanguage";
+import { PreviewError } from './error';
+import { P5Editor } from './monaco';
+import { ProjectFolder, ProjectFile } from './project';
 
 const _previewPage = "/assets/v/blank.html";
 
-declare function loadFile(file: ProjectFile | null, position?: IPosition): void;
-declare var loadCompletePromise: Promise<[{ url: string; text: string; }[], any[], void]>;
-declare var _currentFile: ProjectFile;
-declare function handlePreviewError(event: ErrorEvent):void;
-declare function setConsoleVisibility(show?: boolean): void;
-
 export class P5Preview {
 
-	private _window: Window | null = null;
-	private _isDocked = true;
-	private _isPaused = false;
-	private _isLoading = false;
+	private window: Window | null = null;
+	private isDocked = true;
+	private isPaused = false;
+	private isLoading = false;
 
-	private _previousScript: ProjectFile | null = null;
+	private previousScript: IProjectFile | null = null;
 
-	private _currentProject: Project | null = null;
-	get project() { return this._currentProject; }
-	set project(value: Project | null) {
-		this._currentProject = value;
+	constructor(private application: IApplication) {
+		
+	}
+
+
+	private currentProject: IProject | null = null;
+	get project() { return this.currentProject; }
+	set project(value: IProject | null) {
+		this.currentProject = value;
 		this.previewFile();
 	}
 
-	private _currentHtml: ProjectFile | null = null;
+	private _currentHtml: IProjectFile | null = null;
 	get currentHtml() { return this._currentHtml; }
 
-	previewFile(file?: ProjectFile) {
+	previewFile(file?: IProjectFile) {
 		ExtraLibs.dispose();
 
-		loadCompletePromise.then(() => {
-			this._currentHtml = file as ProjectFile;
-			if (file) {
-				if (this._currentProject)
-					this._currentProject.clearUsed();
-					
-				console.log("previewFile", file.path);
-				this._currentHtml.used = true;
-				this.loadPreview();
-				this._isLoading = true;
+		this._currentHtml = file as IProjectFile;
+		if (file) {
+			if (this.currentProject)
+				this.currentProject.clearUsed();
 
-				document.querySelector("#previewPanel > .panelHeader > span")!.textContent = this._currentHtml.name;
-			} else {
-				this.writePreview();
-			}
-		});
+			console.log("previewFile", file.path);
+			this._currentHtml.used = true;
+			this.loadPreview();
+			this.isLoading = true;
+
+			document.querySelector("#previewPanel > .panelHeader > span")!.textContent = this._currentHtml.name;
+		} else {
+			this.writePreview();
+		}
 	}
 
 
 	loadPreview(docked?: boolean) {
 
-		this._isLoading = false;
-		this._previousScript = null;
+		this.isLoading = false;
+		this.previousScript = null;
 		console.log("loadPreview");
 
 		const previewContainer = document.getElementById('previewContainer')!;
@@ -62,11 +63,11 @@ export class P5Preview {
 		consoleContainer.innerHTML = "";
 
 		if (docked === void 0)
-			docked = this._isDocked;
+			docked = this.isDocked;
 
 		//console.log("LOAD PREVIEW");
 		if (docked) {
-			this._window = null;
+			this.window = null;
 			const previewFrame = <HTMLIFrameElement>document.getElementById("previewFrame")!;
 			if (previewFrame)
 				previewFrame.src = _previewPage;
@@ -76,9 +77,9 @@ export class P5Preview {
 		else {
 
 			const rect = previewContainer.getBoundingClientRect();
-			if (this._isDocked) {
+			if (this.isDocked) {
 				const pr = window.devicePixelRatio;
-				this._window = window.open(_previewPage, "previewFrame",
+				this.window = window.open(_previewPage, "previewFrame",
 					"toolbar=0,status=0,menubar=0,location=0,replace=1" +
 					",width=" + Math.floor(pr * previewContainer.clientWidth) +
 					",height=" + Math.floor(pr * previewContainer.clientHeight) +
@@ -86,42 +87,43 @@ export class P5Preview {
 					",top=" + (window.screenY + Math.floor(pr * rect.top) + 26)
 				);
 				const interval = setInterval(() => {
-					if (!this._window || this._window.closed) {
+					if (!this.window || this.window.closed) {
 						clearInterval(interval);
 						this.loadPreview(true);
 					}
 				}, 250);
 			}
 			else {
-				this._window!.location.href = _previewPage;
+				this.window!.location.href = _previewPage;
 				window.focus();
 			}
 		}
 
-		if (this._isDocked !== docked) {
-			this._isDocked = docked;
+		if (this.isDocked !== docked) {
+			this.isDocked = docked;
 			document.body.classList.toggle("preview-docked", docked);
 			if (!docked)
 				previewContainer.innerHTML = "";
 			window.dispatchEvent(new Event("resize"));
-			//_editor && _editor.layout();
+			this.application.editor && this.application.editor.layout();
 		}
 	}
 
 	async frameLoaded(event: any) {
 
-		if (this._isDocked) {
+		if (this.isDocked) {
 			const frame = <HTMLIFrameElement>document.getElementById('previewFrame')!;
-			this._window = frame.contentWindow;
+			this.window = frame.contentWindow;
 		}
 
-		if (!this._window) {
+		if (!this.window) {
 			console.log("WARNING: no previewWindow");
 			return;
 		}
 
-		(<any>this._window)['__protect'] = loopProtect.protect;
-		const sw = this._window.navigator.serviceWorker;
+		loopProtect.alias = "__protect";
+		(<any>this.window)['__protect'] = loopProtect.protect;
+		const sw = this.window.navigator.serviceWorker;
 
 		/*
 		window.addEventListener('unload', event => {
@@ -147,16 +149,16 @@ export class P5Preview {
 			console.log('BASE', base);
 			this.writePreview(
 				"<base href='" + base + "'>"
-				+ "<script>(opener||parent).preview.onDidLoadPreview(window);</script>"
+				+ "<script>(opener||parent).app.preview.onDidLoadPreview(window);</script>"
 				+ html);
 		}, 1);
 
 		//console.log('registration failed', err);
 	}
 
-	async handleRequest(event:ServiceWorkerMessageEvent) {
+	async handleRequest(event: ServiceWorkerMessageEvent) {
 
-		if (!event.ports || !this._currentProject)
+		if (!event.ports || !this.currentProject)
 			return;
 
 		let blob: Blob | null = null;
@@ -168,9 +170,8 @@ export class P5Preview {
 		if (originalUrl.substring(0, originLength) === event.origin) {
 			let url = originalUrl.substring(originLength);
 
-			let file = this._currentProject.find(url);
-
-			if (file instanceof ProjectFolder) {
+			let node = this.currentProject.find(url);
+			if (node instanceof ProjectFolder) {
 				if (!url.endsWith("/")) {
 					return event.ports[0].postMessage({ redirect: originalUrl + "/" });
 				} else {
@@ -178,16 +179,16 @@ export class P5Preview {
 				}
 			}
 
-			if (!file) {
+			if (!node) {
 				try {
-					file = await this._currentProject.loadFile(url);
+					node = await this.currentProject.loadFile(url);
 				}
 				catch (err) {
 					if (err.status) {
 						return event.ports[0].postMessage({ statusText: err.statusText, status: err.status });
 					}
 				}
-				if (!file) {
+				if (!node) {
 					return event.ports[0].postMessage({ statusText: "not found", status: 404 });
 				}
 			}
@@ -200,7 +201,8 @@ export class P5Preview {
 			if (!file) {
 			}
 			*/
-			if (file instanceof ProjectFile) {
+			if (node instanceof ProjectFile) {
+				var file = node as IProjectFile;
 
 				file.used = true;
 
@@ -208,12 +210,12 @@ export class P5Preview {
 				switch (language) {
 					case SourceLanguage.Javascript:
 						if (['p5.js', 'p5.dom.js', 'p5.sound.js'].indexOf(file.name) < 0) {
-							if (this._isLoading)
-								this._previousScript = file;
+							if (this.isLoading)
+								this.previousScript = file;
 
 							const content = await file.fetchValue();
 
-							if (file !== _currentFile)
+							if (file !== this.application.currentFile)
 								ExtraLibs.add(file.name, content);
 							blob = new Blob([loopProtect(content)], { type: language && language.mimeType });
 						}
@@ -227,45 +229,64 @@ export class P5Preview {
 		event.ports[0].postMessage(blob);
 	}
 
-
 	writePreview(html?: string) {
-		if (this._window) {
-			this._window.document.open();
-			this._window.document.clear();
+		if (this.window) {
+			this.window.document.open();
+			this.window.document.clear();
 			if (html)
-				this._window.document.write(html);
-			this._window.document.close();
+				this.window.document.write(html);
+			this.window.document.close();
 		}
 	}
 
 	onDidLoadPreview(previewWindow: any) {
-		if (this._isLoading) {
+		if (this.isLoading) {
 			previewWindow.document.addEventListener('DOMContentLoaded', () => {
-				loadFile(this._previousScript || this._currentHtml);
+				this.application.loadFile(this.previousScript || this._currentHtml);
 			});
 		}
-		previewWindow.addEventListener('error', handlePreviewError);
+		previewWindow.addEventListener('error', this.handlePreviewError);
 		const consoleContainer = document.getElementById("consoleContainer")!;
 		new ProxyConsole(previewWindow.console, row => {
 			const scroll = consoleContainer.scrollTop >= consoleContainer.scrollHeight - consoleContainer.clientHeight - 5;
 			consoleContainer.appendChild(row);
 			if (scroll)
 				consoleContainer.scrollTop = consoleContainer.scrollHeight - consoleContainer.clientHeight;
-			setConsoleVisibility();
+				this.setConsoleVisibility();
 		});
 	}
 
-	updateFile(file: ProjectFile) {
+	handlePreviewError(event: ErrorEvent) {
 
-		if (!this._window)
+		this.setConsoleVisibility();
+
+		if (this.currentProject) {
+			const consoleContainer = document.getElementById("consoleContainer")!;
+			const control = new PreviewError(this.application, event);
+			consoleContainer.appendChild(control.render());
+		}
+	}
+
+	setConsoleVisibility(show: boolean = true) {
+		const isVisible = document.body.classList.contains("console-visible");
+		if (isVisible != show) {
+			document.body.classList.toggle("console-visible", show);
+			this.application.editor.layout();
+		}
+	}
+
+
+	updateFile(file: IProjectFile) {
+
+		if (!this.window)
 			return;
 
 		switch (file.language) {
 			case SourceLanguage.Css:
-				const url = this._window.location.origin + "/" + file.path;
+				const url = this.window.location.origin + "/" + file.path;
 
 				let found = false;
-				(<StyleSheet[]>[]).slice.call(this._window.document.styleSheets)
+				(<StyleSheet[]>[]).slice.call(this.window.document.styleSheets)
 					.filter((ss: StyleSheet) => ss.href === url)
 					.forEach((ss: StyleSheet) => {
 						const linkNode = <HTMLLinkElement>ss.ownerNode;
@@ -280,10 +301,10 @@ export class P5Preview {
 		}
 	}
 
-	get paused() { return this._isPaused; }
+	get paused() { return this.isPaused; }
 	set paused(paused: boolean) {
-		if (this._isPaused !== paused) {
-			this._isPaused = paused;
+		if (this.isPaused !== paused) {
+			this.isPaused = paused;
 			if (!paused)
 				this.loadPreview();
 		}
