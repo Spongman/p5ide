@@ -67,7 +67,7 @@ gulp.task('node_modules', () => {
 copy all html files and assets
 */
 gulp.task('html', () =>
-	gulp.src('src/**/*.html')
+	gulp.src(['src/**/*.html', 'src/.nojekyll'])
 		.pipe(gulp.dest('dist'))
 		.pipe(browserSync.reload({ stream: true, once: true }))
 );
