@@ -40,7 +40,7 @@ gulp.task('typescript', () =>
 		//.pipe(gulp.dest("dist/js"))
 		//.pipe(buffer())
 		.pipe(config.production ? uglify() : noop())
-		//.pipe(sourcemaps.write('.'))
+		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest("dist"))
 		.pipe(browserSync.reload({ stream: true, once: true }))
 );
@@ -50,7 +50,7 @@ gulp.task('javascript', () =>
 	gulp.src('src/**/*.js')
 		.pipe(sourcemaps.init())
 		.pipe(config.production ? uglify() : noop())
-		//.pipe(sourcemaps.write('.'))
+		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('dist'))
 		.pipe(browserSync.reload({ stream: true, once: true }))
 );
@@ -88,7 +88,7 @@ gulp.task('less', () =>
 			"maxLineLen": 80,
 			"uglyComments": true
 		}) : noop())
-		//.pipe(sourcemaps.write('.'))
+		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('dist/styles'))
 		.pipe(browserSync.reload({ stream: true, once: true }))
 );
