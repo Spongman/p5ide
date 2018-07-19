@@ -1,4 +1,3 @@
-///<reference path="loop-protect.d.ts"/>
 import { ExtraLibs } from './utils';
 import { ProxyConsole } from './proxyConsole';
 import { SourceLanguage } from "./SourceLanguage";
@@ -248,7 +247,7 @@ export class P5Preview {
 				this.application.loadFile(this.previousScript || this._currentHtml);
 			});
 		}
-		previewWindow.addEventListener('error', this.handlePreviewError);
+		previewWindow.addEventListener('error', (error:ErrorEvent) => this.handlePreviewError(error));
 		const consoleContainer = document.getElementById("consoleContainer")!;
 		new ProxyConsole(previewWindow.console, row => {
 			const scroll = consoleContainer.scrollTop >= consoleContainer.scrollHeight - consoleContainer.clientHeight - 5;

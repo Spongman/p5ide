@@ -2,7 +2,7 @@ export class ProxyConsole {
 
 	constructor(console: any, protected addRow: (elt: HTMLElement) => void) {
 		const _this: any = this;
-		for (const prop in ProxyConsole.prototype) {
+		for (const prop in Object.getOwnPropertyDescriptors(ProxyConsole.prototype)) {
 			const orig: Function = console[prop];
 			const override: Function = _this[prop];
 			console[prop] = function () {
