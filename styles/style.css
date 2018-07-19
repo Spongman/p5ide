@@ -53,3 +53,4 @@ body:not(.preview-docked) .preview-docked-show,body:not(.console-visible) .conso
 fieldset.vertical>input[type='submit']{float:right}fieldset.horizontal>input,fieldset.horizontal>label{display:inline-block}
 fieldset button.link{display:block}button.link,button.link:focus,button.link:active{background:0;border:0;display:inline;font:inherit;margin:0;padding:0;outline:0;outline-offset:0;color:inherit;cursor:pointer}
 button.link:hover{text-decoration:underline}button.link::-moz-focus-inner{border:0;padding:0}
+/*# sourceMappingURL=style.css.map */
