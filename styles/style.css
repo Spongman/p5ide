@@ -28,20 +28,21 @@ footer>div>div{padding:0 10px}footer>div>div:first-child{padding-left:0}footer>d
 select{background:inherit;color:inherit}select option{color:inherit}input{border:1px solid #888;border-radius:3px;padding:5px 7px}
 .fa{position:relative}.fa .fa-overlay{position:absolute;font-size:50%;left:-0.4em;top:-0.3em;opacity:1}
 body.theme-vs,body.theme-vs .dialog>*{background:#fffffe;color:#333}body.theme-vs a{color:#2c2c2c}
-body.theme-vs a>i.fa,body.theme-vs button.link{color:#518cc8}body.theme-vs header,body.theme-vs footer,body.theme-vs .flex-horizontal>span,body.theme-vs .flex-vertical>span{background:#ccc}
+body.theme-vs a>i.fa,body.theme-vs button.link{color:hsl(210,52%,55%)}body.theme-vs header,body.theme-vs footer,body.theme-vs .flex-horizontal>span,body.theme-vs .flex-vertical>span{background:#ccc}
 body.theme-vs .sourceNode>div:hover,body.theme-vs-dark select option{background:#e5ebf1}
 body.theme-vs .sourceNode.selected>div{background:#add6ff}body.theme-vs .panelHeader{background:#eee;border-bottom:1px solid #ddd}
 body.theme-vs .console-info{background:#ffffc8}body.theme-vs .console-warn{background:#ebf5ff}
 body.theme-vs .console-error{background:#ffebeb}body.theme-vs .fa .fa-overlay{color:black;text-shadow:1px 0 2px #ddd,-1px 0 2px #ddd,0 1px 2px #ddd,0 -1px 2px #ddd}
 body.theme-vs-dark,body.theme-vs-dark select,body.theme-vs-dark input,body.theme-vs-dark .dialog>*{background:#1e1e1e;color:#d4d4d4}
-body.theme-vs-dark a{color:#d4d4d4}body.theme-vs-dark a>i.fa,body.theme-vs-dark button.link{color:#8bb2da}
+body.theme-vs-dark a{color:#d4d4d4}body.theme-vs-dark a>i.fa,body.theme-vs-dark button.link{color:hsl(210,52%,70%)}
 body.theme-vs-dark header,body.theme-vs-dark footer,body.theme-vs-dark .flex-horizontal>span,body.theme-vs-dark .flex-vertical>span{background:#333}
 body.theme-vs-dark .sourceNode>div:hover,body.theme-vs-dark select option{background:#3a3d41}
 body.theme-vs-dark .sourceNode.selected>div{background:#264f78}body.theme-vs-dark .panelHeader{background:#444;border-bottom:1px solid #444}
 body.theme-vs-dark .console-info{background:#383800}body.theme-vs-dark .console-warn{background:#000a14}
 body.theme-vs-dark .console-error{background:#140000}body.theme-vs-dark .fa .fa-overlay{color:#ffc;text-shadow:1px 0 2px #1e1e1e,-1px 0 2px #1e1e1e,0 1px 2px #1e1e1e,0 -1px 2px #1e1e1e}
 body.theme-hc-black,body.theme-hc-black .dialog>*{background:black;color:white}body.theme-hc-black a{color:#ccc}
-body.theme-hc-black a>i.fa,body.theme-hc-black button.link{color:#cce5ff}body.theme-hc-black .flex-horizontal>span,body.theme-hc-black .flex-vertical>span{background:#888}
+body.theme-hc-black a>i.fa,body.theme-hc-black button.link{color:hsl(210,100%,90%)}
+body.theme-hc-black .flex-horizontal>span,body.theme-hc-black .flex-vertical>span{background:#888}
 body.theme-hc-black .sourceNode>div:hover{background:white;color:black}body.theme-hc-black select option{background:black;color:white}
 body.theme-hc-black .sourceNode.selected>div{background:white;color:black}body.theme-hc-black .panelHeader{background:#111;border-bottom:1px solid #111}
 body.theme-hc-black .fa .fa-overlay{color:yellow;text-shadow:1px 0 2px black,-1px 0 2px black,0 1px 2px black,0 -1px 2px black}
