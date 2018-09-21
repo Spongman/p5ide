@@ -177,7 +177,8 @@
 	<script>
 		var app;
 		var appendReactChild;
-		require(['vs/language/typescript/monaco.contribution', "index"], function (_, index) {
+		//require(['vs/language/typescript/monaco.contribution', "index"], function (_, index) {
+		require(['vs/editor/editor.main', "index"], function (_, index) {
 			appendReactChild = index.Application.appendReactChild;
 			app = new index.Application();
 			app.start();
