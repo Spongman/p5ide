@@ -117,7 +117,7 @@ gulp.on('err', (e) =>
 gulp.task('browser-sync', () =>
 	browserSync.init(null, {
 		server: {
-			baseDir: "."
+			baseDir: "./dist/"
 		}
 	})
 );

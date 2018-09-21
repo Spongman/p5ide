@@ -16,8 +16,8 @@ declare global {
 }
 
 const libs = [
-	"assets/p5.d.ts",
-	"assets/p5.global-mode.d.ts",
+	"assets/types/index.d.ts",
+	"assets/types/global.d.ts",
 	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
 ];
 
