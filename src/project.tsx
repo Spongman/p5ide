@@ -1,6 +1,7 @@
 import { SourceLanguage } from "./SourceLanguage";
 import { MyReact } from "./MyReact";
 import { SourceNodeEvent, blobToString } from "./utils";
+import { P5Editor } from "./monaco";
 
 export abstract class ProjectNode implements monaco.IDisposable, IProjectNode {
 
@@ -457,7 +458,7 @@ export class ProjectFile
 
 	protected createModel(content: string) {
 		if (!this.model)
-			this.model = monaco.editor.createModel(content, this.languageName, monaco.Uri.parse(this.path));
+			this.model = monaco.editor.createModel(content, this.languageName, P5Editor.parseUrl(this.path));
 		return this.model;
 	}
 

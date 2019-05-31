@@ -16,8 +16,8 @@ declare global {
 }
 
 const libs = [
-	"assets/types/index.d.ts",
-	"assets/types/global.d.ts",
+	"./assets/types/index.d.ts",
+	"./assets/types/global.d.ts",
 	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
 ];
 
@@ -312,6 +312,9 @@ export class Application implements IApplication {
 
 		document.querySelector("#projectOpenDialog")!.addEventListener("submit", async event => {
 			event.preventDefault();
+
+			if (!document.activeElement)
+				return;
 
 			const form = event.target as HTMLFormElement;
 			const urlElement = (document.activeElement.tagName === "BUTTON" ? document.activeElement : form.elements.namedItem("url")) as HTMLInputElement;

@@ -93,6 +93,14 @@ gulp.task('less', () =>
 		.pipe(browserSync.reload({ stream: true, once: true }))
 );
 
+gulp.task('browser-sync', () =>
+	browserSync.init(null, {
+		server: {
+			baseDir: "./dist/"
+		}
+	})
+);
+
 /*
 Watch typescript and less
 */
@@ -113,14 +121,6 @@ gulp.on('err', (e) =>
 	console.log(e.err.stack)
 );
 
-
-gulp.task('browser-sync', () =>
-	browserSync.init(null, {
-		server: {
-			baseDir: "./dist/"
-		}
-	})
-);
 
 /*
 default task

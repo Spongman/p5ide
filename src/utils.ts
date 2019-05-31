@@ -79,7 +79,7 @@ export async function cachedFetch(url: string): Promise<Response> {
 			response = await cache.match(url);
 			//console.log("MATCH", response);
 		}
-		return response;
+		return response!;
 	}
 	else if (window.localStorage) {
 
@@ -154,7 +154,7 @@ export function parseUrl(url: string) {
 export function blobToString(blob: Blob): Promise<string> {
 	return new Promise<string>((resolve, reject) => {
 		const reader = new FileReader();
-		reader.addEventListener('loadend', e => resolve(reader.result));
+		reader.addEventListener('loadend', e => resolve(reader.result as string));
 		reader.addEventListener('error', reject);
 		reader.addEventListener('abort', reject);
 		reader.readAsText(blob);

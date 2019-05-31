@@ -158,8 +158,9 @@ export class P5Preview {
 		//console.log('registration failed', err);
 	}
 
-	async handleRequest(event: ServiceWorkerMessageEvent) {
+	async handleRequest(event: MessageEvent) {
 
+		//ServiceWorkerMessageEvent
 		if (!event.ports || !this.currentProject)
 			return;
 

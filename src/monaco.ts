@@ -18,8 +18,8 @@ class SimpleModel {
 		return this._onDispose.event;
 	}
 
-	public load(): monaco.Promise<SimpleModel> {
-		return monaco.Promise.as(this);
+	public async load(): Promise<SimpleModel> {
+		return this;
 	}
 
 	public get textEditorModel(): monaco.editor.IModel {
@@ -39,7 +39,7 @@ class SimpleEditorModelResolverService {
 		this.editor = editor;
 	}
 
-	public createModelReference(resource: monaco.Uri): monaco.Promise<ImmortalReference<SimpleModel | null>> {
+	public async createModelReference(resource: monaco.Uri): Promise<ImmortalReference<SimpleModel | null>> {
 
 		if (!this.editor)
 			throw new Error("not editor set yet");
@@ -52,7 +52,7 @@ class SimpleEditorModelResolverService {
 			model = this.findModel(diffEditor.getOriginalEditor(), resource) || this.findModel(diffEditor.getModifiedEditor(), resource);
 		}
 		const simpleModel = model ? new SimpleModel(model) : null;
-		return monaco.Promise.as(new ImmortalReference(simpleModel));
+		return new ImmortalReference(simpleModel);
 	}
 
 	public registerTextModelContentProvider(scheme: string, provider: any): monaco.IDisposable {
@@ -73,20 +73,22 @@ class EditorService {
 		this._editor = editor;
 	}
 
-	openEditor(options: any, sideBySide: boolean) {
+	async openEditor(options: any, sideBySide: boolean) {
 		const model = monaco.editor.getModel(options.resource.path);
 		if (!model)
-			return monaco.Promise.as(null);
+			return null;
 		if (!this._editor)
 			throw new Error("no editor set yet");
 		this._editor.setModel(model);
 		if (options.options.selection) {
 			this._editor.setSelection(options.options.selection);
 			const top = this._editor.getTopForLineNumber(options.options.selection.startLineNumber);
-			this._editor.setScrollTop(top - this._editor.getDomNode().clientHeight * 2 / 5);//.setScrollPosition(200);
+			const domNode = this._editor.getDomNode();
+			if (domNode)
+				this._editor.setScrollTop(top - domNode.clientHeight * 2 / 5);//.setScrollPosition(200);
 		}
 		this._editor.focus();
-		return monaco.Promise.as(null);
+		return null;
 	};
 
 	resolveEditor() {
@@ -114,6 +116,12 @@ export class P5Editor {
 		//renderIndentGuides: true,
 		theme: 'vs-dark',
 	};
+
+	public static parseUrl(url:string):monaco.Uri {
+		if (!monaco.Uri.isUri(url))
+			url = window.origin + "/" + url;
+		return monaco.Uri.parse(url);
+	}
 
 	constructor(libs: IPreloadLibrary[]) {
 
@@ -150,7 +158,9 @@ export class P5Editor {
 			monaco.languages.typescript.javascriptDefaults.addExtraLib(lib.text, lib.url);
 		});
 		libs.forEach((lib, i: number) => {
-			monaco.editor.createModel(lib.text, "typescript", monaco.Uri.parse(lib.url));
+			const url = P5Editor.parseUrl(lib.url);
+			// monaco.Uri.parse(lib.url)
+			monaco.editor.createModel(lib.text, "typescript", url);
 		});
 
 	}
