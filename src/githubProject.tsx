@@ -43,13 +43,6 @@ export class GitHubProject extends Project {
 		}
 
 		return project;
-
-		/*
-		https://api.github.com/repos/processing/p5.js-website/git/trees/6e0333b1146068043d55f00295ef80858df7c3ae
-		https://api.github.com/repos/processing/p5.js-website/git/blobs/e64ba0d13cdfaa5858083f724e2232975d22a25e
-		https://raw.githubusercontent.com/CodingTrain/Rainbow-Code/cdd39f127bc0d3389c61d78b86e89c251d963c78/README.md
-		https://cdn.rawgit.com/CodingTrain/Rainbow-Code/cdd39f127bc0d3389c61d78b86e89c251d963c78/README.md
-		*/
 	}
 
 	addFile(path: string, sha: string, type: string) {
@@ -72,6 +65,6 @@ class GitHubFile extends ProjectFile {
 	protected async fetch(): Promise<Response> {
 
 		let project = this.project as GitHubProject;
-		return await fetch(`https://cdn.rawgit.com/${project.user}/${project.repo}/${project.sha}${project.root}/${this.path}`);
+		return await fetch(`https://raw.githubusercontent.com/${project.user}/${project.repo}/${project.sha}${project.root}/${this.path}`);
 	}
 }

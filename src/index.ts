@@ -18,7 +18,7 @@ declare global {
 const libs = [
 	"./assets/types/index.d.ts",
 	"./assets/types/global.d.ts",
-	"https://cdn.rawgit.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts",
+	"https://raw.githubusercontent.com/Microsoft/TypeScript/master/lib/lib.es5.d.ts"
 ];
 
 export class Application implements IApplication {
