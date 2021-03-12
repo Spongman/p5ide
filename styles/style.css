@@ -1,4 +1,4 @@
-*{box-sizing:border-box}@font-face{font-family:'Fira Code';font-style:normal;font-weight:400;src:url(https://cdn.rawgit.com/tonsky/FiraCode/bbd33d9e/distr/woff2/FiraCode-Medium.woff2) format('woff2')}
+*{box-sizing:border-box}@font-face{font-family:'Fira Code';font-style:normal;font-weight:400;src:url(https://raw.githack.com/tonsky/FiraCode/bbd33d9e/distr/woff2/FiraCode-Medium.woff2) format('woff2')}
 html,body{border:0;margin:0;height:100%;font-family:'Segoe WPC','Segoe UI','SFUIText-Light','HelveticaNeue-Light',sans-serif;font-size:14px}
 ul,li{display:block;margin:0;padding:0}header h1{font-size:10pt;display:inline-block;margin:1px 20px 1px 1px}
 a{color:#d4d4d4;text-decoration:none}a i.fa{opacity:.5;transition:opacity .2s}a i.fa:hover{opacity:1 !important}
