@@ -223,6 +223,11 @@ export class P5Preview {
 							blob = new Blob([loopProtect(content)], { type: language && language.mimeType });
 						}
 						break;
+					default: {
+						const content = await file.fetchValue();
+						blob = new Blob([content], { type: language && language.mimeType });
+						break;
+					}
 				}
 
 				if (!blob)
